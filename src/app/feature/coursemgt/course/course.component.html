@@ -1,0 +1,114 @@
+
+<p-toast></p-toast> <!-- PrimeNG Toast for messages -->
+
+<p-toolbar styleClass="mb-4">
+   
+    <ng-template #start> 
+        <p-button  label="New Course" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" 
+        *ngxPermissionsOnly="['course.create',]"
+                                                           
+        />
+        <!-- <p-button  severity="danger" label="Delete Selected" icon="pi pi-trash" outlined (onClick)="deleteSelectedUsers()"
+            [disabled]="!selectedUsers || !selectedUsers.length" /> -->
+    </ng-template>
+
+    <ng-template #end>
+        <p-button label="Export CSV" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+    </ng-template>
+</p-toolbar>
+
+<!-- PrimeNG Table for User Listing -->
+<p-table #dt 
+    [value]="(courses$ | async) ?? []"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [globalFilterFields]="['courseCode','courseName']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedUsers"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Courses</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+
+    <ng-template #header>
+        <tr>
+            <th pSortableColumn="id" style="min-width: 0.1rem">
+                    
+                <!-- <p-sortIcon field="id" /> -->
+            </th>
+            <th pSortableColumn="courseCode" style="min-width: 5rem">
+                courseCode    
+                <p-sortIcon field="courseCode" />
+            </th>
+           
+            <th pSortableColumn="role" style="min-width: 5rem">
+                courseName
+                <p-sortIcon field="courseName" />
+            </th>
+           
+            <th pSortableColumn="description" style="min-width: 5rem">
+                description
+                <p-sortIcon field="description" />
+            </th>
+         
+        </tr>
+    </ng-template>
+
+    <ng-template #body let-course>
+        <tr>
+          
+            <!-- <td>{{course.id}}</td> -->
+            <td></td>
+            <td>{{course.courseCode}}</td>
+            <td>{{course.courseName}}</td> 
+            <td>{{course.description}}</td>
+           
+           
+           <td>
+                 <span *ngIf="authService.getUserId()==course.createdByUserId">.</span>
+                   <p-button  icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"  (click)="editCourse(course)" *ngIf="(course.canEdit$|async)"></p-button>
+                 <p-button  icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"  [disabled]="true"        *ngIf="!(course.canEdit$|async)"></p-button>
+              
+                 <p-button  icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" *ngIf="(course.canDelete$|async)" (click)="deleteCourse(course)" />
+                 <p-button  icon="pi pi-trash" class="mr-2" [rounded]="true" [outlined]="true"     *ngIf="!(course.canDelete$|async)" [disabled]="true"></p-button>
+            </td> <!--  -->
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-confirmDialog></p-confirmDialog> 
+
+ <!-- Dialog for User Details (Create/Edit Form) --> <!--width: '450px' -->
+ <p-dialog [(visible)]="courseDialog" [style]="{ width: '850px' }" [header]="dialogHeader" [modal]="true">
+
+                <!--purposelynot kept inside ng-template-->
+                <ng-template #content  ></ng-template>
+
+                  <form [formGroup]="form" (ngSubmit)="onSubmit()"><!--(ngSubmit)="saveUser()"-->
+                <formly-form [form]="form" [fields]="(formFields | async) ?? []" [model]="model"></formly-form>
+                aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                <div></div>
+                <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+                 <p-button type="submit">Submit</p-button>
+                 </form>  
+                                
+                <!-- <ng-template #footer>
+                    <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+                    <p-button label="Save" (click)="saveUser()"  icon="pi pi-check" /> 
+                </ng-template> -->
+       
+    
+</p-dialog>

@@ -1,0 +1,124 @@
+<p>signupandregister works!</p>
+
+
+<p-toast></p-toast> <!-- PrimeNG Toast for messages -->
+
+<div class="card p-4 mx-auto max-w-2xl"> <!-- Added mx-auto max-w-2xl for centering and max width -->
+    <h2 class="text-3xl font-bold mb-6 text-center">Sign Up & Get Started!</h2>
+
+    <div *ngIf="isLoading" class="text-center p-4">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+        <p class="mt-2">Registering your account...</p>
+    </div>
+<!--app-personlist-->
+<!-- <div *ngIf="selectedPerson">{{selectedPerson.firstName}}</div> -->
+    <div><app-personlist [fromUserMgt]="true" (personSelected)="onPersonSelected($event)"></app-personlist></div>
+
+    <div *ngIf="!isLoading">
+        <form [formGroup]="signupForm" (ngSubmit)="onRegister()">
+            <!-- Common User Registration Fields -->
+            <div class="mb-4">
+                <label for="userName" class="block font-bold mb-2">Email (Username)</label>
+                <input pInputText id="userName" type="email" formControlName="userName" class="w-full" />
+                <small class="p-error" *ngIf="signupForm.get('userName')?.invalid && signupForm.get('userName')?.touched">
+                    <ng-container *ngIf="signupForm.get('userName')?.errors?.['required']">Email is required.</ng-container>
+                    <ng-container *ngIf="signupForm.get('userName')?.errors?.['email']">Invalid email format.</ng-container>
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label for="displayName" class="block font-bold mb-2">Display Name</label>
+                <input pInputText id="displayName" type="text" formControlName="displayName" class="w-full" />
+                <small class="p-error" *ngIf="signupForm.get('displayName')?.invalid && signupForm.get('displayName')?.touched">
+                    Display Name is required.
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="block font-bold mb-2">Password</label>
+                <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true" [strongRegex]="'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'" class="w-full"></p-password>
+                <small class="p-error" *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
+                    <ng-container *ngIf="signupForm.get('password')?.errors?.['required']">Password is required.</ng-container>
+                    <ng-container *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</ng-container>
+                    <ng-container *ngIf="signupForm.get('password')?.errors?.['strongRegex']">Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.</ng-container>
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label for="confirmPassword" class="block font-bold mb-2">Confirm Password</label>
+                <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" [feedback]="false" class="w-full"></p-password>
+                <small class="p-error" *ngIf="signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched">
+                    <ng-container *ngIf="signupForm.get('confirmPassword')?.errors?.['required']">Confirm Password is required.</ng-container>
+                    <ng-container *ngIf="signupForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwords do not match.</ng-container>
+                </small>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-6 mb-3">Your Space Details</h3>
+
+            <!-- Tenant Type Selection -->
+            <div class="mb-4">
+                <label for="tenantType" class="block font-bold mb-2">What type of account are you creating?</label>
+                <p-dropdown id="tenantType" formControlName="tenantType" [options]="tenantTypes" optionLabel="label" optionValue="value" placeholder="Select Account Type" class="w-full"></p-dropdown>
+                <small class="p-error" *ngIf="signupForm.get('tenantType')?.invalid && signupForm.get('tenantType')?.touched">
+                    Account Type is required.
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label for="roleType" class="block font-bold mb-2">What type of role are you creating?</label>
+                <p-dropdown id="roleType" formControlName="roleType" [options]="roleTypes" optionLabel="label" optionValue="value" placeholder="Select Account Type" class="w-full"></p-dropdown>
+                <small class="p-error" *ngIf="signupForm.get('roleType')?.invalid && signupForm.get('roleType')?.touched">
+                    Account Type is required.
+                </small>
+            </div>
+
+            <!-- Tenant Name -->
+            <div class="mb-4">
+                <label for="tenantName" class="block font-bold mb-2">Name of your Space (e.g., "My Classroom", "ABC Institute")</label>
+                <input pInputText id="tenantName" type="text" formControlName="tenantName" class="w-full" />
+                <small class="p-error" *ngIf="signupForm.get('tenantName')?.invalid && signupForm.get('tenantName')?.touched">
+                    A name for your space is required.
+                </small>
+            </div>
+
+            <!-- Initial Subscription Plan Selection -->
+            <div class="mb-4">
+                <label for="subscriptionPlan" class="block font-bold mb-2">Choose Your Plan</label>
+                <p-dropdown id="subscriptionPlan" formControlName="subscriptionPlan" [options]="subscriptionPlans" optionLabel="label" optionValue="value" placeholder="Select a Plan" class="w-full"></p-dropdown>
+                <small class="p-error" *ngIf="signupForm.get('subscriptionPlan')?.invalid && signupForm.get('subscriptionPlan')?.touched">
+                    A subscription plan is required.
+                </small>
+            </div>
+
+            <!-- Dynamic Fields based on Selected Tenant Type -->
+            <ng-container *ngIf="dynamicFieldRows.length > 0">
+                <h3 class="text-xl font-semibold mt-6 mb-3">Additional Details</h3>
+                <div *ngFor="let row of dynamicFieldRows" class="flex flex-col md:flex-row gap-6 mb-4">
+                    <div *ngFor="let field of row" class="flex flex-wrap gap-2 w-full">
+                        <label [for]="field.key" class="block font-bold mb-2">{{ field.label }}</label>
+                        <ng-container [ngSwitch]="field.type">
+                            <input *ngSwitchCase="'text'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <input *ngSwitchCase="'email'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <input *ngSwitchCase="'url'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <input *ngSwitchCase="'number'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <p-dropdown *ngSwitchCase="'dropdown'" [id]="field.key" [formControlName]="field.key" [options]="field.options" optionLabel="label" optionValue="value" placeholder="Select"></p-dropdown>
+                            <ng-template ngSwitchDefault>
+                                <input pInputText [id]="field.key" type="text" [formControlName]="field.key" class="w-full" />
+                            </ng-template>
+                        </ng-container>
+
+                        <small class="p-error" *ngIf="signupForm.get(field.key)?.invalid && signupForm.get(field.key)?.touched">
+                            <ng-container *ngIf="signupForm.get(field.key)?.errors?.['required']">{{ field.label }} is required.</ng-container>
+                            <ng-container *ngIf="signupForm.get(field.key)?.errors?.['minlength']">Min length is {{ field.minLength }}.</ng-container>
+                            <ng-container *ngIf="signupForm.get(field.key)?.errors?.['maxlength']">Max length is {{ field.maxLength }}.</ng-container>
+                            <ng-container *ngIf="signupForm.get(field.key)?.errors?.['email']">Invalid email format.</ng-container>
+                            <ng-container *ngIf="signupForm.get(field.key)?.errors?.['pattern']">Invalid format.</ng-container>
+                        </small>
+                    </div>
+                </div>
+            </ng-container>
+
+            <p-button label="Register" type="submit" [disabled]="signupForm.invalid || isLoading" class="mt-6 w-full"></p-button>
+        </form>
+    </div>
+</div>

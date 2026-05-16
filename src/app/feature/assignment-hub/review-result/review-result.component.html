@@ -1,0 +1,94 @@
+
+
+
+
+
+<p-checkbox [(ngModel)]="showAnswers" [binary]="true" ></p-checkbox>
+<label [for]="showAnswers" class="m-20"><span *ngIf="!showAnswers">Show Answers</span><span *ngIf="showAnswers">Show Result</span> </label> 
+<br/>
+<br/>
+<br/>
+<div class="p-field-radiobutton">
+    <p-radioButton name="gender" value="male" [(ngModel)]="selectedGender"></p-radioButton>
+    <label for="male">Male</label>
+  </div>
+
+  <div class="p-field-radiobutton">
+    <p-radioButton name="gender" value="female" [(ngModel)]="selectedGender"></p-radioButton>
+    <label for="female">Female</label>
+  </div>
+
+  <div class="flex flex-wrap gap-4">
+    <div class="flex items-center">
+        <p-radiobutton name="pizza" value="Cheese" [(ngModel)]="ingredient" inputId="ingredient1" />
+        <label for="ingredient1" class="ml-2">Cheese</label>
+    </div>
+
+    <div class="flex items-center">
+        <p-radiobutton name="pizza" value="Mushroom" [(ngModel)]="ingredient" inputId="ingredient2" />
+        <label for="ingredient2" class="ml-2">Mushroom</label>
+    </div>
+
+    <div class="flex items-center">
+        <p-radiobutton name="pizza" value="Pepper" [(ngModel)]="ingredient" inputId="ingredient3" />
+        <label for="ingredient3" class="ml-2">Pepper</label>
+    </div>
+
+    <div class="flex items-center">
+        <p-radiobutton name="pizza" value="Onion" [(ngModel)]="ingredient" inputId="ingredient4" />
+        <label for="ingredient4" class="ml-2">Onion</label>
+    </div>
+</div>
+
+
+<p-card *ngIf="!showAnswers" [style]="{ width: '25rem', overflow: 'hidden' }">
+    <!-- <ng-template #header>
+        <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
+    </ng-template> -->
+    <ng-template #title> Your progress </ng-template>
+    <ng-template #subtitle> Card subtitle </ng-template>
+    <p class="m-5">
+        Correct:{{reviewResult.countCorrect}}
+    </p>
+    <p class="m-5">
+        InCorrect: {{reviewResult.countInCorrect}}
+    </p>
+    <p class="m-5">
+        percentage: {{reviewResult.percentage}}
+    </p>
+    <p class="m-5">
+        Result: {{reviewResult.resultString}}
+    </p>
+    <ng-template #footer>
+        <div class="flex gap-4 mt-1">
+            <p-button label="Cancel" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
+            <p-button label="Save" class="w-full" styleClass="w-full" />
+        </div>
+    </ng-template>
+</p-card>
+
+
+<p-card *ngIf="showAnswers"  [style]="{ width: '50rem', overflow: 'hidden' }">
+    <!-- <ng-template #header>
+        <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
+    </ng-template> -->
+    <ng-template #title> Your Answers </ng-template>
+    <ng-template #subtitle> Card subtitle </ng-template>
+        <div *ngFor="let a_stud_quesanswers of stud_quesanswers">
+                <p class="m-5" style="border:1px solid gold; border-radius: 2px;padding:5px">
+                    {{a_stud_quesanswers.question.questionText}}
+                    <br/>
+                  <br/>  Answer:{{a_stud_quesanswers.studentAnswerContent}}
+                
+                   <span *ngIf="a_stud_quesanswers.isCorrect">    <i class="pi pi-check ml-5"></i></span>
+                   <span *ngIf="!a_stud_quesanswers.isCorrect">        <i class="pi pi-times  ml-5"></i></span>
+                </p>
+     </div>
+    <ng-template #footer>
+        <div class="flex gap-4 mt-1">
+            <p-button label="Cancel" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
+            <p-button label="Save" class="w-full" styleClass="w-full" />
+        </div>
+    </ng-template>
+</p-card>
+

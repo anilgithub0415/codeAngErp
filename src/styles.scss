@@ -1,0 +1,37 @@
+/* You can add global styles to this file, and also import other style files */
+@use './tailwind.css';
+@use './assets/layout/layout.scss';
+@use 'primeicons/primeicons.css';
+@use './assets/demo/demo.scss';
+
+.options-container {
+    display: flex;
+    flex-direction: column; /* Stacks options vertically */
+    width: 100%; /* You can adjust this width as needed */
+    gap: 15px; /* Adds vertical space between each option */
+
+    .option-item {
+        display: flex;
+        flex-direction: row; /* Arranges inner items horizontally */
+        justify-content: left;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px; width: 100%;
+    }
+    
+}
+    // .options-container{
+    //     .option-item{
+    //   .select-your-answer{
+    //      display: flex; flex-direction: row;
+    //   }}
+    //   }
+      
+
+
+
+  /* Target the input element specifically inside the formly field .custom-width-input-question-text*/
+.custom-width-input-question-text input {
+    width: 500px;  word-wrap: break-word;  word-break: break-all; font-weight:normal; font-size: 1.1rem;;
+  }
+      

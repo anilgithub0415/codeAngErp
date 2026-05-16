@@ -1,0 +1,36 @@
+// theme-light.scss
+
+@use '@angular/material' as mat;
+@include mat.core();
+
+
+//$light-primary: mat.m2-define-palette(mat.$m2-indigo-palette, 500);
+
+$light-primary: mat.m2-define-palette(mat.$m2-red-palette, 500);//teal
+$light-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+
+$light-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+
+
+$light-theme: mat.m2-define-light-theme((
+  
+color: (
+    
+	primary: $light-primary,
+    
+	accent: $light-accent,
+    
+	warn: $light-warn,
+  
+	)
+
+));
+
+
+
+@include mat.core();
+
+@include mat.all-component-themes($light-theme);
+
+

@@ -1,0 +1,52 @@
+
+rcomp:{{field!.fieldGroup!.length}}
+ <div *ngIf="field && field!.fieldGroup && field!.fieldGroup">field!.fieldGroup?.length:{{field | json}} </div>
+<!--<div *ngIf="field && field!.fieldGroup && field!.fieldGroup?.length" >
+    
+    <fieldset >
+      <legend *ngIf="field.props.label">{{ field.props.label }}</legend>
+      <p *ngIf="field.props.description">{{ field.props.description }}</p>
+
+    
+      <div  class="options-container" >
+
+
+      
+        <div *ngFor="let subField of field.fieldGroup; let i = index" class="option-item"
+        [ngClass]="{
+          'is-long-string': field.model[i]?.optionText?.length > 20,
+          'is-numeric': !isNotANumber(field.model[i]?.optionText) && field.model[i]?.optionText !== ''
+        }"
+       >
+          <formly-field [field]="subField"></formly-field>
+      <i class="pi pi-trash"  *ngIf="!isSourceAssignmentSolver" style="font-size: 1rem"  (click)="remove(i)"></i>
+        </div>
+      </div>
+
+      <button *ngIf="!isSourceAssignmentSolver" pButton type="button" label="Add Option" icon="pi pi-plus" (click)="add()"></button>
+    </fieldset>
+
+</div> -->
+
+<div *ngIf="field" >
+    
+      <fieldset >
+        <legend *ngIf="field.props.label">{{ field.props.label }}</legend>
+        <p *ngIf="field.props.description">{{ field.props.description }}</p>
+  
+              <div  class="options-container" >
+          <div *ngFor="let subField of field.fieldGroup; let i = index" class="option-item"
+          [ngClass]="{
+            'is-long-string': field.model[i]?.optionText?.length > 20,
+            'is-numeric': !isNotANumber(field.model[i]?.optionText) && field.model[i]?.optionText !== ''
+          }"
+         >
+            <formly-field [field]="subField"></formly-field>
+            <i class="pi pi-trash"  *ngIf="!isSourceAssignmentSolver" style="font-size: 1rem"  (click)="remove(i)"></i>
+        </div>
+      </div>
+  
+          <button *ngIf="!isSourceAssignmentSolver" pButton type="button" label="Add Option" icon="pi pi-plus" (click)="add()"></button>
+    </fieldset>
+  
+  </div>

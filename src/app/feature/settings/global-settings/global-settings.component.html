@@ -1,0 +1,202 @@
+
+<p-tabs value="0">
+    <p-tablist>
+        <p-tab value="0">Setting</p-tab>
+        <p-tab value="1">TenantTypes</p-tab>
+        <p-tab value="2">Subscription Plans</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+        <p-tabpanel value="0">
+          
+            <div class="flex flex-col gap-4">    
+                <div>
+                    <label for="accessTokenLifetime" class="block font-bold mb-2">accessTokenLifetime  </label>
+                
+                    <input type="text" pInputText id="accessTokenLifetime" [(ngModel)]="Setting.accessTokenLifetime" required autofocus />
+                    <small class="p-error" *ngIf="submittedSetting && !Setting.accessTokenLifetime">accessTokenLifetime is required.</small>
+                </div>
+
+               <div>
+                <label for="refreshTokenLifetime" class="block font-bold mb-2">refreshTokenLifetime  </label>
+              
+                <input type="text" pInputText id="refreshTokenLifetime" [(ngModel)]="Setting.refreshTokenLifetime" required autofocus />
+                <small class="p-error" *ngIf="submittedSetting && !Setting.refreshTokenLifetime">refreshTokenLifetime is required.</small>
+               </div>   
+
+               <div>
+                <p-button label="Cancel" icon="pi pi-times" text (click)="hideSettingDialog()" />
+                <p-button label="Save" icon="pi pi-check" (click)="saveSetting()" /> 
+               </div>
+            </div>
+
+        </p-tabpanel>
+
+        <p-tabpanel value="1">
+            <p class="m-0">
+                <!--addeditTenantType-->
+                <div *ngIf="addeditTenantType!==''">
+                 {{addeditTenantType}}ing   {{aTenantType}}
+                </div>
+
+                <!--Table TenantTypes-->
+                <div>                   
+                     <p-table
+                        #dt
+                        [value]="TenantTypes"
+                        [rows]="10"
+                        [columns]="colsTType"
+                        [tableStyle]="{ 'min-width': '75rem' }"
+                        [rowHover]="true"
+                        dataKey="TypeName"
+
+                    >
+
+                        <ng-template #header>
+                            <tr>
+                                <!-- <th style="min-width: 10rem">Code</th> -->
+                                <th pSortableColumn="name" style="min-width:1rem;max-width: 1rem;">
+                                    TypeName
+                                    <p-sortIcon field="name" />
+                                </th>
+                                <th style="min-width: 1rem; max-width: 1rem;"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-tenanttype>
+                            <tr>
+                                <td style="min-width:1rem;max-width: 3rem;">{{ tenanttype }}</td>
+                                <td>
+                                    <!-- <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="edittenanttype(tenanttype)" />  -->
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            
+        </p-tabpanel>
+        <p-tabpanel value="2">
+            <p class="m-0">
+                <!--addeditSubscriptionPlan-->
+                <div *ngIf="addeditSubscriptionPlan!==''">
+                 {{addeditSubscriptionPlan}}ing   {{aSubscriptionPlan}}
+                </div>
+
+                <!--Table SubscriptionPlans-->
+                <div>                   
+                     <p-table
+                        #dt
+                        [value]="SubscriptionPlans"
+                        [rows]="10"
+                        [columns]="colsTType"
+                        [tableStyle]="{ 'min-width': '75rem' }"
+                        [rowHover]="true"
+                        dataKey="TypeName"
+
+                    >
+
+                        <ng-template #header>
+                            <tr>
+                                <!-- <th style="min-width: 10rem">Code</th> -->
+                                <th pSortableColumn="name" style="min-width:1rem;max-width: 1rem;">
+                                    PlanName
+                                    <p-sortIcon field="name" />
+                                </th>
+                                <th style="min-width: 1rem; max-width: 1rem;"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-SubscriptionPlan>
+                            <tr>
+                                <td style="min-width:1rem;max-width: 3rem;">{{ SubscriptionPlan }}</td>
+                                <td>
+                                    <!-- <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editSubscriptionPlan(SubscriptionPlan)" />  -->
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+        </p-tabpanel>
+    </p-tabpanels>
+</p-tabs>
+        
+<!-- Dialog for Setting Form) -->
+<p-dialog [(visible)]="SettingDialog" [style]="{ width: '450px' }" [header]="dialogHeader" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-4">
+           
+                <div>
+                    <label for="accessTokenLifetime" class="block font-bold mb-2">accessTokenLifetime  </label>
+                
+                    <input type="text" pInputText id="accessTokenLifetime" [(ngModel)]="Setting.accessTokenLifetime" required autofocus />
+                    <small class="p-error" *ngIf="submittedSetting && !Setting.accessTokenLifetime">accessTokenLifetime is required.</small>
+                </div>
+
+               <div>
+                <label for="refreshTokenLifetime" class="block font-bold mb-2">refreshTokenLifetime  </label>
+              
+                <input type="text" pInputText id="refreshTokenLifetime" [(ngModel)]="Setting.refreshTokenLifetime" required autofocus />
+                <small class="p-error" *ngIf="submittedSetting && !Setting.refreshTokenLifetime">refreshTokenLifetime is required.</small>
+               </div>             
+            
+        </div>
+    </ng-template> 
+
+    <ng-template #footer>
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideSettingDialog()" />
+         <p-button label="Save" icon="pi pi-check" (click)="saveSetting()" /> <!---->
+     </ng-template>
+</p-dialog>
+
+<!-- Dialog for TenantTypes Form) -->
+<!-- <p-dialog [(visible)]="TenantTypesDialog" [style]="{ width: '650px' }" [header]="dialogHeader" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-4">
+           
+            
+                <div>
+               
+                    
+        <p-table
+        #dt
+        [value]="TenantTypes"
+        [rows]="10"
+        [columns]="colsTType"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="true"
+        dataKey="TypeName"
+
+    >
+
+        <ng-template #header>
+            <tr>
+            
+                <th pSortableColumn="name" style="min-width:1rem;max-width: 1rem;">
+                    TypeName
+                    <p-sortIcon field="name" />
+                </th>
+                <th style="min-width: 1rem; max-width: 1rem;"></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-tenanttype>
+            <tr>
+                
+                
+                <td style="min-width:1rem;max-width: 3rem;">{{ tenanttype }}</td>
+                <td>
+ <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="edittenanttype(tenanttype)" /> 
+                   
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+
+                </div>
+
+            
+        </div>
+    </ng-template> 
+
+    <ng-template #footer>
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideTenantTypesDialog()" />
+         <p-button label="Save" icon="pi pi-check" (click)="saveTenantTypes()" /> 
+     </ng-template>
+</p-dialog> -->

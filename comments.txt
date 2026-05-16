@@ -1,0 +1,28 @@
+Template liked:
+
+AdminMart
+https://adminmart.com/templates/angular/
+
+MaterialPro
+https://materialpro-angular-free.netlify.app/dashboard
+
+Implemenation changes:
+First, ensure your TenantType and SubscriptionPlan enums are consistent across frontend and backend. 
+You can either copy them directly or use a shared library if you have one. For now, let's define them in file of tenant.model.
+
+
+
+git commands 
+    git add .
+ 
+    to wipe out all changes and return to last commit use below
+        git reset --hard HEAD 
+
+    
+    for ignoring git add . command 
+        
+
+        for a perticular file to ignore changes , use below command 
+            git checkout -- comments.txt 
+        this command will ignore changes from comments.txt and file will show status of unchanged things 
+

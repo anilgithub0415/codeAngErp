@@ -1,0 +1,126 @@
+
+<!-- <p-dialog [(visible)]="displayDialog" [style]="{ width: '900px' }" header="Select Questions" [modal]="true"> -->
+ 
+    <div class="p-field my-4">
+      <label class="p-mb-2">Selected Questions ({{ selectedQuestions.length }})</label>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <p-button 
+          label="Select Questions" 
+          icon="pi pi-search" 
+          severity="secondary" 
+          (onClick)="showDialog()"
+        ></p-button>
+      </div>
+      <div *ngIf="selectedQuestions.length > 0" class="card p-4 rounded-lg shadow-sm">
+        <div *ngFor="let question of selectedQuestions; let i = index" class="flex items-center gap-4 mb-2 p-2 border-b last:border-b-0">
+          <div class="flex-grow">
+            <span class="font-semibold text-sm">{{ question.questionText }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-sm">Points:</label>
+            <input 
+              pInputText 
+              type="number" 
+              class="w-20"
+              [(ngModel)]="question.points"
+              (ngModelChange)="onPointsChange()"
+            />
+            <p-button 
+              icon="pi pi-trash" 
+              severity="danger" 
+              [text]="true" 
+              (onClick)="removeQuestion(i)"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
+    <div *ngIf="displayDialog">
+
+      <div class="p-fluid">
+        <div class="p-field grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="p-field">
+            <label for="topicFilter">Topic</label>
+            <p-dropdown 
+              [options]="topicOptions" 
+              [(ngModel)]="selectedTopic" 
+              placeholder="Select a Topic" 
+              (onChange)="filterQuestions()"
+            ></p-dropdown>
+          </div>
+          <div class="p-field">
+            <label for="typeFilter">Question Type</label>
+            <p-dropdown 
+              [options]="questionTypeOptions" 
+              [(ngModel)]="selectedQuestionType" 
+              placeholder="Select a Type" 
+              (onChange)="filterQuestions()"
+            ></p-dropdown>
+          </div>
+          <div class="p-field">
+            <label for="categoryFilter">Category</label>
+            <p-dropdown 
+              [options]="categoryOptions" 
+              [(ngModel)]="selectedCategory" 
+              placeholder="Select a Category" 
+              (onChange)="filterQuestions()"
+            ></p-dropdown>
+          </div>
+          <div class="p-field">
+            <label for="purposeFilter">Purpose</label>
+            <p-dropdown 
+              [options]="purposeOptions" 
+              [(ngModel)]="selectedPurpose" 
+              placeholder="Select a Purpose" 
+              (onChange)="filterQuestions()"
+            ></p-dropdown>
+          </div>
+        </div>
+        <div *ngIf="selectedTopic">selectedTopic:{{selectedTopic}}</div>
+    <p-table [value]="filteredQuestions" dataKey="id" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem"></th>
+            <th>Question Text</th>
+            <th>Topic</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Purpose</th>
+            <th>Points</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-question>
+          <tr>
+          
+            <td> <!--   -->
+              <p-checkbox 
+              [(ngModel)]="question.selected"
+                [binary]="true" 
+                [value]="question.id" name="question.id"
+                (ngModelChange)="onQuestionSelection()"
+              ></p-checkbox>
+            </td> 
+            <td>{{ question.questionText }}</td>
+            <td>{{ question.topic.topicName }}</td>
+            <td>{{ question.questionTypeName }}</td>
+            <td>{{ question.questionCategoryName }}</td>
+            <td>{{ question.questionPurposeName }}</td>
+            <td>
+              <input 
+                pInputText 
+                type="number" 
+                class="w-16"
+                [(ngModel)]="question.points"
+                [disabled]="!question.selected"
+              />
+            </td>
+            
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+</div>
+<!-- </p-dialog> -->

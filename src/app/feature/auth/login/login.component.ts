@@ -1,0 +1,60 @@
+import { Component } from '@angular/core';
+import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
+
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { RippleModule } from 'primeng/ripple';
+import { FormGroup,FormBuilder,Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router'; // Import Router for navigation
+@Component({
+  selector: 'app-login',
+  imports: [AppFloatingConfigurator,CommonModule,FormsModule,ReactiveFormsModule,ButtonModule,CheckboxModule,InputTextModule,PasswordModule,],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss'
+})
+export class LoginComponent {
+  loginForm!: FormGroup;
+  errorMessage: string = '';
+
+
+  constructor(
+    private formBuilder: FormBuilder
+     ,    private authService: AuthService
+     ,  private router: Router // Inject Router
+  )  {this.loginForm = this.formBuilder.group({
+      UserName: ['', [Validators.required]],
+      password: ['', [Validators.required]],
+      rememberMe: [false], // Optional remember me checkbox
+    });}
+
+    
+  onSubmit(): void {
+    if (this.loginForm?.valid) {
+       const { UserName, password, rememberMe } = this.loginForm.value;
+
+       this.authService.login(UserName, password).subscribe({
+         next: (response) => {
+          
+           this.errorMessage = '';
+           // Navigate to the desired page after successful login
+           this.router.navigate(['/app']); // Example: Navigate to the employees list
+           //window.location.href="http://localhost:4200/app";
+         },
+         error: (error) => {
+           console.error('Login failed:', error);
+           this.errorMessage = 'Invalid userId or password.'; // Display an error message
+           // Optionally handle different error codes from the server
+         },
+       }); 
+      
+    } else {
+      this.errorMessage = 'Please fill out all required fields.';
+    }
+  }
+  
+  }

@@ -1,0 +1,227 @@
+
+
+import { Component, OnInit, ViewChild } from '@angular/core'; // Added ViewChild
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+
+// PrimeNG Modules for UI
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { FileUploadModule, FileUpload } from 'primeng/fileupload'; // NEW: FileUploadModule, FileUpload
+import { FluidModule } from 'primeng/fluid';
+
+
+// Your existing enums and services
+import { TenantType } from '../../../../core/models/tenant.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { UserService } from '../../../../core/services/user.service';
+import { UpdateUserDto, User } from '../../../../core/models/user.model';
+
+
+// --- 1. Define the Configuration Model for a Single Form Field ---
+interface ProfileFieldConfig {
+    key: string;
+    label: string;
+    type: 'text' | 'email' | 'url' | 'number' | 'dropdown';
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    options?: { label: string; value: string }[];
+}
+
+// --- 2. Define the Overall Form Configuration based on TenantType ---
+const PROFILE_FORM_CONFIG: { [key in TenantType]?: ProfileFieldConfig[] } = {
+    [TenantType.INSTITUTE]: [
+        { key: 'instituteName', label: 'Institute Name', type: 'text', required: true, minLength: 3 },
+        { key: 'websiteUrl', label: 'Website URL', type: 'url', required: false },
+        { key: 'contactPerson', label: 'Contact Person', type: 'text', required: true },
+        { key: 'adminEmail', label: 'Admin Email', type: 'email', required: true }
+    ],
+    [TenantType.INDIVIDUAL_STUDENT]: [
+        { key: 'favoriteSubject', label: 'Favorite Subject', type: 'text', required: true },
+        { key: 'learningGoal', label: 'Learning Goal', type: 'text', required: false, maxLength: 200 },
+        { key: 'studentId', label: 'Student ID', type: 'text', required: false },
+        { key: 'parentEmail', label: 'Parent Email (Optional)', type: 'email', required: false }
+    ],
+    // Add configurations for other TenantTypes as needed
+};
+
+// --- Helper function to chunk an array into smaller arrays (for rows) ---
+function chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+}
+
+
+@Component({
+    selector: 'app-profile',
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        InputTextModule,
+        ButtonModule,
+        DropdownModule,
+        ToastModule,
+        FileUploadModule, // NEW: Add FileUploadModule
+        FluidModule
+    ],
+    templateUrl: './profile.component.html',
+    styleUrl: './profile.component.scss',
+    providers: [MessageService]
+})
+export class ProfileComponent implements OnInit {
+
+    profileForm!: FormGroup;
+    dynamicFields: ProfileFieldConfig[] = [];
+    dynamicFieldRows: ProfileFieldConfig[][] = [];
+    currentUser: User | null = null;
+    isLoading: boolean = true;
+
+    @ViewChild('profilePicUploader') profilePicUploader!: FileUpload; // Reference to p-fileUpload component
+
+    constructor(
+        private fb: FormBuilder,
+        private authService: AuthService,
+        private userService: UserService,
+        private messageService: MessageService
+    ) {}
+
+    ngOnInit(): void {
+        this.loadUserProfileAndBuildForm();
+    }
+
+    private loadUserProfileAndBuildForm(): void {
+        this.isLoading = true;
+        const userId = this.authService.getUserId();
+        if (!userId) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'User not logged in.', life: 3000 });
+            this.isLoading = false;
+            return;
+        }
+
+        this.userService.getUser(userId).subscribe({
+            next: (user) => {
+                this.currentUser = user;
+                const userTenantType = this.currentUser.tenant?.tenantType;
+
+                if (userTenantType && PROFILE_FORM_CONFIG[userTenantType as TenantType]) {
+                    this.dynamicFields = PROFILE_FORM_CONFIG[userTenantType as TenantType]!;
+                    this.dynamicFieldRows = chunkArray(this.dynamicFields, 2);
+                    this.buildForm(user);
+                } else {
+                    this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'No specific profile configuration found for your tenant type or tenant type is missing.', life: 5000 });
+                    this.dynamicFields = [];
+                    this.dynamicFieldRows = [];
+                    this.profileForm = this.fb.group({});
+                }
+                this.isLoading = false;
+            },
+            error: (err) => {
+                console.error('Error fetching user profile:', err);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load user profile.', life: 3000 });
+                this.isLoading = false;
+            }
+        });
+    }
+
+    private buildForm(user: User): void {
+        const formControls: { [key: string]: any } = {};
+
+        this.dynamicFields.forEach(field => {
+            const validators = [];
+            if (field.required) {
+                validators.push(Validators.required);
+            }
+            if (field.minLength) {
+                validators.push(Validators.minLength(field.minLength));
+            }
+            if (field.maxLength) {
+                validators.push(Validators.maxLength(field.maxLength));
+            }
+            if (field.type === 'email') {
+                validators.push(Validators.email);
+            }
+            if (field.type === 'url') {
+                validators.push(Validators.pattern(/^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/));
+            }
+
+            const initialValue = (user as any)[field.key] || '';
+            formControls[field.key] = [initialValue, validators];
+        });
+
+        formControls['displayName'] = [user.displayName || '', Validators.required];
+        // profilePictureUrl will be handled by the file uploader, but the form control still exists
+        formControls['profilePictureUrl'] = [user.profilePictureUrl || ''];
+
+        this.profileForm = this.fb.group(formControls);
+    }
+
+    /**
+     * Handles the successful upload of a profile picture.
+     * The `event.originalEvent.body` should contain the URL of the uploaded image from the backend.
+     */
+    onProfilePictureUpload(event: any): void {
+        const response = event.originalEvent.body; // Assuming backend sends JSON response with URL
+        if (response && response.profilePictureUrl) {
+            const uploadedUrl = response.profilePictureUrl;
+            this.profileForm.get('profilePictureUrl')?.setValue(uploadedUrl);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile picture uploaded!' });
+            console.log('Uploaded profile picture URL:', uploadedUrl);
+            // Optionally, update currentUser immediately to show new picture
+            if (this.currentUser) {
+                this.currentUser.profilePictureUrl = uploadedUrl;
+            }
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to get uploaded picture URL.' });
+            console.error('Upload response missing profilePictureUrl:', response);
+        }
+    }
+
+    /**
+     * Triggers the upload of the selected file(s) if using basic mode.
+     */
+    uploadProfilePicture(): void {
+        if (this.profilePicUploader) {
+            this.profilePicUploader.upload();
+        }
+    }
+
+    onSaveProfile(): void {
+        if (this.profileForm.valid && this.currentUser) {
+            const formValue = this.profileForm.value;
+
+            const updateDto: UpdateUserDto = {
+                displayName: formValue.displayName,
+                // Use the URL from the form control, which was set by the file uploader
+                profilePictureUrl: formValue.profilePictureUrl,
+                ...this.dynamicFields.reduce((acc, field) => {
+                    if (formValue[field.key] !== undefined) {
+                        (acc as any)[field.key] = formValue[field.key];
+                    }
+                    return acc;
+                }, {})
+            };
+
+            this.userService.updateUser(this.currentUser.id, updateDto).subscribe({
+                next: (updatedUser) => {
+                    this.currentUser = updatedUser;
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully!', life: 3000 });
+                },
+                error: (err) => {
+                    console.error('Profile update failed:', err);
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update profile.', life: 3000 });
+                }
+            });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fill out all required fields correctly.', life: 3000 });
+            this.profileForm.markAllAsTouched();
+        }
+    }
+}

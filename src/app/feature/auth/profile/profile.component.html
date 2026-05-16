@@ -1,0 +1,142 @@
+<p-toast></p-toast> <!-- PrimeNG Toast for messages -->
+
+<div class="card p-4">
+    <h2 class="text-2xl font-bold mb-4">My Profile</h2>
+
+    <div *ngIf="isLoading" class="text-center p-4">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+        <p class="mt-2">Loading profile...</p>
+    </div>
+
+    <div *ngIf="!isLoading && currentUser">
+        <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
+            <!-- Common Profile Fields (always present) -->
+            <!-- <div class="mb-4">
+                <label for="displayName" class="block font-bold mb-2">Display Name</label>
+                <input pInputText id="displayName" type="text" formControlName="displayName" class="w-full" />
+                <small class="p-error" *ngIf="profileForm.get('displayName')?.invalid && profileForm.get('displayName')?.touched">
+                    Display Name is required.
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label for="profilePictureUrl" class="block font-bold mb-2">Profile Picture URL</label>
+                <input pInputText id="profilePictureUrl" type="text" formControlName="profilePictureUrl" class="w-full" />
+                <small class="text-sm text-gray-500">Enter a direct URL to your profile picture.</small>
+            </div> -->
+            <!--start-->
+            <p-fluid>
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="flex mt-8">
+                        <div class="card flex flex-col gap-6 w-full">
+                            <div class="font-semibold text-xl">Advanced</div>
+                           <div class="flex flex-wrap gap-2 w-full">
+                                    <label for="profilePicture" class="block font-bold mb-2">Profile Picture</label>
+                                    <div class="flex flex-col items-center gap-2 w-full">
+                                        <!-- Display current profile picture -->
+                                       
+                                        <img *ngIf="currentUser.profilePictureUrl" [src]="currentUser.profilePictureUrl" alt="Current Profile Picture" class="w-24 h-24 rounded-full object-cover mb-0 border-0 border-surface-border" />
+                                          <!-- Edit Icon to toggle uploader visibility -->
+                                          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm absolute bottom-0 right-0" (click)="toggleProfileUploader()"></button>
+                                          
+                                        <i *ngIf="!currentUser.profilePictureUrl" class="pi pi-user text-6xl text-surface-400 mb-2"></i>
+                                                <div class="profile-uploader-container" [class.show]="showProfileUploader">
+                                                <p-fileupload>                                                    
+                                                    #profilePicUploader
+                                                    mode="basic"
+                                                    chooseLabel="Choose Image"
+                                                    chooseIcon="pi pi-image"
+                                                    name="profilePicture"                  <!-- Name of the file field in the backend -->
+                                                    [url]="'/api/user/upload-profile-picture'" <!-- Backend upload endpoint -->
+                                                    accept="image/*"                      <!-- Only accept image files -->
+                                                    maxFileSize="1000000"                 <!-- Max file size in bytes (1MB) -->
+                                                    (onUpload)="onProfilePictureUpload($event)" <!-- Event when upload is complete -->
+                                                    (onSelect)="profilePicUploader.upload()" <!-- Automatically upload when file is selected -->
+                                                    [auto]="true"                         <!-- Auto upload on selection -->
+                                                    [fileLimit]="1"                       <!-- Only allow one file -->
+                                                    [showUploadButton]="false"            <!-- Hide default upload button -->
+                                                    [showCancelButton]="false"            <!-- Hide default cancel button -->
+                                                />
+                                                </p-fileupload>
+                                            </div>
+                                        <small class="text-sm text-gray-500 mt-1">Max 1MB. JPG, PNG, GIF.</small>
+                                    </div>
+                                </div> <div class="flex flex-col md:flex-row gap-6">
+                                <div class="flex flex-wrap gap-2 w-full">
+                                <label for="displayName" class="block font-bold mb-2">Display Name</label>
+                                <input pInputText id="displayName" type="text" formControlName="displayName" class="w-full" />
+                                </div>
+                                <!-- <div class="flex flex-wrap gap-2 w-full">
+                                        <label for="profilePictureUrl" class="block font-bold mb-2">Profile Picture URL</label>
+                                    <input pInputText id="profilePictureUrl" type="text" formControlName="profilePictureUrl" class="w-full" />
+                                </div> -->
+                                 </div> <!-- NEW: Profile Picture Uploader -->
+                                  
+                                <!-- END NEW: Profile Picture Uploader -->
+                            
+                        </div>
+
+                    </div>
+                </div>
+            <!--end-->
+
+
+
+            <!-- Dynamic Fields based on Tenant Type -->
+            <ng-container *ngIf="dynamicFieldRows.length > 0">
+                <div class="flex flex-col md:flex-row gap-8">
+                <div class="flex mt-1">
+                    <div class="card flex flex-col gap-6 w-full">
+                        <div class="font-semibold text-xl mt-6 mb-3">Tenant Specific Details</div>
+                <!-- Iterate over rows of dynamic fields -->
+                <div *ngFor="let row of dynamicFieldRows" class="flex flex-col md:flex-row gap-6 mb-4">
+                    <!-- Iterate over fields within each row -->
+                    <div *ngFor="let field of row" class="flex flex-wrap gap-2 w-full">
+                        <label [for]="field.key" class="block font-bold mb-2">{{ field.label }}</label>
+                        <!-- Render different input types based on field.type -->
+                        <ng-container [ngSwitch]="field.type">
+                            <input *ngSwitchCase="'text'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <input *ngSwitchCase="'email'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <input *ngSwitchCase="'url'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <input *ngSwitchCase="'number'" pInputText [id]="field.key" [type]="field.type" [formControlName]="field.key" class="w-full" />
+                            <p-dropdown *ngSwitchCase="'dropdown'" [id]="field.key" [formControlName]="field.key" [options]="field.options" optionLabel="label" optionValue="value" placeholder="Select"></p-dropdown>
+
+                            <ng-template ngSwitchDefault>
+                                <input pInputText [id]="field.key" type="text" [formControlName]="field.key" class="w-full" />
+                            </ng-template>
+                        </ng-container>
+
+                        <!-- Basic validation error display for dynamic fields -->
+                        <small class="p-error" *ngIf="profileForm.get(field.key)?.invalid && profileForm.get(field.key)?.touched">
+                            <ng-container *ngIf="profileForm.get(field.key)?.errors?.['required']">
+                                {{ field.label }} is required.
+                            </ng-container>
+                            <ng-container *ngIf="profileForm.get(field.key)?.errors?.['minlength']">
+                                Min length is {{ field.minLength }}.
+                            </ng-container>
+                            <ng-container *ngIf="profileForm.get(field.key)?.errors?.['maxlength']">
+                                Max length is {{ field.maxLength }}.
+                            </ng-container>
+                            <ng-container *ngIf="profileForm.get(field.key)?.errors?.['email']">
+                                Invalid email format.
+                            </ng-container>
+                            <ng-container *ngIf="profileForm.get(field.key)?.errors?.['pattern']">
+                                Invalid format.
+                            </ng-container>
+                        </small>
+                    </div>
+                </div> <p-button label="Save Profile" type="submit" [disabled]="profileForm.invalid" class="mt-6"></p-button>
+            </div> </div>  </div>
+        
+            </ng-container>
+
+           
+        
+    </p-fluid>
+        </form>
+    </div>
+
+    <div *ngIf="!isLoading && !currentUser" class="text-center p-4 text-red-500">
+        <p>Could not load user profile. Please try again or log in.</p>
+    </div>
+</div>

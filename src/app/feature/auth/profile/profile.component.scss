@@ -1,0 +1,30 @@
+
+.profile-uploader-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+    width: 100%; // Ensure it takes full width when visible
+}
+
+.profile-uploader-container.show {
+    max-height: 150px; /* Adjust based on the actual height of your p-fileupload */
+    opacity: 1;
+    transition: max-height 0.5s ease-in, opacity 0.5s ease-in;
+}
+
+/* Style for the edit icon button */
+.p-button-rounded.p-button-text.p-button-sm {
+    background-color: rgba(var(--surface-900-rgb), 0.7); // Semi-transparent dark background
+    color: var(--surface-0); // White icon color
+    border-radius: 50%;
+    width: 2rem; // Small size
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); // Subtle shadow
+    &:hover {
+        background-color: rgba(var(--surface-900-rgb), 0.9);
+    }
+}

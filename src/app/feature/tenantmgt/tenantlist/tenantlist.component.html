@@ -1,0 +1,174 @@
+<!--info-->
+<!--save button disabled while edit that means edit is disabled-->
+
+<!-- Toolbar for New, Delete Selected, and Export buttons -->
+<p-toolbar styleClass="mb-4">
+    <ng-template #start>
+        <p-button label="New Tenants" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+        <p-button severity="danger" label="Delete Selected" icon="pi pi-trash" outlined 
+            [disabled]="!selectedTenants || !selectedTenants.length" /><!--(onClick)="deleteSelectedTenantss()"-->
+    </ng-template>
+
+    <ng-template #end> 
+        <p-button label="Export CSV" icon="pi pi-upload" severity="secondary"  /><!--(onClick)="exportCSV()"-->
+    </ng-template>
+</p-toolbar>
+
+<!-- PrimeNG Table for User Listing -->
+<p-table #dt
+    [value]="tenants()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [globalFilterFields]="['tenantName', 'tenantId']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedTenants"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tenants"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Tenants</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="tenantName" style="min-width: 16rem">
+                tenantName
+                <p-sortIcon field="tenantName" />
+            </th>
+            <th pSortableColumn="tenantType" style="min-width: 16rem">
+                tenantType
+                <p-sortIcon field="tenantType" />
+            </th>
+            <th pSortableColumn="tenantId" style="min-width: 12rem">
+                Tenant ID
+                <p-sortIcon field="tenantId" />
+            </th>
+            <th pSortableColumn="isActive" style="min-width: 8rem">
+                Status
+                <p-sortIcon field="isActive" />
+            </th>
+            <th pSortableColumn="subscriptionPlan" style="min-width: 8rem">
+                subscriptionPlan
+                <p-sortIcon field="subscriptionPlan" />
+            </th>
+            
+            <th pSortableColumn="subscriptionEndDate" style="min-width: 8rem">
+                subscriptionEndDate
+                <p-sortIcon field="subscriptionEndDate" />
+            </th>
+            <th style="min-width: 12rem">Actions</th>
+        </tr>
+    </ng-template>
+
+    <ng-template #body let-tenant>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="tenant" />
+            </td>
+            <td>{{ tenant.tenantName }}</td>
+            <td>
+               {{ tenant.tenantTypeName}}
+            </td>
+          
+            <td>{{ tenant.tenantId }}</td>
+            <td>
+                <p-tag [value]="tenant.isActive ? 'ACTIVE' : 'INACTIVE'" [severity]="getSeverity(tenant.isActive)" />
+            </td>
+            <td>{{tenant.subscriptionPlanName}}</td>
+            
+            <td>{{tenant.subscriptionEndDate}}</td>
+           <td>
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editTenant(tenant)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteTenant(tenant)" />
+            </td> <!---->
+        </tr>
+    </ng-template>
+</p-table>
+
+
+<!-- Dialog for User Details (Create/Edit Form) -->
+<p-dialog [(visible)]="tenantDialog" [style]="{ width: '450px' }" [header]="dialogHeader" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-4">
+            <!-- User Name (Email) -->
+            <div>
+                <label for="tenantName" class="block font-bold mb-2">tenant Name</label>
+                <!-- Disable tenant Name  editing for existing tenants if tenantId exists -->
+                <input type="text" pInputText id="tenantName" [(ngModel)]="tenant.tenantName" required autofocus />
+                <small class="p-error" *ngIf="submitted && !tenant.tenantName">tenant Name is required.</small>
+            </div>
+            <div>
+                <label for="tenantType" class="block font-bold mb-2">Tenant Type</label>
+                <p-dropdown id="tenantType" [(ngModel)]="tenant.tenantTypeName" [options]="tenantTypes" optionLabel="label" optionValue="value" placeholder="Select a Tenant Type" [required]="true"></p-dropdown>
+                <small class="p-error" *ngIf="submitted && !tenant.tenantTypeName">Tenant Type is required.</small>
+            </div>
+            <div>
+                <label for="subplan" class="block font-bold mb-2">Tenant Type</label>
+                <p-dropdown id="subplan" [(ngModel)]="tenant.subscriptionPlanName" [options]="subscriptionTypes" optionLabel="label" optionValue="value" placeholder="Select a Subscription  Type" [required]="true"></p-dropdown>
+                <small class="p-error" *ngIf="submitted && !tenant.subscriptionPlanName">Subscription Paln is required.</small>
+            </div>
+            <div class="flex items-center gap-2">
+                <p-checkbox id="isActive" [(ngModel)]="tenant.isActive" [binary]="true"></p-checkbox>
+                <label for="isActive">Is Active</label>
+            </div>
+            
+        <!-- NEW: Subscription End Date -->
+        <div>
+            <label for="subscriptionEndDate" class="block font-bold mb-2">Subscription End Date</label>
+            <p-calendar
+                id="subscriptionEndDate"
+                [(ngModel)]="tenant.subscriptionEndDate"
+                dateFormat="dd/mm/yy"      
+             
+                yearRange="2000:2050"      
+                [showIcon]="true"          
+                [showTime]="false"         
+                [monthNavigator]="true"    
+                [yearNavigator]="true"    
+                    
+                placeholder="Select Date"  
+            ></p-calendar>
+            <!--    [touchUI]="true"    option not showing selected date-->
+            <!-- No small error here unless it's strictly required -->
+        </div>
+        <!-- END NEW: Subscription End Date -->
+
+        <!-- Created At (Display only for existing tenants) -->
+        <div *ngIf="isExistingTenant">
+            <label for="createdAt" class="block font-bold mb-2">Created At</label>
+            <input type="text" pInputText id="createdAt" [(ngModel)]="tenant.createdAt" [disabled]="true" />
+        </div>
+
+        <!-- Updated At (Display only for existing tenants) -->
+        <div *ngIf="isExistingTenant">
+            <label for="updatedAt" class="block font-bold mb-2">Last Updated</label>
+            <input type="text" pInputText id="updatedAt" [(ngModel)]="tenant.updatedAt" [disabled]="true" />
+        </div>
+                    
+        </div>
+    </ng-template> 
+
+    <ng-template #footer>
+       <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+        <p-button label="Save" [disabled]="isExistingTenant" icon="pi pi-check" (click)="saveTenant()" /> <!---->
+        <!--info-->
+        <!--save button disabled while edit that means edit is disabled-->
+    </ng-template>
+</p-dialog>
+
+
+<!-- Confirmation Dialog for Delete Operations -->
+<p-confirmdialog [style]="{ width: '450px' }" />

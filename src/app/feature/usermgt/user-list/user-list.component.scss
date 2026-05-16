@@ -1,0 +1,9 @@
+
+//added
+.profile-avatar {
+    width: 3rem;   /* Adjust size as needed */
+    height: 3rem;  /* Adjust size as needed */
+    border-radius: 50%; /* Make it perfectly circular */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border: 1px solid var(--surface-border); /* Optional: subtle border */
+}
