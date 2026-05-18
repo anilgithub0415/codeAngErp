@@ -77,6 +77,7 @@ interface AvailableContext {
         <ng-container *ngIf="!(auth.isLoggedIn$ | async)">
             <p-button label="Login" routerLink="/login" />
         </ng-container>
+       
     </div>
     
 

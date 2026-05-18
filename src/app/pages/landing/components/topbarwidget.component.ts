@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { StyleClassModule } from 'primeng/styleclass';
 import { Router, RouterModule } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { ConfigService } from '../../../config.service';
 
 @Component({
     selector: 'topbar-widget',
@@ -60,7 +61,11 @@ import { CommonModule } from '@angular/common';
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
             <div [ngStyle]="{'display':userIsLoggedIn? 'none':'block'}">
                 <button  pButton pRipple label="Login" routerLink="/auth/login" [rounded]="true" [text]="true"></button>
-               <!-- <button pButton pRipple label="Register" routerLink="/auth/signupandregister" [rounded]="true"></button>-->
+            </div>
+
+            <!--display signup button only when config table useraddthru must be signup-->
+            <div [ngStyle]="{'display':!userIsLoggedIn && config_useraddthru==='signup'? 'block':'none' }">
+                <button pButton pRipple label="Register" routerLink="/auth/signupandregister" [rounded]="true"></button>
             </div>
                
             </div>
@@ -68,10 +73,18 @@ import { CommonModule } from '@angular/common';
 })
 export class TopbarWidget {
     userIsLoggedIn: boolean = false;
-
+    config_useraddthru:string='signup'; //config service reads systems default, posible values signup/superadmin
     constructor(public router: Router, private AuthServ: AuthService) {}
 
+    private configService=inject(ConfigService)
     ngOnInit(): void {
+        //read globalConfigData
+        const globalConfigData=this.configService.config;
+        if(globalConfigData){
+            this.config_useraddthru=globalConfigData.config_useraddthru;
+        }
+        // end globalConfigData 
+
         // Subscribe to the public observable provided by AuthService
         this.AuthServ.isLoggedIn$.subscribe(status => {
            

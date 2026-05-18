@@ -1,5 +1,5 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeng/themes/aura';
@@ -27,6 +27,7 @@ import { QuestionPickerComponent } from './app/core/repeattype/question-picker/q
 import { StudentAnswerTypeComponent } from './app/core/repeattype/student-answer-type/student-answer-type.component';
 import { QuestiontextComponent } from './app/core/repeattype/questiontext/questiontext.component';
 import { AssessStudentAnswerTypeComponent } from './app/core/repeattype/assess-student-answer-type/assess-student-answer-type.component';
+import { ConfigService } from './app/config.service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -57,6 +58,13 @@ export const appConfig: ApplicationConfig = {
        // provideHttpClient(withFetch()),
        provideHttpClient(withInterceptors([apiInterceptor,errorInterceptor,tokenInterceptor,httpInterceptor])), 
         provideAnimationsAsync(),
+
+        //
+       provideAppInitializer(()=>{
+        const configService=inject(ConfigService);
+        return configService.loadAppConfig();
+       }),
+        //
         
         ToastModule,
         providePrimeNG({ theme: { preset: Aura, options: { prefix: 'p', darkModeSelector: '.app-dark' } } })
