@@ -71,7 +71,7 @@ export const appRoutes: Routes = [
             path: 'usrmgt',
             loadChildren: () => import('./app/feature/usermgt/usermgt-routing.module').then(m => m.UsermgtRoutingModule)
             , canActivate: [roleGuard],
-                data: { roles: ['InstituteAdmin','AdmissionsOfficer','Faculty','Coordinator','StudentSolo','Assessor','ClassTeacher'] }                 
+                data: { roles: ['SuperAdmin'] }                 
             },
             {
                 path: 'coursemgt',

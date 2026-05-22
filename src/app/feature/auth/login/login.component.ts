@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
 
 import { ButtonModule } from 'primeng/button';
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router'; // Import Router for navigation
+import { ConfigService } from '../../../config.service';
 @Component({
   selector: 'app-login',
   imports: [AppFloatingConfigurator,CommonModule,FormsModule,ReactiveFormsModule,ButtonModule,CheckboxModule,InputTextModule,PasswordModule,],
@@ -21,6 +22,8 @@ export class LoginComponent {
   loginForm!: FormGroup;
   errorMessage: string = '';
 
+   private configService=inject(ConfigService)
+    config_usersCreatedby:string='signup';
 
   constructor(
     private formBuilder: FormBuilder
@@ -31,7 +34,12 @@ export class LoginComponent {
       password: ['', [Validators.required]],
       rememberMe: [false], // Optional remember me checkbox
     });}
-
+    ngOnInit(): void {
+      const globalConfigData=this.configService.config;
+          if(globalConfigData){
+              this.config_usersCreatedby=globalConfigData.config_usersCreatedby;
+          }
+    }
     
   onSubmit(): void {
     if (this.loginForm?.valid) {

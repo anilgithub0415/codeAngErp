@@ -16,7 +16,7 @@ import { TenantType,SubscriptionPlan } from '../../../core/models/tenant.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { RegisterAndSubscribeDto } from '../../../core/models/auth.model'; // NEW: Registration DTO
-import { PersonlistComponent } from '../../people/personlist/personlist.component';
+//import { PersonlistComponent } from '../../people/personlist/personlist.component';
 import { Person } from '../../../core/models/person.model';
 import { UserService } from '../../../core/services/user.service';
 import { UserRole } from '../../../core/models/user.model';
@@ -71,7 +71,7 @@ function chunkArray<T>(array: T[], chunkSize: number): T[][] {
       DropdownModule,
       ToastModule,
       PasswordModule // Added for password input
-      ,PersonlistComponent
+     // ,PersonlistComponent
   ],
   templateUrl: './signupandregister.component.html',
   styleUrl: './signupandregister.component.scss',

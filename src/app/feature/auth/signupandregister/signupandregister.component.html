@@ -1,4 +1,4 @@
-<p>signupandregister works!</p>
+<p>signupandregister works!!</p>
 
 
 <p-toast></p-toast> <!-- PrimeNG Toast for messages -->
@@ -12,7 +12,7 @@
     </div>
 <!--app-personlist-->
 <!-- <div *ngIf="selectedPerson">{{selectedPerson.firstName}}</div> -->
-    <div><app-personlist [fromUserMgt]="true" (personSelected)="onPersonSelected($event)"></app-personlist></div>
+    <!-- <div><app-personlist [fromUserMgt]="true" (personSelected)="onPersonSelected($event)"></app-personlist></div> -->
 
     <div *ngIf="!isLoading">
         <form [formGroup]="signupForm" (ngSubmit)="onRegister()">

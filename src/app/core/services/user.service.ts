@@ -83,7 +83,7 @@ export class UserService {
      * @param userData The data for the new user (CreateUserDto).
      * @returns An Observable of the created User object (including its new ID).
      */
-    createUser(userData: CreateUserDto): Observable<User> {
+    createUser(userData: Partial<CreateUserDto>): Observable<User> {
         console.log(`Creating user at ${this.apiUrl} with data:`, userData);
         return this.http.post<User>(this.apiUrl, userData).pipe(
             tap(newUser => console.log('Created user:', newUser)),
@@ -126,5 +126,15 @@ export class UserService {
             catchError(this.handleError)
         );
     }
+
+
+
+    //for ngx-formly to work
+    getUsertableFieldsConfig(config_usersCreatedby:string):Observable<any>{
+        return this.http.get<any[]>(this.apiUrl+'/user_table_fields'+'?config_usersCreatedby='+config_usersCreatedby).pipe(
+            // tap(tenants => console.log('Fetched tenants:', tenants)),
+             catchError(this.handleError)
+         );
+     }
 
 }

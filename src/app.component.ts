@@ -148,6 +148,8 @@ ngOnInit(): void {
         this.loadingContext = true;
         const contexts = this.authService.getAvailableContexts();
         
+        if (contexts && contexts.length == 1) { console.log('yes context found .......with length 1'); } 
+        
         if (contexts && contexts.length > 1) {
           this.availableContextsForSelection = contexts;
           this.showContextSelectionDialog = true;

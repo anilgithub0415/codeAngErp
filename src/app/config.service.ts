@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 
 export interface GlobalConfig{
-  config_useraddthru:string; //signup/superadmin
+  config_usersCreatedby:string; //signup/superadmin
 }
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,7 @@ export class ConfigService {
     })
     .catch(error=>{
       console.error('Could not load application configuration');
-      this.configData={config_useraddthru:'signup'}
+      this.configData={config_usersCreatedby:'signup'}
       
     })
   }

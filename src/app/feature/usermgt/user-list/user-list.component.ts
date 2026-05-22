@@ -696,8 +696,7 @@ saveUser(): void {
             createdByUserId: createdByUserId,
             personId: this.selectedPerson!.id! // Use the ID of the selected/created person
             ,initialTenantId:   this.tenantIdFromusercontext
-            ,faculty_department:this.user.faculty_department
-            ,faculty_designation:this.user.faculty_designation
+            
         };
 
       // console.log('...................................this.user.role.rolename:',this.user.role.rolename);

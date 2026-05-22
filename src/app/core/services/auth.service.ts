@@ -33,6 +33,8 @@ interface TokenResponse {
     refresh_token?: string;
     message?: string; // For login/registration failure messages from backend
     userId?:number;
+    tenantId?:string;
+    availableContexts?:any;
     // userId is typically extracted from the JWT payload, not directly in the TokenResponse body,
     // but if your backend sends it directly in the response body, keep it.
     // However, it's safer to rely on JWT payload for user details.
@@ -170,18 +172,39 @@ export class AuthService {
                     //added
                     this.setUserId(response.userId!);
                     console.log('.......................................first login  refresh_token:',response.refresh_token);
-console.log('............response.userId:',response.userId);
+console.log('............response.tenantid:',response.tenantId);
+
+                    //added
+                    this._currentUserRole.next(response.availableContexts[0].roleName);
+                    console.log('just looggeed in setting activecontext');
+                    
+                    //this.setActiveContext(response.availableContexts)
+                    //end added
 
                     this.setAuthToken(response.access_token);
                     console.log('setted authtoken...................................');
                     
                     this.setRefreshToken(response.refresh_token);
-                    console.log('setted refresh token...................................');
+                    console.log('setted refresh token...................................',response.refresh_token);
 
+                    console.log('response.availableContexts[0].roleName:',response.availableContexts[0].roleName);
+                    
+                //     //added
+                    this.saveActiveContext(response.availableContexts[0]);
+                     
+                     
+                  
+                   
+                    
+
+                    
    //
   // if (this._isLoggedIn.getValue() !== true) {
         this._isLoggedIn.next(true); // Update login status via BehaviorSubject  
   // }
+
+  console.log('isLoggedIn true');
+  
                     if (typeof response.expires_in === 'number') {
                         this.tokenExpiryTimestamp = Math.floor(Date.now() / 1000) + response.expires_in;
                     } else if (typeof response.exp === 'number') {
@@ -335,6 +358,8 @@ console.log('............response.userId:',response.userId);
     }
 
     private setUserId(userId: number): void {
+        console.log('setting userid in setUserId:',userId.toString());
+        
         localStorage.setItem(this.USER_ID_KEY, userId.toString());
     }
 
@@ -399,6 +424,8 @@ console.log('............response.userId:',response.userId);
     refreshToken(): Observable<TokenResponse> {
         const refreshToken = this.getRefreshToken();
 
+        console.log('refreshing refreshtoken:',refreshToken);
+        
         if (!refreshToken) {
             this.clearAuthToken();
             return throwError(() => new Error('No refresh token available. Please log in again.'));
@@ -481,6 +508,9 @@ console.log('..................isLoggedIn returning:',loggedIn);
     
     // --- Active Context Management ---
     private saveActiveContext(context: AvailableContext | null): void {
+     
+        console.log('saving context:',context);
+        
         if (context) {
             localStorage.setItem(this.ACTIVE_CONTEXT_KEY, JSON.stringify(context));
         } else {
@@ -491,20 +521,29 @@ console.log('..................isLoggedIn returning:',loggedIn);
 
      loadActiveContext(): AvailableContext | null {
         const storedContext = localStorage.getItem(this.ACTIVE_CONTEXT_KEY);
+
+    
         return storedContext ? JSON.parse(storedContext) : null;
     }
 
     // --- NEW: Method to get all available contexts after initial login ---
     getAvailableContexts(): AvailableContext[] | null {
-        const token = this.getAuthToken();
+        console.log(' m in getAvailableContexts ');
+        
+        const token = this.getAuthToken(); 
+        
         if (!token) {
             return null;
         }
         try {
             const decodedToken = jwtDecode<InitialJwtPayload>(token);
             // Check if the token is an initial login token with availableContexts
+            console.log('checking for isarray (tokeken.avaialablecontexts):',Array.isArray(decodedToken.availableContexts));
+            
             if (Array.isArray(decodedToken.availableContexts)) {
                 //alert('yes i got availablecontext in payload...'+decodedToken.availableContexts)
+                console.log('decodedToken.availableContexts:',decodedToken.availableContexts);
+                
                 return decodedToken.availableContexts;
             }
             return null; // Or throw an error if it's not the expected initial token
@@ -515,13 +554,20 @@ console.log('..................isLoggedIn returning:',loggedIn);
     }
 
     setActiveContext(context: AvailableContext): Observable<any> {
-       
+     
       //  alert('start setActiveContext....')
+      console.log('setting Active context now....................');
+      
         const userId = this.getUserId();
         const refreshToken = this.getRefreshToken();
        
+console.log('got userid n Rtoken:',userId);
 
-        if (!userId || !refreshToken) {
+        //if (!userId || !refreshToken) { 
+            if (!userId) { 
+              console.log('no user or no refreshtoken');
+            if(!userId){            console.log('nope userid  is controll............');  }
+          //  if(!refreshToken){            console.log('nope refreshtoken  is controll............');  }
             return of(new Error('User not logged in or refresh token missing.'));
         }
 
@@ -538,7 +584,7 @@ console.log('..................isLoggedIn returning:',loggedIn);
                 
              //   alert('go for setActiveContext....')
 
-                console.log('setting activecontext from response:',response); 
+             console.log('setting activecontext from response:',response); 
 
                 this.setAuthToken(response.access_token); // Update the main access token
                 this.setRefreshToken( response.refresh_token ); // Update refresh token if rotated  //earlier was response.refresh_token || refreshToken
@@ -554,7 +600,7 @@ console.log('..................isLoggedIn returning:',loggedIn);
                 };
               
             
-
+                console.log('saving activecontext :',selectedContextFromResponse); 
                 
                 this.saveActiveContext(selectedContextFromResponse);// Save the selected context
                 
@@ -593,7 +639,8 @@ console.log('..................isLoggedIn returning:',loggedIn);
     // }
 
     getUserId(): number | null {
-        const userId = localStorage.getItem(this.USER_ID_KEY);
+        const userId = localStorage.getItem(this.USER_ID_KEY); console.log(' m in getUserId n userId:',userId);
+        
         return userId ? parseInt(userId, 10) : null;
     }
 
@@ -657,7 +704,10 @@ console.log('..................isLoggedIn returning:',loggedIn);
 
      // --- Modified getUserRole() ---
      getUserRole(): string | null {
+
         const activeContext = this.loadActiveContext();
+        console.log('returning userrole:',activeContext);
+        
         return activeContext ? activeContext.roleName : null;
     }
 
@@ -693,7 +743,7 @@ console.log('..................isLoggedIn returning:',loggedIn);
      * Extracts and returns the active tenantId from the stored access token.
      * @returns The tenantId as a string, or null if not found.
      */
-    getActiveTenantId_NotinUse(): string | null {
+    getActiveTenantId(): string | null {
         
         const token = this.getAuthToken();
         if (!token) {
@@ -715,7 +765,11 @@ console.log('..................isLoggedIn returning:',loggedIn);
 
     // --- Modified getTenantId() --- earlier was getActiveTenant
     getTenantId(): string | null {
+
+       
+        
         const activeContext = this.loadActiveContext();
+        console.log('getting tenantid:...........',activeContext?.tenantId);
         return activeContext ? activeContext.tenantId : null;
     }
      // Helper to update the _currentUserRole subject
@@ -725,6 +779,8 @@ console.log('..................isLoggedIn returning:',loggedIn);
         const permissions = this.getUserPermissions();
         const tenantId = this.getTenantId();// earlier was this.getActiveTenantId();
         const userId = this.getUserId();
+        console.log('_currentUserRole.next with role:',role);
+        
         this._currentUserRole.next(role);
         
         this.permissionsService.loadPermissions(permissions);

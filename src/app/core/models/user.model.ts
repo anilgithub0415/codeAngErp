@@ -53,16 +53,15 @@ export interface CreateUserDto {
     userName: string;
     password?: string; // Optional if using googleId for social login, otherwise required
     displayName?: string | null;
-    initialRoleName: string;
-    initialTenantId: string; // Crucial: must provide tenantId for new user
+    initialRoleName: string|null|undefined;
+    initialTenantId: string|null; // Crucial: must provide tenantId for new user
     googleId?: string | null; // Optional, for social logins
     isEmailVerified?:boolean;
      isActive?:boolean;
      createdByUserId?:number;
      personId?:number;
      person?:any;
-     faculty_department?:string;
-     faculty_designation?:string;
+  
     //, isEmailVerified would typically be set by backend with defaults
 }
 

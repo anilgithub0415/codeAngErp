@@ -62,9 +62,9 @@ import { ConfigService } from '../../../config.service';
             <div [ngStyle]="{'display':userIsLoggedIn? 'none':'block'}">
                 <button  pButton pRipple label="Login" routerLink="/auth/login" [rounded]="true" [text]="true"></button>
             </div>
-
+            {{config_usersCreatedby}}
             <!--display signup button only when config table useraddthru must be signup-->
-            <div [ngStyle]="{'display':!userIsLoggedIn && config_useraddthru==='signup'? 'block':'none' }">
+            <div [ngStyle]="{'display':!userIsLoggedIn && config_usersCreatedby==='signup'? 'block':'none' }">
                 <button pButton pRipple label="Register" routerLink="/auth/signupandregister" [rounded]="true"></button>
             </div>
                
@@ -73,7 +73,7 @@ import { ConfigService } from '../../../config.service';
 })
 export class TopbarWidget {
     userIsLoggedIn: boolean = false;
-    config_useraddthru:string='signup'; //config service reads systems default, posible values signup/superadmin
+    config_usersCreatedby:string='signup'; //config service reads systems default, posible values signup/superadmin
     constructor(public router: Router, private AuthServ: AuthService) {}
 
     private configService=inject(ConfigService)
@@ -81,7 +81,7 @@ export class TopbarWidget {
         //read globalConfigData
         const globalConfigData=this.configService.config;
         if(globalConfigData){
-            this.config_useraddthru=globalConfigData.config_useraddthru;
+            this.config_usersCreatedby=globalConfigData.config_usersCreatedby;
         }
         // end globalConfigData 
 
