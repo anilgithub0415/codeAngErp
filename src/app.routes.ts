@@ -74,6 +74,12 @@ export const appRoutes: Routes = [
                 data: { roles: ['SuperAdmin'] }                 
             },
             {
+                path: 'productmgt',
+                loadChildren: () => import('./app/feature/productmgt/productmgt-routing.module').then(m => m.ProductmgtRoutingModule)
+                , canActivate: [roleGuard],
+                    data: { roles: ['DataEntry'] }                 
+                },
+            {
                 path: 'coursemgt',
                 loadChildren: () => import('./app/feature/coursemgt/coursemgt-routing.module').then(m => m.CoursemgtRoutingModule)
                 , canActivate: [roleGuard],

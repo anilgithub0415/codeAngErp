@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ProductMasterComponent } from './product-master/product-master.component';
 
-const routes: Routes = [];
+const routes: Routes = [
+  {path:'',component:ProductMasterComponent},];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

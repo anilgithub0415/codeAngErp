@@ -1,0 +1,12 @@
+<p>product-master works!</p>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <formly-form
+        [form]="form"
+        [fields]="fields"
+        [model]="model">
+
+    
+    </formly-form>
+    <button type="submit" [disabled]="!form.valid">Save User</button>
+</form>
