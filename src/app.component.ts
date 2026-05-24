@@ -36,7 +36,7 @@ interface AvailableContext {
 //NgxPermissionsModule, // <-- Add this here
 ],
 providers:[],
-    template: ` <span *ngIf='loadingContext'>Wait...</span>
+    template: `<span *ngIf='loadingContext'>Wait...</span>
     <router-outlet *ngIf='!loadingContext'></router-outlet>
     <app-context-selection-dialog
     [visible]="showContextSelectionDialog"
