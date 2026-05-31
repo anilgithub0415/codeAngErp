@@ -28,6 +28,7 @@ import { StudentAnswerTypeComponent } from './app/core/repeattype/student-answer
 import { QuestiontextComponent } from './app/core/repeattype/questiontext/questiontext.component';
 import { AssessStudentAnswerTypeComponent } from './app/core/repeattype/assess-student-answer-type/assess-student-answer-type.component';
 import { ConfigService } from './app/config.service';
+import { FormlyFieldProductmultiselect } from './app/shared/components/formlyfields/productmultiselect/productmultiselect.component';
 
 
 export const appConfig: ApplicationConfig = {
@@ -37,7 +38,8 @@ export const appConfig: ApplicationConfig = {
             NgxPermissionsModule.forRoot(),
             
       FormlyModule.forRoot({
-        types: [{ name: 'repeat', component: RepeatsectiontypeComponent }],
+        types: [{ name: 'repeat', component: RepeatsectiontypeComponent },
+                { name: 'product-multiselect', component: FormlyFieldProductmultiselect }],
       }),
       FormlyModule.forRoot({
         types: [

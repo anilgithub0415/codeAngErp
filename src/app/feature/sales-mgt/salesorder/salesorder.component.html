@@ -1,0 +1,15 @@
+<p>salesorder works!</p>
+<form [formGroup]="form">
+    <formly-form [form]="form" [fields]="fields" [model]="model" ></formly-form>
+
+    <div style="margin-top: 8px;">
+        <button type="button" (click)="addSelectedProducts();">Add selected products</button>
+        <button type="button" style="margin-left:8px" (click)="addOneSelected()">Add one selected</button>
+    </div>
+</form>
+
+<div style="margin-top:12px">
+    <div>Subtotal: {{ totals.subTotal | number:'1.2-2' }}</div>
+    <div>Tax: {{ totals.taxTotal | number:'1.2-2' }}</div>
+    <div><strong>Grand Total: {{ totals.grandTotal | number:'1.2-2' }}</strong></div>
+</div>

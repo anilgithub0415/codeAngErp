@@ -1,0 +1,12 @@
+
+<!-- product multiselect rendered by Formly field -->
+<p-multiselect *ngIf="binded_products && productOptions && productOptions.length"
+    [formControl]="formControl"
+    [options]="productOptions"
+    [formlyAttributes]="field" (onChange)="formControl.setValue($event.value)"
+    placeholder="Select Products"
+    optionLabel="label"
+    display="chip">
+</p-multiselect>
+
+

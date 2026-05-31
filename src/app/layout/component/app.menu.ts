@@ -55,6 +55,15 @@ export class AppMenu {
                         routerLink: ['/']
                     },
                     {
+                        label: 'Customer',
+                        icon: 'pi pi-fw pi-pencil',
+                        routerLink: ['/app/custmgt']
+                    }, {
+                        label: 'Sales',
+                        icon: 'pi pi-fw pi-pencil',
+                        routerLink: ['/app/salesmgt']
+                    },
+                    {
                         label: 'Auth',
                         icon: 'pi pi-fw pi-user',
                         items: [

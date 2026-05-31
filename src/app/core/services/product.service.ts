@@ -54,11 +54,26 @@ export class ProductService {
         catchError(this.handleError)
     );
 }
+getProduct(ptenantId:string,prodId:number): Observable<Product[]> {
+    return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
+}
 
+getProducts(ptenantId:string): Observable<Product[]> {
+    return this.http.get<Product[]>(this.apiUrl)
+}
+getProductFinalPrice(pProductId:number,ptenantId:string,p:any): Observable<number> {
+    var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/1';
+    console.log('posting url:',url);
+    
+    return this.http.post<number>(url,p)
+}
 
     //for ngx-formly to work
-    getProducttableFieldsConfig():Observable<any>{
-        return this.http.get<any[]>(this.apiUrl+'/product_table_fields').pipe(
+    getProducttableFieldsConfig(ptenantId:any):Observable<any>{
+        var url=this.apiUrl+'/product_table_fields/'+ptenantId;
+        
+        
+        return this.http.get<any[]>(url).pipe(
             // tap(tenants => console.log('Fetched tenants:', tenants)),
              catchError(this.handleError)
          );

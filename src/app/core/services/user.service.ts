@@ -17,7 +17,10 @@ export class UserService {
     // Assuming your backend serves user APIs under /api/users
     private apiUrl = '/user';
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+ console.log('userservice constructor is running');
+
+     }
 
     /**
      * Handles HTTP errors from API calls.
@@ -71,6 +74,8 @@ export class UserService {
      * @returns An Observable of a single User object.
      */
     getUser(id: number): Observable<User> { 
+        
+        
         const url = `${this.apiUrl}/${id}`;
         return this.http.get<User>(url).pipe(
             tap(user => {}),
@@ -131,9 +136,11 @@ export class UserService {
 
     //for ngx-formly to work
     getUsertableFieldsConfig(config_usersCreatedby:string):Observable<any>{
+       console.log(' m in userservice getUsertableFieldsConfig.................:');
+
         return this.http.get<any[]>(this.apiUrl+'/user_table_fields'+'?config_usersCreatedby='+config_usersCreatedby).pipe(
             // tap(tenants => console.log('Fetched tenants:', tenants)),
-             catchError(this.handleError)
+            // catchError(this.handleError)
          );
      }
 

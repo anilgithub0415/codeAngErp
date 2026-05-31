@@ -27,6 +27,8 @@ export class UserFormComponent implements OnInit{
    private config_usersCreatedby:string='';
 
     constructor(private authService:AuthService){
+      console.log('m in constructor of userform...');
+      
 
     }
 
@@ -35,9 +37,11 @@ export class UserFormComponent implements OnInit{
 
       //for reading config of system like who will create logins superadmin / signup
       const globalConfigData=this.configService.config;
+      
           if(globalConfigData){
-              this.config_usersCreatedby=globalConfigData.config_usersCreatedby;
+              this.config_usersCreatedby=globalConfigData.config_useraddthru;
           }
+console.log('ngOninit of user form');
 
       //getFieldsfrom db
       this.userService.getUsertableFieldsConfig(this.config_usersCreatedby).subscribe((dbFields:any[])=>{

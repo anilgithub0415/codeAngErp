@@ -1,19 +1,20 @@
 export interface Product {
   
-    prod_name: string;
+    prodName: string;
     description?: string; 
     sku: string | null;
-    base_price?: number|null|undefined;
+    basePrice?: number|null|undefined;
+    customAttributes?:string;
    
   
 }
 
 export interface CreateProductDto {
-  
-    prod_name: string;
+  tenantId:string;
+    prodName: string;
     description?: string; 
     sku: string | null;
-    base_price?: number|null|undefined;
-   
+    basePrice?: number|null|undefined;
+   [key : string]:any
   
 }

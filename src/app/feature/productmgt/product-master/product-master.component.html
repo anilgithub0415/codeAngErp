@@ -1,5 +1,5 @@
 <p>product-master works!</p>
-
+<!-- <div>{{fields|json}}</div> -->
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <formly-form
         [form]="form"
@@ -10,3 +10,31 @@
     </formly-form>
     <button type="submit" [disabled]="!form.valid">Save User</button>
 </form>
+
+
+<p-dataview *ngIf="products?.length" [value]="products" [layout]="'list'" [paginator]="true" [rows]="10">
+  <ng-template #list let-items>
+    <div class="flex flex-col gap-0 p-1">
+      <div [style.maxHeight.px]="rowHeight" *ngFor="let product of items" class="border rounded-lg p-2 flex items-start gap-4">
+        <img [src]="product.image" [alt]="product.prodName" class="w-24 h-24 object-contain"/>
+        <div class="flex items-start gap-4 w-full">
+          <div  class="text-xl font-bold truncate">{{ product.prodName }}</div>
+          <div  class="flex-1 text-sm text-surface-500">{{ product.description }}</div>
+          <div  class="flex-1 text-sm text-surface-500">{{ product.sku }}</div>
+          <div  class="flex-1 text-sm text-surface-500">{{ product.basePrice }}</div>
+
+
+          <div *ngIf="product.customAttributes && product.customAttributes.tier_prices.B2C_price" class="flex-1 text-sm text-surface-500">{{ product.customAttributes.tier_prices.B2C_price }}</div>
+             <div *ngIf="!product.customAttributes || product.customAttributes.tier_prices.B2C_price" class="flex-1 text-sm text-surface-500">-</div>
+
+           <div  *ngIf="product.customAttributes && product.customAttributes.tier_prices.B2B_price" class="flex-1 text-sm text-surface-500">{{ product.customAttributes.tier_prices.B2B_price }}</div>
+            <div  *ngIf="!product.customAttributes || !product.customAttributes.tier_prices.B2B_price" class="flex-1 text-sm text-surface-500">-</div>
+
+          <div  *ngIf="product.customAttributes && product.customAttributes.tier_prices.B2BC_price" class="flex-1 text-sm text-surface-500">{{ product.customAttributes.tier_prices.B2BC_price }}</div> 
+          <div  *ngIf="!product.customAttributes || !product.customAttributes.tier_prices.B2BC_price" class="flex-1 text-sm text-surface-500">-</div> 
+
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dataview>

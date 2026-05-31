@@ -33,7 +33,6 @@ export const appRoutes: Routes = [
    
     // Your 404/Notfound page, also independent of AppLayout
     { path: 'notfound', component: Notfound },
-
     // --- AUTHENTICATED ROUTES (Wrapped by AppLayout) ---
     // All routes that require the application's main layout (header, sidebar, etc.)
     // will now live under a common parent path (e.g., 'app' or 'dashboard')
@@ -68,7 +67,7 @@ export const appRoutes: Routes = [
                 
             },
             {
-            path: 'usrmgt',
+            path: 'usermgt',
             loadChildren: () => import('./app/feature/usermgt/usermgt-routing.module').then(m => m.UsermgtRoutingModule)
             , canActivate: [roleGuard],
                 data: { roles: ['SuperAdmin'] }                 
@@ -77,8 +76,20 @@ export const appRoutes: Routes = [
                 path: 'productmgt',
                 loadChildren: () => import('./app/feature/productmgt/productmgt-routing.module').then(m => m.ProductmgtRoutingModule)
                 , canActivate: [roleGuard],
-                    data: { roles: ['DataEntry'] }                 
-                },
+                 //   data: { roles: ['DataEntry'] }                 
+            },
+            {
+                path: 'salesmgt',
+                loadChildren: () => import('./app/feature/sales-mgt/sales-mgt-routing.module').then(m => m.SalesMgtRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Salesman'] }                 
+            },
+            {
+                path: 'custmgt',
+                loadChildren: () => import('./app/feature/customer-mgt/customer-mgt-routing.module').then(m => m.CustomerMgtRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Salesman'] }                 
+            },
             {
                 path: 'coursemgt',
                 loadChildren: () => import('./app/feature/coursemgt/coursemgt-routing.module').then(m => m.CoursemgtRoutingModule)
