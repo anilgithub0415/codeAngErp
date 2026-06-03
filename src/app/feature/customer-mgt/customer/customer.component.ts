@@ -9,11 +9,18 @@ import {createCustomer} from '../../../core/models/customer.model'
 import { DataViewModule } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { MessageService } from 'primeng/api';
+import { TableModule } from 'primeng/table';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-customer',
   imports: [ReactiveFormsModule, FormsModule,FormlyModule,CommonModule,
-    DataViewModule,ButtonModule,TagModule,
+    DataViewModule,TagModule,
+     TableModule, ButtonModule, InputNumberModule, InputTextModule, ToastModule
   ],
+  providers:[MessageService],
   templateUrl: './customer.component.html',
   styleUrl: './customer.component.scss'
 })
@@ -21,7 +28,7 @@ export class CustomerComponent {
 
 leftCol = '30%'; rowHeight="50"
   form = new FormGroup({});
-    model:Partial<createFormDto> = {};
+    model:Partial<createCustomer> = {};
     fields: FormlyFieldConfig[]=[];
  fs:FormlyFieldConfig[]=[];
     aForm!:any;
@@ -31,7 +38,7 @@ leftCol = '30%'; rowHeight="50"
     private customerService=inject(CustomerService)
     
   
-    constructor(){
+    constructor( private messageService: MessageService){
   
     }
   
@@ -49,7 +56,11 @@ leftCol = '30%'; rowHeight="50"
   
   getForm_Customer(){
 //customer_form
-    this.formService.getForm('1','xyz').subscribe(aform=>{
+console.log('get customer_forrm formly');
+
+    this.formService.getForm('1','customer_form').subscribe(aform=>{
+      console.log('yes got formly');
+      
       this.aForm=aform; 
       console.log('this.aForm.formlyConfig:',this.aForm.FormlyConfig);
       
@@ -78,11 +89,9 @@ leftCol = '30%'; rowHeight="50"
      if(this.form.valid){
       const createDto: createCustomer = {
         tenantId:'1',
-        customerName: this.form.get('cusomer_name')?.value!,
-        customerCategory: this.form.get('customerCategory')?.value!
-        
-        
-    };
+        customerName: this.model.customerName!,
+        customerCategory: this.model.customerCategory!
+        };
   
   
     
@@ -90,5 +99,42 @@ leftCol = '30%'; rowHeight="50"
      }
       
     }
+
+
+
+
+
+
+    
+  removeCustomer(index: number) {
+    this.customers.splice(index, 1);
+      }
+      saveCustomer() {
+        if ( !this.form.valid) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Customer Name and Category is required' });
+          return;
+        }
+        // TODO: Implement API call to save order
+    
+                      
+      const createDto: createCustomer = {
+        tenantId:'1',
+        customerName: this.model.customerName!,
+        customerCategory: this.model.customerCategory!,
+        };
+  
+  
+    
+     this.customerService.createCustomer(createDto).subscribe(res=>console.log('Customer saved successfully!',res)   )
+    
+                    
+        console.log('Saving Customer:', this.model);
+        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Customer saved successfully' });
+      }
+    
+      clearCustomer() {
+        this.model = { customerName: '', customerCategory: '' };
+        this.form.reset();
+      }
 
 }

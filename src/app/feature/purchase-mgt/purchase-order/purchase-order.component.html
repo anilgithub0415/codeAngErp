@@ -1,9 +1,10 @@
-<div class="sales-order-container p-4">
+
+<div class="purchase-order-container p-4">
   <p-toast></p-toast>
 
   <form [formGroup]="form" class="order-form">
     <div class="order-header mb-4">
-      <h2 class="text-xl font-bold mb-3">Sales Order</h2>
+      <h2 class="text-xl font-bold mb-3">Purchase Order</h2>
       <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
     </div>
 
@@ -68,18 +69,18 @@
       <button
         pButton
         type="button"
-        label="Save Order"
+        label="Save Purchase"
         icon="pi pi-save"
-        (click)="saveOrder()"
+        (click)="savePurchase()"
         class="p-button-success"
         [disabled]="!model.lines?.length">
       </button>
       <button
         pButton
         type="button"
-        label="Clear Order"
+        label="Clear Purchase"
         icon="pi pi-times"
-        (click)="clearOrder()"
+        (click)="clearPurchase()"
         class="p-button-secondary"
         style="margin-left: 0.5rem">
       </button>

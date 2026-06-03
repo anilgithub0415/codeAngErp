@@ -70,7 +70,7 @@ export const appRoutes: Routes = [
             path: 'usermgt',
             loadChildren: () => import('./app/feature/usermgt/usermgt-routing.module').then(m => m.UsermgtRoutingModule)
             , canActivate: [roleGuard],
-                data: { roles: ['SuperAdmin'] }                 
+             //   data: { roles: ['SuperAdmin'] }                 
             },
             {
                 path: 'productmgt',
@@ -83,6 +83,12 @@ export const appRoutes: Routes = [
                 loadChildren: () => import('./app/feature/sales-mgt/sales-mgt-routing.module').then(m => m.SalesMgtRoutingModule)
                 , canActivate: [roleGuard],
                 //    data: { roles: ['Salesman'] }                 
+            },
+            {
+                path: 'purchasemgt',
+                loadChildren: () => import('./app/feature/purchase-mgt/purchase-mgt-routing.module').then(m => m.PurchaseMgtRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Purchaser'] }                 
             },
             {
                 path: 'custmgt',

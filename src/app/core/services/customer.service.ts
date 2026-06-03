@@ -59,7 +59,7 @@ getCustomer(ptenantId:string,prodId:number): Observable<Customer[]> {
 }
 
 getCustomers(ptenantId:string): Observable<Customer[]> {
-    return this.http.get<Customer[]>(this.apiUrl)
+    return this.http.get<Customer[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
 }
 
 

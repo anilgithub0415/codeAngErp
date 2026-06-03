@@ -1,0 +1,31 @@
+<div class="product-search-container" *ngIf="binded_products">
+  <p-dropdown
+    [options]="filteredProducts"
+    [(ngModel)]="selectedProduct"
+    [filter]="true"
+    [showClear]="true"
+    [placeholder]="field.props?.placeholder || 'Search products...'"
+    optionLabel="label"
+    [style]="{'width': '100%'}"
+    (onFilter)="filterProducts($event)">
+    <ng-template let-product pTemplate="item">
+      <div class="product-item">
+        <div class="product-name">{{ product.prodName }}</div>
+        <small class="product-sku">SKU: {{ product.sku }}</small>
+        <span class="product-price">₹{{ product.basePrice | number:'1.2-2' }}</span>
+      </div>
+    </ng-template>
+    <ng-template let-product pTemplate="selectedItem">
+      <span>{{ product?.prodName }}</span>
+    </ng-template>
+  </p-dropdown>
+  <button
+    pButton
+    type="button"
+    label="Add to Order"
+    icon="pi pi-plus"
+    (click)="addToOrder()"
+    [disabled]="!selectedProduct"
+    class="p-button-success">
+  </button>
+</div>

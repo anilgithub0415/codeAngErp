@@ -1,28 +1,75 @@
-<p>customer works!</p> 
-
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <formly-form 
-        [form]="form"
-        [fields]="fields"
-        [model]="model">
-
-    
-    </formly-form>
-    <button type="submit" [disabled]="!form.valid">Save User</button>
-</form>
+<div class="customer-container p-4">
+  <p-toast></p-toast>
 
 
-<p-dataview *ngIf="customers?.length" [value]="customers" [layout]="'list'" [paginator]="true" [rows]="10">
-  <ng-template #list let-items>
-    <div class="flex flex-col gap-0 p-1">
-      <div [style.maxHeight.px]="rowHeight" *ngFor="let customer of items" class="border rounded-lg p-2 flex items-start gap-4">
-        
-        <div class="flex items-start gap-4 w-full">
-          <div  class="text-xl font-bold truncate">{{ customer.customerName }}</div>
-          <div  class="text-xl font-bold truncate">{{ customer.customerCategory }}</div>
-
-        </div>
-      </div>
+  <form [formGroup]="form" class="order-form">
+    <div class="order-header mb-4">
+      <h2 class="text-xl font-bold mb-3">Customer</h2>
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
     </div>
-  </ng-template>
-</p-dataview>
+ 
+
+<div class="customer-actions">
+      <button
+        pButton
+        type="button"
+        label="Save Customer"
+        icon="pi pi-save"
+        (click)="saveCustomer()"
+        class="p-button-success"
+        [disabled]="!customers?.length">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Customer"
+        icon="pi pi-times"
+        (click)="clearCustomer()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+customers?.length:{{customers?.length}}
+    <div class="customer-section mb-4" *ngIf="customers?.length">
+      <h3 class="text-lg font-semibold mb-2">Customers</h3>
+      <p-table [value]="customers" class="customers-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="50px"></th>
+            <th>Customer</th>
+            <th>Category</th>
+            <th width="120px"></th>
+            
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-acustomer let-rowIndex="rowIndex">
+          <tr>
+             <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeCustomer(rowIndex)">
+              </button>
+            </td>
+            <td>{{ acustomer.customerName }}</td>
+            <td>{{ acustomer.customerCategory }}</td>
+            
+            
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeCustomer(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+ </form>
+</div>

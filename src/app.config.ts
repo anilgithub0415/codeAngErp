@@ -12,6 +12,7 @@ import { tokenInterceptor } from './app/core/http/token.interceptor';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
+import {FormlyDatepickerModule} from '@ngx-formly/primeng/datepicker'
 import { FormlySelectModule } from '@ngx-formly/core/select';
 
 import { DatePipe } from '@angular/common';
@@ -29,6 +30,8 @@ import { QuestiontextComponent } from './app/core/repeattype/questiontext/questi
 import { AssessStudentAnswerTypeComponent } from './app/core/repeattype/assess-student-answer-type/assess-student-answer-type.component';
 import { ConfigService } from './app/config.service';
 import { FormlyFieldProductmultiselect } from './app/shared/components/formlyfields/productmultiselect/productmultiselect.component';
+import { FormlyFieldProductsearch } from './app/shared/components/formlyfields/productsearch/productsearch.component';
+import { FormlyFieldVendorsearch } from './app/shared/components/formlyfields/vendorsearch/vendorsearch.component';
 
 
 export const appConfig: ApplicationConfig = {
@@ -38,20 +41,18 @@ export const appConfig: ApplicationConfig = {
             NgxPermissionsModule.forRoot(),
             
       FormlyModule.forRoot({
-        types: [{ name: 'repeat', component: RepeatsectiontypeComponent },
-                { name: 'product-multiselect', component: FormlyFieldProductmultiselect }],
-      }),
-      FormlyModule.forRoot({
         types: [
+          { name: 'repeat', component: RepeatsectiontypeComponent },
+          { name: 'product-multiselect', component: FormlyFieldProductmultiselect },
+          { name: 'product-search', component: FormlyFieldProductsearch },
+          { name: 'vendor-search', component: FormlyFieldVendorsearch },
           { name: 'question-picker', component: QuestionPickerComponent },
           { name: 'studentAnswerType', component: StudentAnswerTypeComponent },
           { name: 'assessStudentAnswerType', component: AssessStudentAnswerTypeComponent },
-          { name: 'questionTextDisplay', component: QuestiontextComponent },
-          
-          
+          { name: 'questionTextDisplay', component: QuestiontextComponent }
         ]
       }),
-            FormlyPrimeNGModule,FormlySelectModule,
+            FormlyPrimeNGModule,FormlySelectModule,FormlyDatepickerModule
          
         ),
 

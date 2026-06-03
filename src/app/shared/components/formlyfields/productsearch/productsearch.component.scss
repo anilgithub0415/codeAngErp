@@ -1,0 +1,37 @@
+.product-search-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  width: 100%;
+
+  .p-dropdown {
+    flex: 1;
+  }
+
+  .p-button {
+    margin-top: 0.25rem;
+  }
+}
+
+.product-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+
+  .product-name {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .product-sku {
+    color: #666;
+    font-size: 0.85rem;
+  }
+
+  .product-price {
+    color: #28a745;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+}

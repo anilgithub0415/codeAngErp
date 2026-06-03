@@ -1,4 +1,4 @@
-<p>user-form works!</p>
+<p>user-form works!</p> <div *ngIf="users">{{users|json}}</div>
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <formly-form
         [form]="form"

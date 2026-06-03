@@ -6,16 +6,20 @@ import { ConfigService } from '../../../config.service';
 import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { AuthService } from '../../../core/services/auth.service';
 import { CreateUserDto } from '../../../core/models/user.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, FormsModule,FormlyModule], 
+  imports: [ReactiveFormsModule, FormsModule,FormlyModule
+    ,CommonModule
+  ], 
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss',
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UserFormComponent implements OnInit{
    
+  users!:any[];
 
     form = new FormGroup({});
     model:Partial<CreateUserDto> = {};
@@ -84,7 +88,18 @@ console.log('ngOninit of user form');
           
       })
 
+      this.getUsers();
+
     }//ngOnInit
+
+
+     getUsers(){
+    this.userService.getUsers('1').subscribe(usrs=>{
+      this.users=usrs; console.log('usrs:',usrs);
+      
+    })
+  }
+  
 
     onSubmit(){
      if(this.form.valid){

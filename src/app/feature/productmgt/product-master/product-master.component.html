@@ -1,18 +1,79 @@
-<p>product-master works!</p>
-<!-- <div>{{fields|json}}</div> -->
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <formly-form
-        [form]="form"
-        [fields]="fields"
-        [model]="model">
-
-    
-    </formly-form>
-    <button type="submit" [disabled]="!form.valid">Save User</button>
-</form>
+<div class="sales-order-container p-4">
+  <p-toast></p-toast>
 
 
-<p-dataview *ngIf="products?.length" [value]="products" [layout]="'list'" [paginator]="true" [rows]="10">
+  <form [formGroup]="form" class="order-form">
+    <div class="order-header mb-4">
+      <h2 class="text-xl font-bold mb-3">Product</h2>
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    </div>
+ 
+
+<div class="product-actions">
+      <button
+        pButton
+        type="button"
+        label="Save Product"
+        icon="pi pi-save"
+        (click)="saveProduct()"
+        class="p-button-success"
+        [disabled]="!products?.length">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Product"
+        icon="pi pi-times"
+        (click)="clearProduct()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+
+    <div class="product-section mb-4" *ngIf="products?.length">
+      <h3 class="text-lg font-semibold mb-2">Products</h3>
+      <p-table [value]="products" class="products-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="50px"></th>
+            <th>Product</th>
+            <th>SKU</th>
+            <th width="120px">Unit Price</th>
+            <th width="120px"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-aproduct let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeProduct(rowIndex)">
+              </button>
+            </td>
+            <td>{{ aproduct.prodName }}</td>
+            <td>{{ aproduct.sku }}</td>
+            <td>₹{{ aproduct.basePrice | number:'1.2-2' }}</td>
+            
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeProduct(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+ </form>
+</div>
+<!-- <p-dataview *ngIf="products?.length" [value]="products" [layout]="'list'" [paginator]="true" [rows]="10">
   <ng-template #list let-items>
     <div class="flex flex-col gap-0 p-1">
       <div [style.maxHeight.px]="rowHeight" *ngFor="let product of items" class="border rounded-lg p-2 flex items-start gap-4">
@@ -37,4 +98,4 @@
       </div>
     </div>
   </ng-template>
-</p-dataview>
+</p-dataview> -->

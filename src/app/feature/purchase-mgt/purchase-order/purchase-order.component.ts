@@ -10,16 +10,19 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
-  selector: 'app-salesorder',
-  imports: [ReactiveFormsModule, FormsModule, FormlyModule, CommonModule, TableModule, ButtonModule, InputNumberModule, InputTextModule, ToastModule],
-  templateUrl: './salesorder.component.html',
-  styleUrl: './salesorder.component.scss',
-  providers: [MessageService]
+  selector: 'app-purchase-order',
+  imports: [ReactiveFormsModule, FormsModule, FormlyModule, CommonModule, 
+    TableModule, ButtonModule, InputNumberModule, InputTextModule, ToastModule
+  ,DatePickerModule
+  ],
+  templateUrl: './purchase-order.component.html',
+  styleUrl: './purchase-order.component.scss',
+   providers: [MessageService]
 })
-export class SalesorderComponent implements OnInit {
+export class PurchaseOrderComponent implements OnInit {
   form = new FormGroup({});
   model: any = { orderNumber: '', selectedProducts: [], lines: [] };
 
@@ -27,9 +30,29 @@ export class SalesorderComponent implements OnInit {
 
   fields: FormlyFieldConfig[] = [
     {
-      key: 'orderNumber',
+      key: 'poNumber',
       type: 'input',
-      props: { label: 'Order Number', required: true }
+      props: { label: 'Purchase Order Number', required: true }
+    },
+    
+     {
+      key: 'vendorId',
+     type: 'vendor-search',
+      props: {
+        label: 'Search Vendor',
+        placeholder: 'Type to search vendor...',
+        productAdded: (product: any) => this.onProductAdded(product)
+      }
+    },
+
+     {
+      key: 'orderDate',
+      //type: 'input',
+      type:'datepicker',
+      defaultValue: new Date().toISOString().substring(0,10),
+      props: { label: 'orderDate', required: true , 
+        dateFormat:'dd-mm-yy'
+      }
     },
     {
       key: 'productSearch',
@@ -92,7 +115,7 @@ onProductAdded(product: any) {
     this.computeTotals();
   }
 
-  saveOrder() {
+  savePurchase() {
     if (!this.model.orderNumber || !this.model.lines?.length) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Order number and at least one product required' });
       return;
@@ -102,7 +125,7 @@ onProductAdded(product: any) {
     this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Order saved successfully' });
   }
 
-  clearOrder() {
+  clearPurchase() {
     this.model = { orderNumber: '', selectedProducts: [], lines: [] };
     this.totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
     this.form.reset();
@@ -129,3 +152,4 @@ onProductAdded(product: any) {
     this.totals.grandTotal = +(this.totals.subTotal + this.totals.taxTotal).toFixed(2);
   }
 }
+

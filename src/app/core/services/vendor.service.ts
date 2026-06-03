@@ -1,21 +1,18 @@
-// src/app/core/services/product.service.ts
-
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators'; // Import catchError and tap
-
-// Import the Product interfaces/DTOs you just defined
-import { Product, CreateProductDto } from '../models/product.model';
-// No need for InventoryStatus here, that was from the product example
+import { CreateProductDto, Product } from '../models/product.model';
+import { Vendor } from '../models/vendor.model';
 
 @Injectable({
-    providedIn: 'root' // This ensures it's a singleton available throughout your application
+  providedIn: 'root'
 })
-export class ProductService {
+export class VendorService {
+
     // Base URL for your Product API endpoints on the backend
     // Assuming your backend serves product APIs under /api/products
-    private apiUrl = '/product';
+    private apiUrl = '/vendor';
 
     constructor(private http: HttpClient) { }
 
@@ -58,8 +55,8 @@ getProduct(ptenantId:string,prodId:number): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
-getProducts(ptenantId:string): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
+getProducts(ptenantId:string): Observable<Vendor[]> {
+    return this.http.get<Vendor[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
 }
 getProductFinalPrice(pProductId:number,ptenantId:string,p:any): Observable<number> {
     var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/1';
