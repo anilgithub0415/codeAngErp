@@ -1,5 +1,5 @@
 
-import { Component, OnInit, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -13,15 +13,44 @@ import { UserContextService } from './app/core/services/user-context.service';
 import { ToastModule } from 'primeng/toast';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
+import { LookupService } from './app/core/services/lookup.service';
+import { FORMLY_CONFIG, provideFormlyCore } from '@ngx-formly/core';
 
+import { withFormlyPrimeNG } from '@ngx-formly/primeng'; 
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
-    tenantId: string;displayName:string;
+    tenantId: number;displayName:string;
     tenantName: string;tenantType: string;
     roleName: string;
     permissions: string[];
 }
+export function registerLookupExtension(lookupService:LookupService){
 
+  return {
+    extensions:[
+      {
+        name:'lookup-injector',
+        extension:{
+          prePopulate:async(field:any)=>{
+                       
+            const lookupKey = field.props?.['lookupKey'];
+            if(!lookupKey) return; 
+            //hardcoded tenantid here
+            await lookupService.getLookupDataByKey('customerCategoryTypes',1).subscribe({
+              next:(x:any[])=>{
+                  
+                  field.props.options=x;
+
+                  }                   
+            });
+            
+            
+          }
+        }
+      }
+    ]
+  }
+}
 
 @Component({
     selector: 'app-root',
@@ -35,7 +64,18 @@ interface AvailableContext {
     // NgxPermissionsModule - configure forRoot
 //NgxPermissionsModule, // <-- Add this here
 ],
-providers:[],
+providers:[
+  provideFormlyCore(
+      withFormlyPrimeNG() 
+    ),
+  LookupService,
+  {
+    provide: FORMLY_CONFIG,
+    multi:true,
+    useFactory:registerLookupExtension,
+    deps:[LookupService]
+  }
+],
     template: `<span *ngIf='loadingContext'>Wait...</span>
     <router-outlet *ngIf='!loadingContext'></router-outlet>
     <app-context-selection-dialog
@@ -50,8 +90,9 @@ export class AppComponent implements OnInit {
     showContextSelectionDialog: boolean = false;
     loadingContext:boolean=false;
     availableContextsForSelection: AvailableContext[] | null = null;
-
-    constructor(public authService: AuthService, private router: Router, private eventbusService:EventBusService
+    
+public authService=inject(AuthService)
+    constructor( private router: Router, private eventbusService:EventBusService
         ,  private usercontextService:UserContextService,
         ) {
          

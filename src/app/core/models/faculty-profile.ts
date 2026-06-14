@@ -1,7 +1,7 @@
 import { CourseOffering } from "./course-offering";
 
 export interface CreateFacultyProfileDto {
-    tenantId: string;
+    tenantId: number;
     personId: number; // Link to the Person entity
     employeeIdNumber?: string | null;
     department?: string | null;
@@ -30,7 +30,7 @@ export interface CreateFacultyProfileDto {
    */
   export interface FacultyProfile {
     id: number;
-    tenantId: string;
+    tenantId: number;
     personId: number;
     person:any;
     employeeIdNumber: string | null;

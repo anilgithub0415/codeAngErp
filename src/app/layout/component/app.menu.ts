@@ -58,10 +58,18 @@ export class AppMenu {
                         label: 'Customer',
                         icon: 'pi pi-fw pi-pencil',
                         routerLink: ['/app/custmgt']
+                    },{
+                        label: 'Purchase',
+                        icon: 'pi pi-fw pi-pencil',
+                        routerLink: ['/app/purchasemgt']
                     }, {
                         label: 'Sales',
                         icon: 'pi pi-fw pi-pencil',
                         routerLink: ['/app/salesmgt']
+                    },{
+                        label: 'ProductWithVariant',
+                        icon: 'pi pi-fw pi-pencil',
+                        routerLink: ['/app/productmgt']
                     },
                     {
                         label: 'Auth',

@@ -39,7 +39,7 @@ export class FormService {
         return throwError(() => new Error(errorMessage));
     }
 
-getForm(ptenantId:string,formKey:string): Observable<form> {
+getForm(ptenantId:number,formKey:string): Observable<form> {
     const url=this.apiUrl+'/'+ptenantId+'/'+formKey;
     console.log('url for for:',url)
     return this.http.get<form>(url)

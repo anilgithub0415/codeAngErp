@@ -78,7 +78,7 @@ export class AssignmentAttemptService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getAssignmentAttempts(ptenanId:string): Observable<AssignmentAttempt[]> {
+  getAssignmentAttempts(ptenanId:number): Observable<AssignmentAttempt[]> {
     console.log('getAssignmentAttempt url:',this.apiUrl);
     
       var url=this.apiUrl+'?activeTenantId='+ptenanId;
@@ -88,7 +88,7 @@ export class AssignmentAttemptService {
       );
   }
 
-  getAssignmentAttemptDetailsByAttemptId(ptenanId:string,attemptId:number): Observable<AssignmentAttempt[]> {
+  getAssignmentAttemptDetailsByAttemptId(ptenanId:number,attemptId:number): Observable<AssignmentAttempt[]> {
     
       var url=this.apiUrl+'/'+attemptId+'?activeTenantId='+ptenanId;
             return this.http.get<AssignmentAttempt[]>(url).pipe(
@@ -98,7 +98,7 @@ export class AssignmentAttemptService {
   }
 
 
-  getReviewResultOfAssignmentAttempt(passignmentAttemptId:number,ptenanId:string){
+  getReviewResultOfAssignmentAttempt(passignmentAttemptId:number,ptenanId:number){
     
     var url=this.apiUrl+'/reviewresult/'+passignmentAttemptId+'?activeTenantId='+ptenanId;
           return this.http.get<any>(url).pipe(

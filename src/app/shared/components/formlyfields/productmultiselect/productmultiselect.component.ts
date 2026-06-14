@@ -21,7 +21,7 @@ export class FormlyFieldProductmultiselect extends FieldType implements OnInit, 
     super()
   }
   ngOnInit(){
-    this.productService.getProducts('1').subscribe({
+    this.productService.getProducts(1).subscribe({
       next:(data:any)=>{
       // normalize incoming product objects to have `label` and `value`
       const raw: any[] = Array.isArray(data) ? data : [];
@@ -30,8 +30,7 @@ export class FormlyFieldProductmultiselect extends FieldType implements OnInit, 
         label: p?.prodName ?? p?.name ?? p?.description ?? p?.sku ?? p?.code ?? '',
         value: p?.id ?? p?.sku ?? p?.code ?? p?.prodName ?? p?.name
       }));
-      console.log('productOptions (mapped):', this.productOptions);
-      console.log('number of items:', this.productOptions.length);
+     
       this.binded_products = true;
       this.cdr.detectChanges();
       },

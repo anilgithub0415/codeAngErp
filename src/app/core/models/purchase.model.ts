@@ -1,6 +1,6 @@
 export interface Purchase{
     poNumber:number;
-    tenantId:string;
+    tenantId:number;
     vendorId:number;
     orderDate:Date;
     deliveryDate:Date;
@@ -24,7 +24,7 @@ export interface PurchaseOrderItem{
 
 export interface createPurchase{
     poNumber:number;
-    tenantId:string;
+    tenantId:number;
     vendorId:number;
     orderDate:Date;
     deliveryDate:Date;

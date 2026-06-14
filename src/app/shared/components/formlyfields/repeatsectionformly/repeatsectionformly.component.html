@@ -1,0 +1,45 @@
+<div class="custom-formly-grid">
+  
+  <!-- 2. Loop through each collection row instance -->
+  <ng-container *ngFor="let fieldRow of field.fieldGroup; let i = index">
+   
+    <!-- 3. Dynamic input wrapper field-column-->
+    <!-- <ng-container *ngFor="let childField of fieldRow.fieldGroup">
+      
+      <formly-field 
+        [field]="childField" 
+        class="md:col-span-12">
+      </formly-field>
+    </ng-container> -->
+<ng-container *ngFor="let childField of fieldRow.fieldGroup">
+  <!-- 1️⃣ Only render the field when it is NOT hidden -->
+  <ng-container *ngIf="!childField.hide">
+    <formly-field [field]="childField" class="md:col-span-12"></formly-field>
+  </ng-container>
+</ng-container>
+ 
+    <!-- 4. Explicit Delete Action block spanning full-width -->
+    <div class="field-full-width delete-container">
+      <button 
+        type="button" 
+        pButton 
+        label="Delete Item" 
+        icon="pi pi-trash" 
+        class="p-button-danger p-button-text text-sm"
+        (click)="remove(i)">
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- 5. Main form insertion action trigger pinned at layout footer -->
+  <div class="field-full-width button-container">
+    <button 
+      type="button" 
+      pButton 
+      label="Add New Item" 
+      icon="pi pi-plus" 
+      class="p-button-outlined"
+      (click)="add()">
+    </button>
+  </div>
+</div>

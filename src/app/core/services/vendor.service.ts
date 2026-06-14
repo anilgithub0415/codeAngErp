@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators'; // Import catchError and tap
+import { catchError, tap, map } from 'rxjs/operators'; // Import catchError, tap and map
 import { CreateProductDto, Product } from '../models/product.model';
 import { Vendor } from '../models/vendor.model';
 
@@ -51,14 +51,24 @@ export class VendorService {
         catchError(this.handleError)
     );
 }
-getProduct(ptenantId:string,prodId:number): Observable<Product[]> {
+getProduct(ptenantId:number,prodId:number): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
-getProducts(ptenantId:string): Observable<Vendor[]> {
-    return this.http.get<Vendor[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
+getProducts(ptenantId:number): Observable<Vendor[]> {
+    return this.http.get<Vendor[]>(this.apiUrl+'/?activeTenantId='+ptenantId).pipe(
+      map((data: any) => {
+        // Ensure the response is an array and map it properly
+        const vendors = Array.isArray(data) ? data : [];
+        return vendors.map(v => ({
+          id: v.id || v.vendorId,
+          vendorName: v.vendorName || v.name,
+          description: v.description
+        }));
+      })
+    );
 }
-getProductFinalPrice(pProductId:number,ptenantId:string,p:any): Observable<number> {
+getProductFinalPrice(pProductId:number,ptenantId:number,p:any): Observable<number> {
     var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/1';
     console.log('posting url:',url);
     

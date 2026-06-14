@@ -81,7 +81,7 @@ export class CourseofferingService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getCourseOfferings(ptenanId:string): Observable<CourseOffering[]> {
+  getCourseOfferings(ptenanId:number): Observable<CourseOffering[]> {
       var url=this.apiUrl+'?activeTenantId='+ptenanId;
             return this.http.get<CourseOffering[]>(url).pipe(
        //   tap(users => console.log('Fetched courseofferings:', courseofferings)),
@@ -89,7 +89,7 @@ export class CourseofferingService {
       );
   }
 
-  getCourseOfferingsByCourseId(pcourseId:number,ptenanId:string): Observable<CourseOffering[]> {//
+  getCourseOfferingsByCourseId(pcourseId:number,ptenanId:number): Observable<CourseOffering[]> {//
      var url=this.apiUrl+'/courseid/'+pcourseId+'?activeTenantId='+ptenanId;
           return this.http.get<CourseOffering[]>(url).pipe(
      //   tap(users => console.log('Fetched courseofferings:', courseofferings)),

@@ -6,7 +6,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators'; // Import catchError and tap
 
 // Import the Customer interfaces/DTOs you just defined
-import { Customer, createCustomer } from '../models/customer.model';
+import { Customer  } from '../models/customer.model';
 // No need for InventoryStatus here, that was from the customer example
 
 @Injectable({
@@ -47,18 +47,18 @@ export class CustomerService {
      * @param customerData The data for the new customer (CreateCustomer).
      * @returns An Observable of the created Customer object (including its new ID).
      */
- createCustomer(customerData: Partial<createCustomer>): Observable<Customer> {
+ createCustomer(customerData: Partial<Customer>): Observable<Customer> {
     console.log(`Creating customer at ${this.apiUrl} with data:`, customerData);
     return this.http.post<Customer>(this.apiUrl, customerData).pipe(
         tap(newCustomer => console.log('Created customer:', newCustomer)),
         catchError(this.handleError)
     );
 }
-getCustomer(ptenantId:string,prodId:number): Observable<Customer[]> {
+getCustomer(ptenantId:number,prodId:number): Observable<Customer[]> {
     return this.http.get<Customer[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
-getCustomers(ptenantId:string): Observable<Customer[]> {
+getCustomers(ptenantId:number): Observable<Customer[]> {
     return this.http.get<Customer[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
 }
 

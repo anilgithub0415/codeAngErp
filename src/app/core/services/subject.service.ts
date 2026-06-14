@@ -80,7 +80,7 @@ export class SubjectService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getSubjects(ptenanId:string): Observable<Subject[]> {
+  getSubjects(ptenanId:number): Observable<Subject[]> {
       var url=this.apiUrl+'?activeTenantId='+ptenanId;;
             return this.http.get<Subject[]>(url).pipe(
        //   tap(users => console.log('Fetched subjects:', subjects)),

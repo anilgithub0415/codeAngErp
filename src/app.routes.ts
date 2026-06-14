@@ -94,52 +94,15 @@ export const appRoutes: Routes = [
                 path: 'custmgt',
                 loadChildren: () => import('./app/feature/customer-mgt/customer-mgt-routing.module').then(m => m.CustomerMgtRoutingModule)
                 , canActivate: [roleGuard],
+                
                 //    data: { roles: ['Salesman'] }                 
             },
-            {
-                path: 'coursemgt',
-                loadChildren: () => import('./app/feature/coursemgt/coursemgt-routing.module').then(m => m.CoursemgtRoutingModule)
-                , canActivate: [roleGuard],
-                    data: { roles: ['InstituteAdmin','SuperAdmin'] }                 
-            },
-            {
-                path: 'peoplemgt',
-                loadChildren: () => import('./app/feature/people/people-routing.module').then(m => m.PeopleRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin','Faculty'] }     
-            },
-            {
-                path: 'qbank',
-                loadChildren: () => import('./app/feature/questionbank/questionbank-routing.module').then(m => m.QuestionbankRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin','SuperAdmin','Faculty'] }     
-            },
-            {
-                path: 'enroll',
-                loadChildren: () => import('./app/feature/enroll/enroll-routing.module').then(m => m.EnrollRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin'] }     
-            },
-
-            //for faculty to declare new assignments
-            {
-                path: 'assignmentmgt',
-              
-              loadChildren: () => import('./app/feature/assignment-mgt/Assignment-mgt-routing.module').then(m => m.AssessmentMgtRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['Faculty','InstituteAdmin'] }     
-            },
+           
+           
+           
 
 
 
-            //for student solving assignment
-            {
-                path: 'assignmenthub',
-              
-              loadChildren: () => import('./app/feature/assignment-hub/assignment-hub-routing.module').then(m => m.AssignmentHubRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['Student'] }     
-            },
             // Existing UI Kit routes
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
 

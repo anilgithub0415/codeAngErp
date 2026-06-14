@@ -44,7 +44,7 @@ import { NgxPermissionsModule, NgxPermissionsService } from 'ngx-permissions';
 import { Observable, firstValueFrom,combineLatest, of, from, BehaviorSubject } from 'rxjs';
 import { map, switchMap, catchError, shareReplay, distinctUntilChanged, filter  } from 'rxjs/operators';
 import { DataScopeService } from '../../../core/services/datascope.service';
-import { PersonlistComponent } from '../../people/personlist/personlist.component';
+//import { PersonlistComponent } from '../../people/personlist/personlist.component';
 import { Person } from '../../../core/models/person.model';
                                                      // or import from backend entity if convenient.
 
@@ -86,7 +86,7 @@ interface PrimeNgDropdownOption {
 //     googleId?: string | null;
 //     password?: string; // Plaintext password for input (for create and explicit update)
 //     passwordChange?: boolean; // Frontend-only flag
-//     tenantId?: string; // Required for CreateUserDto, optional otherwise
+//     tenantId?: number // Required for CreateUserDto, optional otherwise
 // }
 
 interface UserFormModel extends Partial<User> {
@@ -128,7 +128,7 @@ interface UserWithRole extends User{
         CheckboxModule, // Added
         // RatingModule, TextareaModule, SelectModule, RadioButtonModule (removed as not directly applicable to user CRUD)
         NgxPermissionsModule,
-        PersonlistComponent
+        //PersonlistComponent
     ],
 providers:[MessageService,ConfirmationService],
     templateUrl: './user-list.component.html', // This HTML file below
@@ -165,7 +165,7 @@ selectedPerson: Person | null = null;
 initialPersonSearchCriteria: { email?: string; phone?: string; firstName?: string; lastName?: string; zipCode?: string; } = {};
 // --- End new properties ---
   currentUserRole: string | null = null;
-  tenantIdFromusercontext!:string;
+  tenantIdFromusercontext!:number;
 
     constructor(
         private usercontextService:UserContextService,

@@ -109,7 +109,7 @@ onProductAdded(product: any) {
   }
   async getProductFinalPrice(prodId: number, p: Product): Promise<any> {
     return new Promise((resolve) => {
-      this.productService.getProductFinalPrice(prodId, '1', p).subscribe(afinalPrice => {
+      this.productService.getProductFinalPrice(prodId, 1, p).subscribe(afinalPrice => {
         resolve(afinalPrice);
       });
     });

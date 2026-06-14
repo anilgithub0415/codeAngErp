@@ -3,7 +3,7 @@ import { AssignmentQuestion } from "./assignment-question";
 
 export interface Assignment {
     id:number;
-    tenantId?: string;
+    tenantId?: number
     courseOfferingId?: number;
     assignmentName?: string;
     description?: string|null;

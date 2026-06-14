@@ -1,0 +1,6 @@
+
+ <button pButton 
+      [type]="to.type || 'button'" 
+      (click)="to['onClick'] && to['onClick']($event)">
+      {{ to.label || '' }}
+    </button>

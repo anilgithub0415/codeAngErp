@@ -17,7 +17,7 @@ export enum UserRole {
 
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
-    tenantId: string;
+    tenantId: number;
     tenantName: string;
     roleName: string;
     permissions: string[];
@@ -27,12 +27,12 @@ interface AvailableContext {
 // This should mirror the backend's User entity, but exclude sensitive fields like raw passwords.
 export interface User {
     id: number;
-   // tenantId: string;
+   // tenantId: number;
     userName: string; // Changed from userName to userName for Angular/JS convention
     displayName?: string | null; // Changed from displayName to displayName
     profilePictureUrl?:string;
     roleNameInContext?: any; // Changed from Role to role, using enum
-    tenantId?: string;
+    tenantId?: number;
     isActive?: boolean;
     isEmailVerified?: boolean | undefined;
     tenant:any;
@@ -54,7 +54,7 @@ export interface CreateUserDto {
     password?: string; // Optional if using googleId for social login, otherwise required
     displayName?: string | null;
     initialRoleName: string|null|undefined;
-    initialTenantId: string|null; // Crucial: must provide tenantId for new user
+    initialTenantId: number|null; // Crucial: must provide tenantId for new user
     googleId?: string | null; // Optional, for social logins
     isEmailVerified?:boolean;
      isActive?:boolean;
@@ -70,7 +70,7 @@ export interface CreateUserDto {
 export type UpdateUserDto = Partial<Omit<User, 'id' | 'tenantId' | 'googleId'>> & {
     // Re-add password as optional string for explicit password updates.
     // TenantId and googleId are typically not changed via a standard update DTO.
-    googleId?:string;isEmailVerified?:boolean; isActive?:boolean;  activeTenantId?: string;
+    googleId?:string;isEmailVerified?:boolean; isActive?:boolean;  activeTenantId?: number;
     password?: string;
     faculty_department?:string;
     faculty_designation?:string;

@@ -1,0 +1,8 @@
+testComponent
+
+<div class="w-full">
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      <button type="submit">Submit</button>
+</form>
+</div>

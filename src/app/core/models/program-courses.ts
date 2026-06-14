@@ -4,7 +4,7 @@
 export interface CreateProgramCourseDto {
     programId: number;
     courseId: number;
-    tenantId: string;
+    tenantId: number;
     orderInProgram?: number;
 }
 
@@ -14,7 +14,7 @@ export interface UpdateProgramCourseDto {
     id: number;
     programId?: number; // Optional if not changing the parent program
     courseId?: number;  // Optional if not changing the course
-    tenantId?: string;
+    tenantId?: number
     orderInProgram?: number;
 }
 
@@ -24,7 +24,7 @@ export interface UpdateProgramCourseDto {
 // Note the `?` on the relationships, as they might not be included in every API call.
 export interface ProgramCourse {
     id: number;
-    tenantId: string;
+    tenantId: number;
     programId: number;
     courseId: number;
     orderInProgram?: number | null;

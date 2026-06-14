@@ -11,6 +11,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
+import { PurchaseService } from '../../../core/services/purchase.service';
+import { VendorService } from '../../../core/services/vendor.service';
 
 @Component({
   selector: 'app-purchase-order',
@@ -23,8 +25,18 @@ import { DatePickerModule } from 'primeng/datepicker';
    providers: [MessageService]
 })
 export class PurchaseOrderComponent implements OnInit {
-  form = new FormGroup({});
-  model: any = { orderNumber: '', selectedProducts: [], lines: [] };
+   form = new FormGroup({});
+  model: any = { 
+    poNumber: '', 
+    vendorId: null,
+    vendor: null,
+    orderDate: new Date().toISOString().substring(0,10),
+    deliveryDate: null,
+    status: 'DRAFT',
+    totalAmount: 0,
+    notes: '',
+    lines: [] 
+  };
 
   totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
 
@@ -41,18 +53,34 @@ export class PurchaseOrderComponent implements OnInit {
       props: {
         label: 'Search Vendor',
         placeholder: 'Type to search vendor...',
-        productAdded: (product: any) => this.onProductAdded(product)
+        vendorSelected: (vendor: any) => this.onVendorSelected(vendor)
       }
     },
 
      {
       key: 'orderDate',
-      //type: 'input',
       type:'datepicker',
       defaultValue: new Date().toISOString().substring(0,10),
-      props: { label: 'orderDate', required: true , 
+      props: { label: 'Order Date', required: true , 
         dateFormat:'dd-mm-yy'
       }
+    },
+    {
+      key: 'deliveryDate',
+      type:'datepicker',
+      props: { label: 'Delivery Date', required: false , 
+        dateFormat:'dd-mm-yy'
+      }
+    },
+    {
+      key: 'status',
+      type: 'input',
+      props: { label: 'Status', required: true, defaultValue: 'DRAFT' }
+    },
+    {
+      key: 'notes',
+      type: 'textarea',
+      props: { label: 'Notes', required: false }
     },
     {
       key: 'productSearch',
@@ -65,12 +93,27 @@ export class PurchaseOrderComponent implements OnInit {
     }
   ];
 
-  constructor(private productService: ProductService, private messageService: MessageService) {}
+  constructor(
+    private productService: ProductService, 
+    private purchaseService:PurchaseService,
+    private vendorService: VendorService,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
     // Recompute totals when form value changes
     this.form.valueChanges?.subscribe(() => this.computeTotals());
   }
+
+  onVendorSelected(vendor: any) {
+    if (vendor) {
+      this.model.vendorId = vendor.id;
+      this.model.vendor = vendor;
+      this.form.patchValue({ vendorId: vendor.id });
+      this.messageService.add({ severity: 'success', summary: 'Vendor Selected', detail: `Vendor ${vendor.vendorName} selected` });
+    }
+  }
+
 onProductAdded(product: any) {
     this.addProductToOrder(product);
   }
@@ -116,23 +159,55 @@ onProductAdded(product: any) {
   }
 
   savePurchase() {
-    if (!this.model.orderNumber || !this.model.lines?.length) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Order number and at least one product required' });
+    console.log('model of purchase:',this.model);
+    
+    if ( !this.model.vendorId || !this.model.lines?.length) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Purchase order number, vendor, and at least one product are required' });
       return;
     }
+
+    // Format the data to match the backend entity structure
+    const purchaseOrderData = {
+      poNumber: this.model.poNumber,
+      tenantId: 1, // You might want to get this from a service or config
+      vendorId: this.model.vendorId,
+      orderDate: this.model.orderDate,
+      deliveryDate: this.model.deliveryDate,
+      status: this.model.status || 'DRAFT',
+      totalAmount: this.totals.grandTotal,
+      notes: this.model.notes || '',
+      items: this.model.lines.map((line:any) => ({
+        productId: line.productId,
+        quantity: line.qty,
+        finalPrice: line.finalPrice
+      }))
+    };
+
+   this.purchaseService.createPurchaseOrder(purchaseOrderData).subscribe(res=>console.log('Product saved successfully!',res)   )
+
     // TODO: Implement API call to save order
-    console.log('Saving order:', this.model);
-    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Order saved successfully' });
+    console.log('Saving purchase order:', purchaseOrderData);
+    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Purchase order saved successfully' }); 
   }
 
   clearPurchase() {
-    this.model = { orderNumber: '', selectedProducts: [], lines: [] };
+    this.model = { 
+      poNumber: '', 
+      vendorId: null,
+      vendor: null,
+      orderDate: new Date().toISOString().substring(0,10),
+      deliveryDate: null,
+      status: 'DRAFT',
+      totalAmount: 0,
+      notes: '',
+      lines: [] 
+    };
     this.totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
     this.form.reset();
   }
   async getProductFinalPrice(prodId: number, p: Product): Promise<any> {
     return new Promise((resolve) => {
-      this.productService.getProductFinalPrice(prodId, '1', p).subscribe(afinalPrice => {
+      this.productService.getProductFinalPrice(prodId, 1, p).subscribe(afinalPrice => {
         resolve(afinalPrice);
       });
     });

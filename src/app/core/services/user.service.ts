@@ -50,7 +50,7 @@ export class UserService {
      * In a multi-tenant application, this should eventually be filtered by the current tenant.
      * @returns An Observable of an array of User objects.
      */
-    getUsers(ptenanId:string,paramcondition?:string): Observable<User[]> {
+    getUsers(ptenanId:number,paramcondition?:string): Observable<User[]> {
         var url=this.apiUrl+'/0/ptenantId/'+ptenanId;
         if(paramcondition){url=url+'/'+paramcondition}
         return this.http.get<User[]>(url).pipe(

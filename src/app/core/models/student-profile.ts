@@ -4,7 +4,7 @@ import { Enrollment } from "./enrollment.interfaces";
 
 export interface StudentProfile {
     id:number; 
-    tenantId?: string;
+    tenantId?: number
     personId?:number;
     studentIdNumber?:number;
     enrollmentStatus?:string;
@@ -17,7 +17,7 @@ export interface StudentProfile {
 
 export interface CreateStudentprofileDto {
     
-    tenantId: string;
+    tenantId: number;
     personId:number;
     studentIdNumber?:number;
     enrollmentStatus?:string;

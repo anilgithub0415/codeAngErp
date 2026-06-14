@@ -69,7 +69,7 @@ interface TenantFormModel extends Partial<Tenant> { // Partial<Tenant> makes all
     googleId?: string | null;
     password?: string; // Plaintext password for input (for create and explicit update)
     passwordChange?: boolean; // Frontend-only flag
-    tenantId?: string; // Required for CreateUserDto, optional otherwise
+    tenantId?: number // Required for CreateUserDto, optional otherwise
 }
 
 
@@ -175,7 +175,7 @@ export class TenantlistComponent  implements OnInit {
   /**
    * Loads tenants from the backend API.
    */
-  loadTenants(tid:string): void {
+  loadTenants(tid:number): void {
    // alert('pass this:'+this.currentUser)
   // var tid=this.currentUser?.tenantId;
   // alert('fetching data of tid:'+tid)

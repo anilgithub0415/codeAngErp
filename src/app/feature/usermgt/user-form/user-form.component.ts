@@ -94,7 +94,8 @@ console.log('ngOninit of user form');
 
 
      getUsers(){
-    this.userService.getUsers('1').subscribe(usrs=>{
+      var tid=this.authService.getTenantId();
+    this.userService.getUsers(tid!).subscribe(usrs=>{
       this.users=usrs; console.log('usrs:',usrs);
       
     })

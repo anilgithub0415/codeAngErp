@@ -98,11 +98,15 @@ leftCol = '30%'; rowHeight="50"
     })
   }
   getProductList(){
-    this.productService.getProducts('1').subscribe(prods=>{
+    this.productService.getProducts(1).subscribe(prods=>{
       this.products=prods; console.log('prods:',prods);
       
     })
   }
+  
+onEditClick(selectedRecord:any){
+    this.model={...selectedRecord}
+}
   
   onSubmit(){
     if(!this.form.valid){console.log('invalid form');

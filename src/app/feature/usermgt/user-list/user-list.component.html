@@ -108,7 +108,7 @@
 </p-table>
 
 <!-- Dialog for Person Selection/Creation (opened when creating new user) -->
-<p-dialog [(visible)]="personSelectionDialogVisible" [style]="{ width: '80vw', 'max-width': '900px' }" header="Select or Create Person" [modal]="true">
+<!-- <p-dialog [(visible)]="personSelectionDialogVisible" [style]="{ width: '80vw', 'max-width': '900px' }" header="Select or Create Person" [modal]="true">
     <ng-template #content>
         <app-personlist
             [fromUserMgt]="true"
@@ -119,7 +119,7 @@
     <ng-template #footer>
         <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
     </ng-template>
-</p-dialog>
+</p-dialog> -->
 
  <!-- Dialog for User Details (Create/Edit Form) --> <!--width: '450px' -->
  <p-dialog [(visible)]="userDialog" [style]="{ width: '850px' }" [header]="dialogHeader" [modal]="true">

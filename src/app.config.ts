@@ -10,8 +10,8 @@ import { apiInterceptor } from './app/core/http/api.interceptor';
 import { errorInterceptor } from './app/core/http/error.interceptor';
 import { tokenInterceptor } from './app/core/http/token.interceptor';
 import { NgxPermissionsModule } from 'ngx-permissions';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
+import { FormlyFieldConfig, FormlyModule, provideFormlyConfig, provideFormlyCore } from '@ngx-formly/core';
+import { FormlyPrimeNGModule, withFormlyPrimeNG } from '@ngx-formly/primeng';
 import {FormlyDatepickerModule} from '@ngx-formly/primeng/datepicker'
 import { FormlySelectModule } from '@ngx-formly/core/select';
 
@@ -23,34 +23,58 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { RepeattypeModule } from './app/core/repeattype/repeattype.module';
 import { RepeatsectiontypeComponent } from './app/core/repeattype/repeatsectiontype/repeatsectiontype.component';
 import { ButtonModule } from 'primeng/button';
-import { QuestionPickerComponent } from './app/core/repeattype/question-picker/question-picker.component';
 
-import { StudentAnswerTypeComponent } from './app/core/repeattype/student-answer-type/student-answer-type.component';
+
+
 import { QuestiontextComponent } from './app/core/repeattype/questiontext/questiontext.component';
-import { AssessStudentAnswerTypeComponent } from './app/core/repeattype/assess-student-answer-type/assess-student-answer-type.component';
+
 import { ConfigService } from './app/config.service';
 import { FormlyFieldProductmultiselect } from './app/shared/components/formlyfields/productmultiselect/productmultiselect.component';
 import { FormlyFieldProductsearch } from './app/shared/components/formlyfields/productsearch/productsearch.component';
 import { FormlyFieldVendorsearch } from './app/shared/components/formlyfields/vendorsearch/vendorsearch.component';
+import { FormlyCardWrapperComponent } from './app/shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
+import { LookupService } from './app/core/services/lookup.service';
+import { FormlyFieldPrimengDropdownComponent } from './app/shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
 
+
+import { RepeatFormlySectionComponent } from './app/shared/components/formlyfields/repeat-formly-section/repeat-formly-section.component';
+ 
 
 export const appConfig: ApplicationConfig = {
-    
-    providers: [DatePipe,MessageService,provideAnimations(),
+   
+    providers: [
+      
+//       provideFormlyCore  ({
+//    types:[{
+//      name: 'p-select', component:FormlyFieldPrimengDropdownComponent,
+//    },
+//  { name: 'repeatFormlySection', component:RepeatFormlySectionComponent}
+//  ]
+//   }),
+      DatePipe,MessageService,provideAnimations(),
         importProvidersFrom(
             NgxPermissionsModule.forRoot(),
-            
+          
+
       FormlyModule.forRoot({
-        types: [
+        wrappers: [
+          { name: 'primeng-card', component: FormlyCardWrapperComponent }
+        ],types: [
           { name: 'repeat', component: RepeatsectiontypeComponent },
+          // custom repeat section that provides the add button via addText prop
+          { name: 'repeatFormlySection', component: RepeatFormlySectionComponent },
           { name: 'product-multiselect', component: FormlyFieldProductmultiselect },
           { name: 'product-search', component: FormlyFieldProductsearch },
           { name: 'vendor-search', component: FormlyFieldVendorsearch },
-          { name: 'question-picker', component: QuestionPickerComponent },
-          { name: 'studentAnswerType', component: StudentAnswerTypeComponent },
-          { name: 'assessStudentAnswerType', component: AssessStudentAnswerTypeComponent },
+          
+          { name: 'p-select', component: FormlyFieldPrimengDropdownComponent },
+        
+         
+    
           { name: 'questionTextDisplay', component: QuestiontextComponent }
         ]
+        
+
       }),
             FormlyPrimeNGModule,FormlySelectModule,FormlyDatepickerModule
          
@@ -70,6 +94,8 @@ export const appConfig: ApplicationConfig = {
         //
         
         ToastModule,
-        providePrimeNG({ theme: { preset: Aura, options: { prefix: 'p', darkModeSelector: '.app-dark' } } })
+        
+        providePrimeNG({ theme: { preset: Aura, options: { prefix: 'p', darkModeSelector: '.app-dark' } } }),
+        
     ]
 };

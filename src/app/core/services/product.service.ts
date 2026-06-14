@@ -54,14 +54,14 @@ export class ProductService {
         catchError(this.handleError)
     );
 }
-getProduct(ptenantId:string,prodId:number): Observable<Product[]> {
+getProduct(ptenantId:number,prodId:number): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
-getProducts(ptenantId:string): Observable<Product[]> {
+getProducts(ptenantId:number): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
 }
-getProductFinalPrice(pProductId:number,ptenantId:string,p:any): Observable<number> {
+getProductFinalPrice(pProductId:number,ptenantId:number,p:any): Observable<number> {
     var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/1';
     console.log('posting url:',url);
     

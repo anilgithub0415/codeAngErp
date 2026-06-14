@@ -5,6 +5,26 @@
   <form [formGroup]="form" class="order-form">
     <div class="order-header mb-4">
       <h2 class="text-xl font-bold mb-3">Purchase Order</h2>
+      
+      <!-- Vendor Selection Display -->
+      <div class="mb-4" *ngIf="model.vendor">
+        <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-sm text-gray-600">Selected Vendor:</span>
+              <span class="ml-2 font-medium text-green-800">{{ model.vendor.vendorName }}</span>
+            </div>
+            <button 
+              pButton 
+              type="button" 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-danger p-button-sm"
+              (click)="model.vendor = null; model.vendorId = null; form.patchValue({ vendorId: null })">
+            </button>
+          </div>
+        </div>
+      </div>
+
       <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
     </div>
 

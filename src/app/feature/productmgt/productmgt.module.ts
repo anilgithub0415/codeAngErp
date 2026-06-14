@@ -10,10 +10,12 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ProductMasterComponent } from './product-master/product-master.component';
 import { PrimeNG } from 'primeng/config';
+import { ProductvariantComponent } from './productvariant/productvariant.component';
+import { ProductWithVariantComponent } from './product-with-variant/product-with-variant.component';
 
 
 @NgModule({
-  declarations: [ProductMasterComponent],
+  declarations: [ProductvariantComponent, ProductWithVariantComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule, FormsModule,  FormlyModule.forRoot(), 

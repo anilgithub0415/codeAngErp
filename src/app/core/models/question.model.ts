@@ -32,7 +32,7 @@ export interface IOption {
  * It contains all required fields, but excludes auto-generated fields like `id`, `createdAt`, `updatedAt`.
  */
 export interface CreateQuestionDto {
-    tenantId: string;
+    tenantId: number;
     questionText: string;
     options?: string | null; // For MCQs, this might be a JSON string of option data or IDs.
     correctAnswer?: string | null;
@@ -68,7 +68,7 @@ export interface Optionofquestion{
 }
 export interface Question {
     id: number;
-    tenantId: string;
+    tenantId: number;
     
     questionText: string;
     options?: any[]; //string | null;

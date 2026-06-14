@@ -27,7 +27,7 @@ export class FormlyFieldProductsearch extends FieldType implements OnInit {
   }
 
   ngOnInit() {
-    this.productService.getProducts('1').subscribe({
+    this.productService.getProducts(1).subscribe({
       next: (data: any[]) => {
         const raw: any[] = Array.isArray(data) ? data : [];
         this.productOptions = raw.map(p => ({

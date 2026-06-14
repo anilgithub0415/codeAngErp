@@ -1,0 +1,11 @@
+ <p-select
+      [formControl]="formControl"
+   [options]="(to['options$'] | async) ?? []"
+      [placeholder]="to.placeholder"
+      [optionLabel]="optionLabel" 
+      [optionValue]="to['optionValue'] || 'value'"
+      (onChange)="onDropdownChange($event)"
+      [filter]="to['filter'] || false"
+      [showClear]="to['showClear'] || false"
+      [formlyAttributes]="field">
+ </p-select>

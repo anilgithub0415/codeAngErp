@@ -1,15 +1,15 @@
-<div class="customer-container p-4">
-  <p-toast></p-toast>
 
-
-  <form [formGroup]="form" class="order-form">
-    <div class="order-header mb-4">
-      <h2 class="text-xl font-bold mb-3">Customer</h2>
+model.organisations[0].customerDetailsRequired:{{model.organisations[0].customerDetailsRequired}}
+<div *ngIf="currOpMode=='ADD'" class="customer-container p-4" style="display: block; width: 100%;">
+<div *ngIf="!fields || fields.length===0">
+  spinner.......
+</div>
+ <form [formGroup]="form" pFluid (ngSubmit)="onSubmit()" *ngIf="fields && fields.length>0">
       <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-    </div>
- 
+      <button type="submit">Submit</button>
+    
 
-<div class="customer-actions">
+      <div class="customer-actions">
       <button
         pButton
         type="button"
@@ -17,7 +17,7 @@
         icon="pi pi-save"
         (click)="saveCustomer()"
         class="p-button-success"
-        [disabled]="!customers?.length">
+        [disabled]="!customers?.length || !form.valid">
       </button>
       <button
         pButton
@@ -26,18 +26,28 @@
         icon="pi pi-times"
         (click)="clearCustomer()"
         class="p-button-secondary"
-        style="margin-left: 0.5rem">
+        style="margin-left: 0.5rem"
+        >
       </button>
-    </div>
-customers?.length:{{customers?.length}}
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+         [disabled]="currOpMode!=='ADD'&& currOpMode!=='EDIT'">
+      </button>
+      </div>
     <div class="customer-section mb-4" *ngIf="customers?.length">
       <h3 class="text-lg font-semibold mb-2">Customers</h3>
-      <p-table [value]="customers" class="customers-table">
+      <p-table [value]="customers?customers:[]" class="customers-table">
         <ng-template pTemplate="header">
           <tr>
             <th width="50px"></th>
             <th>Customer</th>
-            <th>Category</th>
+            
             <th width="120px"></th>
             
           </tr>
@@ -50,11 +60,11 @@ customers?.length:{{customers?.length}}
                 type="button"
                 icon="pi pi-pencil"
                 class="p-button-rounded p-button-danger p-button-sm"
-                (click)="removeCustomer(rowIndex)">
+                (click)="onEditClick(acustomer)">
               </button>
             </td>
             <td>{{ acustomer.customerName }}</td>
-            <td>{{ acustomer.customerCategory }}</td>
+           
             
             
             <td>
@@ -72,4 +82,82 @@ customers?.length:{{customers?.length}}
     </div>
 
  </form>
+</div> 
+
+
+<p-button 
+    label="New Customer" 
+    icon="pi pi-plus" 
+    (click)="Add()" 
+    [disabled]="currOpMode === 'ADD'">
+</p-button>
+
+
+
+<div class="card" *ngIf="currOpMode=='VIEW'" >
+  <p-table  [value]="customers ?? []"   dataKey="id"   [expandedRowKeys]="expandedRows"   >
+    
+  <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5rem"></th> 
+        <th>ID</th>
+        <th>Person Name</th>
+        <th>Email</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-customer let-expanded="expanded">
+      <tr>
+        <td>
+           <p-button 
+            type="button" 
+            pRipple 
+            [pRowToggler]="customer" 
+            [text]="true" 
+            [rounded]="true" 
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+          </p-button>
+         
+        </td>
+        <td> {{customer.id}} </td>
+        <td>{{customer.customerName}} </td>
+        <td>customer.email </td>
+      </tr>
+    </ng-template>
+    
+      <ng-template pTemplate="expandedrow" let-customer>
+      <tr>
+      <td colspan="4">
+        <p-table *ngIf='customer && customer?.organisations && customer?.organisations.length' [value]="customer?.organisations" dataKey="id" class="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Organisation</th>
+              <th>Category</th>
+              <th>Contact Person</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>City</th>
+              <th>Credit Days</th>
+              <th>Credit Limit</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-org>
+            <tr>
+              <td>{{ org.organisationName }}</td>
+              <td>{{ org.customerCategory.customerCategory }}</td>
+              <td>{{ org.contactPersonName }}</td>
+              <td>{{ org.mobileNumber }}</td>
+              <td>{{ org.EmailId }}</td>
+              <td>{{ org.city }}</td>
+              <td>{{ org.creditDays }}</td>
+              <td>{{ org.creditLimit }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </td>
+    </tr>
+    </ng-template>
+    
+  </p-table>
 </div>

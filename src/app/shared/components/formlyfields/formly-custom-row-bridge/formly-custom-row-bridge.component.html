@@ -1,0 +1,33 @@
+<p>formly-custom-row-bridge works!</p>
+  <!-- Apply PrimeNG structural grid classes returned from your helper -->
+    <!-- <div [className]="rowConfig?.fieldGroupClassName || 'p-grid p-fluid'">
+      <ng-container *ngFor="let colField of childFields"> colField:{{colField|json}}
+             <formly-field [field]="colField"></formly-field>
+      </ng-container>
+      
+    </div> -->
+
+    <!-- <div [className]="rowConfig?.fieldGroupClassName || 'p-grid p-fluid'">
+  <ng-container *ngFor="let colField of field.fieldGroup">colField here------------------------:>{{colField|json}}
+    <formly-field [field]="colField"></formly-field>
+  </ng-container>
+</div> -->
+   
+<!-- <div [className]="rowConfig?.fieldGroupClassName || 'p-grid p-fluid'">
+ 
+  <ng-container *ngFor="let colField of field.fieldGroup">colField:-----------------------------:{{colField|json}}
+    <formly-field [field]="colField"></formly-field>
+  </ng-container>
+</div> -->
+
+<p>formly‑custom‑row‑bridge works!</p>
+
+<!-- <div [className]="rowConfig?.fieldGroupClassName || 'p-grid p-fluid'"> -->
+  <div class="custom-formly-grid">
+  <!-- iterate over the fields that belong to this row -->
+  <ng-container *ngFor="let colField of field.fieldGroup">
+    
+    <formly-field [field]="colField" *ngIf="!colField.hide"></formly-field>
+    
+  </ng-container>
+</div>
