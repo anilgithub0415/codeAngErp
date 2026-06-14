@@ -47,7 +47,7 @@ export class TenantService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getTenants(ptenantId:string): Observable<Tenant[]> {
+  getTenants(ptenantId:number): Observable<Tenant[]> {
        return this.http.get<Tenant[]>(this.apiUrl+'/0/ptenantId/'+ptenantId).pipe(
          // tap(tenants => console.log('Fetched tenants:', tenants)),
           catchError(this.handleError)
@@ -75,7 +75,7 @@ export class TenantService {
    * @param updateData The partial data for the user (UpdateUserDto).
    * @returns An Observable of the updated User object.
    */
-  updateTenant(id: string, updateData: UpdateTenantDto): Observable<Tenant> {
+  updateTenant(id: number, updateData: UpdateTenantDto): Observable<Tenant> {
       const url = `${this.apiUrl}/${id}`;
       return this.http.put<Tenant>(url, updateData).pipe(
          // tap(updatedTenant => console.log('Updated tenant:', updatedTenant)),
@@ -88,7 +88,7 @@ export class TenantService {
    * @param id The ID of the user to delete.
    * @returns An Observable that completes upon successful deletion (or throws an error).
    */
-  deleteTenant(id: string): Observable<void> {
+  deleteTenant(id: number): Observable<void> {
       const url = `${this.apiUrl}/${id}`;
       console.log(`Deleting tenant from ${url}`); 
       return this.http.delete<void>(url).pipe(

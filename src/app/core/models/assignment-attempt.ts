@@ -1,7 +1,7 @@
 
 import { StudentQuestionAnswer } from "./student-question-answer";
 export interface CreateAssignmentAttemptDto {
-    tenantId: string;
+    tenantId: number;
     studentProfileId: number;
     assignmentId: number;
     submissionDate: Date;
@@ -28,7 +28,7 @@ export interface CreateAssignmentAttemptDto {
    */
   export interface AssignmentAttempt {
     id: number;
-    tenantId: string;
+    tenantId: number;
     studentProfileId: number;
     assignmentId: number;
     submissionDate: Date;

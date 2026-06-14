@@ -33,7 +33,6 @@ export const appRoutes: Routes = [
    
     // Your 404/Notfound page, also independent of AppLayout
     { path: 'notfound', component: Notfound },
-
     // --- AUTHENTICATED ROUTES (Wrapped by AppLayout) ---
     // All routes that require the application's main layout (header, sidebar, etc.)
     // will now live under a common parent path (e.g., 'app' or 'dashboard')
@@ -68,61 +67,42 @@ export const appRoutes: Routes = [
                 
             },
             {
-            path: 'usrmgt',
+            path: 'usermgt',
             loadChildren: () => import('./app/feature/usermgt/usermgt-routing.module').then(m => m.UsermgtRoutingModule)
             , canActivate: [roleGuard],
-                data: { roles: ['SuperAdmin'] }                 
+             //   data: { roles: ['SuperAdmin'] }                 
             },
             {
                 path: 'productmgt',
                 loadChildren: () => import('./app/feature/productmgt/productmgt-routing.module').then(m => m.ProductmgtRoutingModule)
                 , canActivate: [roleGuard],
-                    data: { roles: ['DataEntry'] }                 
-                },
-            {
-                path: 'coursemgt',
-                loadChildren: () => import('./app/feature/coursemgt/coursemgt-routing.module').then(m => m.CoursemgtRoutingModule)
-                , canActivate: [roleGuard],
-                    data: { roles: ['InstituteAdmin','SuperAdmin'] }                 
+                 //   data: { roles: ['DataEntry'] }                 
             },
             {
-                path: 'peoplemgt',
-                loadChildren: () => import('./app/feature/people/people-routing.module').then(m => m.PeopleRoutingModule)
+                path: 'salesmgt',
+                loadChildren: () => import('./app/feature/sales-mgt/sales-mgt-routing.module').then(m => m.SalesMgtRoutingModule)
                 , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin','Faculty'] }     
+                //    data: { roles: ['Salesman'] }                 
             },
             {
-                path: 'qbank',
-                loadChildren: () => import('./app/feature/questionbank/questionbank-routing.module').then(m => m.QuestionbankRoutingModule)
+                path: 'purchasemgt',
+                loadChildren: () => import('./app/feature/purchase-mgt/purchase-mgt-routing.module').then(m => m.PurchaseMgtRoutingModule)
                 , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin','SuperAdmin','Faculty'] }     
+                //    data: { roles: ['Purchaser'] }                 
             },
             {
-                path: 'enroll',
-                loadChildren: () => import('./app/feature/enroll/enroll-routing.module').then(m => m.EnrollRoutingModule)
+                path: 'custmgt',
+                loadChildren: () => import('./app/feature/customer-mgt/customer-mgt-routing.module').then(m => m.CustomerMgtRoutingModule)
                 , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin'] }     
+                
+                //    data: { roles: ['Salesman'] }                 
             },
-
-            //for faculty to declare new assignments
-            {
-                path: 'assignmentmgt',
-              
-              loadChildren: () => import('./app/feature/assignment-mgt/Assignment-mgt-routing.module').then(m => m.AssessmentMgtRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['Faculty','InstituteAdmin'] }     
-            },
+           
+           
+           
 
 
 
-            //for student solving assignment
-            {
-                path: 'assignmenthub',
-              
-              loadChildren: () => import('./app/feature/assignment-hub/assignment-hub-routing.module').then(m => m.AssignmentHubRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['Student'] }     
-            },
             // Existing UI Kit routes
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
 

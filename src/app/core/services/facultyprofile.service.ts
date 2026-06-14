@@ -77,7 +77,7 @@ export class FacultyprofileService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getFacultyProfiles(ptenanId:string): Observable<FacultyProfile[]> {
+  getFacultyProfiles(ptenanId:number): Observable<FacultyProfile[]> {
     console.log('getFacultyProfile url:',this.apiUrl);
     
       var url=this.apiUrl+'?activeTenantId='+ptenanId;

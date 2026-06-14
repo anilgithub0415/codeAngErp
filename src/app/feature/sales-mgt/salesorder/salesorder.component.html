@@ -1,0 +1,88 @@
+<div class="sales-order-container p-4">
+  <p-toast></p-toast>
+
+  <form [formGroup]="form" class="order-form">
+    <div class="order-header mb-4">
+      <h2 class="text-xl font-bold mb-3">Sales Order</h2>
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    </div>
+
+    <div class="order-lines-section mb-4" *ngIf="model.lines?.length">
+      <h3 class="text-lg font-semibold mb-2">Order Lines</h3>
+      <p-table [value]="model.lines" class="order-lines-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th width="120px">Final Price</th>
+            <th width="100px">Qty</th>
+            <th width="120px">Line Total</th>
+            <th width="80px">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-line let-rowIndex="rowIndex">
+          <tr>
+            <td>{{ line.productName }}</td>
+            <td>{{ line.sku }}</td>
+            <td>₹{{ line.finalPrice | number:'1.2-2' }}</td>
+            <td>
+              <p-inputNumber
+                [(ngModel)]="line.qty"
+                [ngModelOptions]="{ standalone: true }"
+                (onInputChange)="updateLineTotal(line)"
+                [min]="1"
+                [showButtons]="true">
+              </p-inputNumber>
+            </td>
+            <td>₹{{ line.lineTotal | number:'1.2-2' }}</td>
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeLine(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="order-totals mb-4" *ngIf="model.lines?.length">
+      <div class="totals-row flex justify-between py-1">
+        <span>Subtotal:</span>
+        <span class="amount font-medium">₹{{ totals.subTotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="totals-row flex justify-between py-1">
+        <span>Tax (0%):</span>
+        <span class="amount font-medium">₹{{ totals.taxTotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="totals-row grand-total flex justify-between py-2 border-t pt-2">
+        <span class="font-bold">Grand Total:</span>
+        <span class="amount font-bold text-lg">₹{{ totals.grandTotal | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div class="order-actions">
+      <button
+        pButton
+        type="button"
+        label="Save Order"
+        icon="pi pi-save"
+        (click)="saveOrder()"
+        class="p-button-success"
+        [disabled]="!model.lines?.length">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Order"
+        icon="pi pi-times"
+        (click)="clearOrder()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+  </form>
+</div>

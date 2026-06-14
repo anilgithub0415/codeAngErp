@@ -1,10 +1,25 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { HttpClient, HttpBackend, HttpInterceptorFn } from '@angular/common/http';
+import { TokenService } from '../services/token.service';
+import { catchError, from, switchMap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
-import {throwError} from 'rxjs'
-import { switchMap, catchError} from 'rxjs/operators';
+import { inject } from '@angular/core';
 import {currentTimestamp} from '../../core/auth/helpers'
+interface TokenResponse {
+    access_token: string;
+    token_type?: string;
+    expires_in?: number; // Lifetime in seconds (often from backend, e.g., 3600 for 1 hour)
+    exp?: number; // Expiration timestamp (if backend directly provides JWT 'exp' claim, e.g., 1678886400)
+    refresh_token?: string;
+    message?: string; // For login/registration failure messages from backend
+    userId?:number;
+    tenantId?:string;
+    availableContexts?:any;
+    // userId is typically extracted from the JWT payload, not directly in the TokenResponse body,
+    // but if your backend sends it directly in the response body, keep it.
+    // However, it's safer to rely on JWT payload for user details.
+    // If your backend *does* send userId in the response body, ensure its type matches JwtPayload.userId
+    // userId?: number; // Changed to number to match JwtPayload, made optional as it's often from JWT
+}
 interface JwtPayload {
   exp?: number;
   iat?: number;
@@ -31,90 +46,39 @@ function getRemainingTokenExpiry(token: string): number | null {
   }
  
 }
-
 export const httpInterceptor: HttpInterceptorFn = (req, next) => {
- 
-  const authService = inject(AuthService);
-  const authToken = authService.getAuthToken();
+  const tokenService = inject(TokenService);
+  const authToken = tokenService.getAuthToken();
 
-  // Skip token handling for login requests
-  if (req.url.includes('/login') && req.method=='POST'){
-    const accessToken=  authService.getAuthToken()
-    const modifiedReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
-  return next(modifiedReq);
-  }
+  if (authToken) {
+    const remainingSeconds = getRemainingTokenExpiry(authToken) ?? 0;
+    const refreshThreshold = 30;
 
- 
-//authService.clearAuthToken();//  && !req.url.includes('/login')
-//|| req.url.includes('/api/login')
+    if (remainingSeconds <= refreshThreshold) {
+      const refreshToken = tokenService.getRefreshToken();
+      if (!refreshToken) { tokenService.clearTokens(); return next(req); }
 
-//authService.clearAuthToken();
-  if (authToken) {   
-    if(req.url.includes('/api/login')){alert('authtoken exists for login url:'+req.url)}
-    
-    const remainingSeconds =authToken? getRemainingTokenExpiry(authToken):30;
-    const refreshThreshold = 30; // Refresh if remaining time is less than 30 seconds
-console.log('remainingSeconds:',remainingSeconds);
+      // Use HttpBackend to bypass interceptors for the refresh call
+      const backend = inject(HttpBackend);
+      const backendHttp = new HttpClient(backend);
 
-    //Token about to expire or expired
-    if (remainingSeconds !== null && remainingSeconds <= refreshThreshold) {
-      
-      
-      // **Important:** You need to handle the asynchronous nature of the refreshToken call properly.
-      // Returning `authService.refreshToken().pipe(switchMap((newTokenResponse) => { ... }))` is a common approach.
-      authService.clearAuthToken();
-      //req.url
-      return authService.refreshToken().pipe(
-        switchMap((newTokenResponse:any) => {
-          console.log('Token refreshed successfully in interceptor.');
-          authService.setAuthToken(newTokenResponse.access_token);authService.setRefreshToken(newTokenResponse.refresh_token);
-          const newAuthToken = authService.getAuthToken(); // Get the newly refreshed token
-
-          const modifiedReq = req.clone({
-            setHeaders: {
-               Authorization: `Bearer ${newAuthToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          return next(modifiedReq); // Proceed with the original request using the new token
+      return backendHttp.post<TokenResponse>('/token/refresh-token', { refreshToken }).pipe(
+        switchMap((resp: any) => {
+          tokenService.setAuthToken(resp.access_token);
+          tokenService.setRefreshToken(resp.refresh_token);
+          const modified = req.clone({ setHeaders: { Authorization: `Bearer ${resp.access_token}` }});
+          return next(modified);
         }),
-        catchError((error) => {
-          console.error('Error refreshing token in interceptor:', error);
-          // Handle refresh failure (e.g., clear tokens, redirect to login)
-          authService.clearAuthToken();
-          // You might want to re-throw the error or return a specific observable
-          return throwError(error);
+        catchError(err => {
+          tokenService.clearTokens();
+          return throwError(err);
         })
       );
     }
-    
 
-    // Token is still valid, proceed with the original request
-    else {
-      
-      const modifiedReq = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      return next(modifiedReq);
-    }
-  } 
-  
-    // No token, proceed with the original request without authorization header
-  else { console.log('no token','req.url:',req.url,'method:',req.method);
-      const modifiedReq = req.clone({
-      setHeaders: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const modifiedReq = req.clone({ setHeaders: { Authorization: `Bearer ${authToken}` }});
     return next(modifiedReq);
+  } else {
+    return next(req);
   }
 };

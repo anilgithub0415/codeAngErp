@@ -1,1 +1,0 @@
-pending- we need details button while selecting person , as there may be multiple persons with same name 

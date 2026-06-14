@@ -15,7 +15,7 @@ interface JwtPayload {
     userId: number; // IMPORTANT: Ensure this matches your backend's JWT payload type
     userName: string; // Typically the user's email
     role: any;     // The user's role (e.g., 'InstituteAdmin', 'Teacher', 'Student')
-    tenantId?: string; // The ID of the currently active tenant (if applicable for context switching)
+    tenantId?: number // The ID of the currently active tenant (if applicable for context switching)
     permissions: string[];
     exp?: number;     // Expiration timestamp (seconds since epoch)
     iat?: number;     // Issued at timestamp
@@ -49,7 +49,7 @@ interface userTenantContext{
 // Define the structure for a single available context (must match backend)
 interface AvailableContext {
     displayName:string;
-    tenantId: string;
+    tenantId: number;
     tenantName: string;tenantType:string;
     roleName: string;
     permissions: string[];
@@ -79,7 +79,7 @@ interface InitialJwtPayload {
 interface ContextSpecificJwtPayload {
     userId: number;
     userName: string;
-    tenantId: string;
+    tenantId: number;
     roleName: string;
     permissions: string[];
     exp: number; // Expiration timestamp
@@ -106,8 +106,9 @@ export class AuthService {
     private _currentUserRole = new BehaviorSubject<string | null>(null);
     public currentUserRole$: Observable<string | null> = this._currentUserRole.asObservable();
  
-    private _activeTenantId = new BehaviorSubject<string | null>(this.getTenantId()); //earlier was this.getActiveTenantId()
-    public activeTenantId$: Observable<string | null> = this._activeTenantId.asObservable();
+   private _activeTenantId = new BehaviorSubject<number | null>(null);
+
+    public activeTenantId$: Observable<number | null> = this._activeTenantId.asObservable();
 
     private _currentUserId = new BehaviorSubject<number | null>(this.getUserId());
     public currentUserId$: Observable<number | null> = this._currentUserId.asObservable();
@@ -130,8 +131,8 @@ export class AuthService {
         
         this._isLoggedIn.next(this.isLoggedIn());
 
-        
-        // After setting initial login status, also set initial role
+         this._activeTenantId.next(this.getTenantId());
+         // After setting initial login status, also set initial role
         this.updateCurrentUserRoleAndPermissions();//updateCurrentUserRoleAndPermissions
 
         // You might want to update the role whenever auth state changes
@@ -520,11 +521,15 @@ console.log('..................isLoggedIn returning:',loggedIn);
     }
 
      loadActiveContext(): AvailableContext | null {
-        const storedContext = localStorage.getItem(this.ACTIVE_CONTEXT_KEY);
-
-    
-        return storedContext ? JSON.parse(storedContext) : null;
-    }
+  const storedContext = localStorage.getItem(this.ACTIVE_CONTEXT_KEY);
+  if (!storedContext) return null;
+  try {
+    return JSON.parse(storedContext) as AvailableContext;
+  } catch (err) {
+    console.error('AuthService: failed to parse active context', err);
+    return null;
+  }
+}
 
     // --- NEW: Method to get all available contexts after initial login ---
     getAvailableContexts(): AvailableContext[] | null {
@@ -764,12 +769,12 @@ console.log('got userid n Rtoken:',userId);
     }
 
     // --- Modified getTenantId() --- earlier was getActiveTenant
-    getTenantId(): string | null {
+    getTenantId(): number | null {
 
        
         
         const activeContext = this.loadActiveContext();
-        console.log('getting tenantid:...........',activeContext?.tenantId);
+        
         return activeContext ? activeContext.tenantId : null;
     }
      // Helper to update the _currentUserRole subject

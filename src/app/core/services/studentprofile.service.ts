@@ -56,7 +56,7 @@ getStudentprofiles(): Observable<StudentProfile[]> {
   );
 }
 
-  getStudentprofile_byIdOrPersonId(id: number,byIdOrPersonId:'byId' | 'byPersonId', activeTenantId:string): Observable<StudentProfile|null> { 
+  getStudentprofile_byIdOrPersonId(id: number,byIdOrPersonId:'byId' | 'byPersonId', activeTenantId:number): Observable<StudentProfile|null> { 
      const params = new HttpParams().set('byIdOrPersonId', byIdOrPersonId).set('activeTenantId',activeTenantId);
 
    console.log('studprofile url:',`${this.apiUrl}/${id}`);

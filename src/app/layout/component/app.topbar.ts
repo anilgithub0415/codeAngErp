@@ -19,7 +19,7 @@ import { EventBusService, Events } from '../../core/services/event-bus.service';
 
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
-    tenantId: string;
+    tenantId: number;
     displayName:string;
     tenantName: string;tenantType:string;
     roleName: string;

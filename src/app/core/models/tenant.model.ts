@@ -14,7 +14,7 @@ export interface TType {
 }
 
 export interface Tenant {
-    tenantId: string;
+    tenantId: number;
     tenantName: string;
     tenantType?: string;
     subscriptionPlan: string;

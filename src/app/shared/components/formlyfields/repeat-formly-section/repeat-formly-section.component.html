@@ -1,0 +1,21 @@
+<p>repeat-formly-section works!</p>
+
+<p-panel header="{{ fieldOptions.label }}">
+  <div *ngFor="let field of field.fieldGroup; let i = index;">
+    <ng-container *ngIf="getTemplateRef(field.template) as tmpl">
+      <ng-container
+        *ngTemplateOutlet="tmpl; context: { $implicit: field, $index: i }"
+      ></ng-container>
+    </ng-container>
+  </div>
+
+  <!-- PrimeNG button – label is bound to the component getter -->
+  <button
+    type="button"
+    pButton
+    icon="pi pi-plus"
+    [label]="addText"
+    class="p-mt-2"
+    (click)="addItem()"
+  ></button>
+</p-panel> 

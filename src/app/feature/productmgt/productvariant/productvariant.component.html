@@ -1,0 +1,64 @@
+<p>productvariant works!</p>
+<div class="product-variant p-4">
+  <h3 class="mb-2">Product Variants</h3>
+
+  <form [formGroup]="form" (ngSubmit)="addVariant()" class="variant-form mb-4">
+    <div class="grid gap-2">
+      <div>
+        <label>Variant Name</label>
+        <input type="text" formControlName="variantName" class="w-full" />
+      </div>
+
+      <div>
+        <label>SKU</label>
+        <input type="text" formControlName="sku" />
+      </div>
+
+      <div>
+        <label>Base Price</label>
+        <input type="number" formControlName="basePrice" step="0.01" />
+      </div>
+
+      <div>
+        <label>Grams per unit</label>
+        <input type="number" formControlName="conversionFactor" step="0.01" />
+      </div>
+
+      <div>
+        <label>Initial Stock (units)</label>
+        <input type="number" formControlName="initialStockUnits" />
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <button type="button" (click)="addVariant()">Add Variant</button>
+    </div>
+  </form>
+
+  <div *ngIf="loading">Loading variants...</div>
+
+  <table *ngIf="variants?.length" class="w-full">
+    <thead>
+      <tr>
+        <th>Variant</th>
+        <th>SKU</th>
+        <th>Conv (g)</th>
+        <th>Stock</th>
+        <th>Price</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of variants">
+        <td>{{ v.variantName }}</td>
+        <td>{{ v.sku }}</td>
+        <td>{{ v.conversionFactor }}</td>
+        <td>{{ formatStock(v) }}</td>
+        <td>{{ v.basePrice | number:'1.2-2' }}</td>
+        <td><button (click)="deleteVariant(v.id)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!variants?.length && !loading">No variants yet</div>
+</div>

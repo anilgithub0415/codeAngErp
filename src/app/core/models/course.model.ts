@@ -4,7 +4,7 @@
  * It contains all required fields, but excludes auto-generated fields like `id`, `createdAt`, `updatedAt`.
  */
 export interface CreateCourseDto {
-    tenantId: string;
+    tenantId: number;
     courseCode: string;
     courseName: string;
     description?: string | null;
@@ -25,7 +25,7 @@ export interface CreateCourseDto {
    */
   export interface Course {
     id: number;
-    tenantId: string;
+    tenantId: number;
     course?:any;courseOfferings?:any;
     courseCode: string;
     courseName: string;

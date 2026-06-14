@@ -6,16 +6,20 @@ import { ConfigService } from '../../../config.service';
 import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { AuthService } from '../../../core/services/auth.service';
 import { CreateUserDto } from '../../../core/models/user.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, FormsModule,FormlyModule], 
+  imports: [ReactiveFormsModule, FormsModule,FormlyModule
+    ,CommonModule
+  ], 
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss',
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UserFormComponent implements OnInit{
    
+  users!:any[];
 
     form = new FormGroup({});
     model:Partial<CreateUserDto> = {};
@@ -27,6 +31,8 @@ export class UserFormComponent implements OnInit{
    private config_usersCreatedby:string='';
 
     constructor(private authService:AuthService){
+      console.log('m in constructor of userform...');
+      
 
     }
 
@@ -35,9 +41,11 @@ export class UserFormComponent implements OnInit{
 
       //for reading config of system like who will create logins superadmin / signup
       const globalConfigData=this.configService.config;
+      
           if(globalConfigData){
-              this.config_usersCreatedby=globalConfigData.config_usersCreatedby;
+              this.config_usersCreatedby=globalConfigData.config_useraddthru;
           }
+console.log('ngOninit of user form');
 
       //getFieldsfrom db
       this.userService.getUsertableFieldsConfig(this.config_usersCreatedby).subscribe((dbFields:any[])=>{
@@ -80,7 +88,19 @@ export class UserFormComponent implements OnInit{
           
       })
 
+      this.getUsers();
+
     }//ngOnInit
+
+
+     getUsers(){
+      var tid=this.authService.getTenantId();
+    this.userService.getUsers(tid!).subscribe(usrs=>{
+      this.users=usrs; console.log('usrs:',usrs);
+      
+    })
+  }
+  
 
     onSubmit(){
      if(this.form.valid){

@@ -77,28 +77,28 @@ export class AssignmentService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getAssignments(ptenanId:string): Observable<Assignment[]> {
+  getAssignments(ptenanId:number): Observable<Assignment[]> {
       var url=this.apiUrl+'?activeTenantId='+ptenanId;
             return this.http.get<Assignment[]>(url).pipe(
        //   tap(users => console.log('Fetched assignments:', assignments)),
           catchError(this.handleError)
       );
   }
-  getAssignmentsForStudent(ptenanId:string,studentProfileId:number): Observable<Assignment[]> {
+  getAssignmentsForStudent(ptenanId:number,studentProfileId:number): Observable<Assignment[]> {
       var url=this.apiUrl+'/studentProfileId/'+studentProfileId+'?activeTenantId='+ptenanId;
             return this.http.get<Assignment[]>(url).pipe(
        //   tap(users => console.log('Fetched assignments:', assignments)),
           catchError(this.handleError)
       );
   }
-  getAssignmentsForFaculty(ptenanId:string,facultyProfileId:number): Observable<Assignment[]> {
+  getAssignmentsForFaculty(ptenanId:number,facultyProfileId:number): Observable<Assignment[]> {
        var url=this.apiUrl+'/facultyProfileId/'+facultyProfileId+'?activeTenantId='+ptenanId;
             return this.http.get<Assignment[]>(url).pipe(
        //   tap(users => console.log('Fetched assignments:', assignments)),
           catchError(this.handleError)
       );
   }
-  getAssignmentsById(assignmentid:number,ptenanId:string): Observable<Assignment[]> {
+  getAssignmentsById(assignmentid:number,ptenanId:number): Observable<Assignment[]> {
     
       var url=this.apiUrl+'/'+assignmentid+'?activeTenantId='+ptenanId; 
       

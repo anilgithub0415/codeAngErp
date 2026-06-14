@@ -1,6 +1,6 @@
 export interface StudentQuestionAnswer {
     id:number;
-    tenantId?: string;
+    tenantId?: number
     assignmentAttemptId?: number;
     questionId?: number;
     studentAnswerContent?: string;

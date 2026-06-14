@@ -5,7 +5,7 @@
  * It contains all required fields, but excludes auto-generated fields like `id`, `createdAt`, `updatedAt`.
  */
 export interface CreateProgramDto {
-    tenantId?: string;
+    tenantId?: number
     programName?:string;
     programCode?:string;
     description?:string;
@@ -22,7 +22,7 @@ export interface CreateProgramDto {
   
 export interface Program {
     id:number;
-    tenantId?: string;
+    tenantId?: number
     programName?:string;
     programCode?:string;
     description?:string;

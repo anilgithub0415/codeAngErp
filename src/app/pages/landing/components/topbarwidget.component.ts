@@ -81,7 +81,7 @@ export class TopbarWidget {
         //read globalConfigData
         const globalConfigData=this.configService.config;
         if(globalConfigData){
-            this.config_usersCreatedby=globalConfigData.config_usersCreatedby;
+            this.config_usersCreatedby=globalConfigData.config_useraddthru;
         }
         // end globalConfigData 
 
