@@ -186,9 +186,6 @@ console.log('............response.tenantid:',response.tenantId);
                     console.log('setted authtoken...................................');
                     
                     this.setRefreshToken(response.refresh_token);
-                    console.log('setted refresh token...................................',response.refresh_token);
-
-                    console.log('response.availableContexts[0].roleName:',response.availableContexts[0].roleName);
                     
                 //     //added
                     this.saveActiveContext(response.availableContexts[0]);
@@ -359,8 +356,7 @@ console.log('............response.tenantid:',response.tenantId);
     }
 
     private setUserId(userId: number): void {
-        console.log('setting userid in setUserId:',userId.toString());
-        
+                
         localStorage.setItem(this.USER_ID_KEY, userId.toString());
     }
 
@@ -501,7 +497,7 @@ console.log('............response.tenantid:',response.tenantId);
             console.log('Access token is expired. Clearing all tokens.');
             this.clearAuthToken(); // Automatically clean up expired tokens
         }
-console.log('..................isLoggedIn returning:',loggedIn);
+
     //  alert(loggedIn?'isLoggedin :true':'isLoggedin :false')
         return loggedIn;
     }
@@ -533,7 +529,7 @@ console.log('..................isLoggedIn returning:',loggedIn);
 
     // --- NEW: Method to get all available contexts after initial login ---
     getAvailableContexts(): AvailableContext[] | null {
-        console.log(' m in getAvailableContexts ');
+        
         
         const token = this.getAuthToken(); 
         
@@ -644,7 +640,7 @@ console.log('got userid n Rtoken:',userId);
     // }
 
     getUserId(): number | null {
-        const userId = localStorage.getItem(this.USER_ID_KEY); console.log(' m in getUserId n userId:',userId);
+        const userId = localStorage.getItem(this.USER_ID_KEY); 
         
         return userId ? parseInt(userId, 10) : null;
     }
@@ -711,7 +707,7 @@ console.log('got userid n Rtoken:',userId);
      getUserRole(): string | null {
 
         const activeContext = this.loadActiveContext();
-        console.log('returning userrole:',activeContext);
+        
         
         return activeContext ? activeContext.roleName : null;
     }
@@ -784,7 +780,7 @@ console.log('got userid n Rtoken:',userId);
         const permissions = this.getUserPermissions();
         const tenantId = this.getTenantId();// earlier was this.getActiveTenantId();
         const userId = this.getUserId();
-        console.log('_currentUserRole.next with role:',role);
+        
         
         this._currentUserRole.next(role);
         

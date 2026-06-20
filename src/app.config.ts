@@ -38,28 +38,40 @@ import { FormlyFieldPrimengDropdownComponent } from './app/shared/components/for
 
 
 import { RepeatFormlySectionComponent } from './app/shared/components/formlyfields/repeat-formly-section/repeat-formly-section.component';
+import { EnumConfigService } from './app/shared/enums/enum-config.service';
+import { FormlyFieldPrimengDropdownNewComponent } from './app/shared/components/formlyfields/formly-field-primeng-dropdown-new/formly-field-primeng-dropdown-new.component';
+import { CustomdropdownComponent } from './app/shared/components/formlyfields/customdropdown/customdropdown.component';
+import { CustomLabelTextComponent } from './app/shared/components/formlyfields/custom-label-text/custom-label-text.component';
  
-
 export const appConfig: ApplicationConfig = {
    
     providers: [
-      
-//       provideFormlyCore  ({
-//    types:[{
-//      name: 'p-select', component:FormlyFieldPrimengDropdownComponent,
-//    },
-//  { name: 'repeatFormlySection', component:RepeatFormlySectionComponent}
-//  ]
-//   }),
+//        provideFormlyCore(
+//         {
+//           types: [
+//             { name: 'customlabeltext', component: CustomLabelTextComponent },
+//             { name: 'customdropdown', component: CustomdropdownComponent },
+//             { name: 'p-select', component: FormlyFieldPrimengDropdownComponent },
+//             { name: 'repeatFormlySection', component: RepeatFormlySectionComponent }
+//           ]
+//     //     , extras: {
+//     //   lazyRender: true
+//     // } // 👈 Passed directly as a standalone function parameter
+// }),
       DatePipe,MessageService,provideAnimations(),
         importProvidersFrom(
-            NgxPermissionsModule.forRoot(),
+          //  NgxPermissionsModule.forRoot(),
           
 
       FormlyModule.forRoot({
         wrappers: [
+          //{ name: 'form-field', component: FormlyWrapperFormField },
+          
           { name: 'primeng-card', component: FormlyCardWrapperComponent }
         ],types: [
+           
+          // { name: 'custom-dropdown', component: CustomdropdownComponent },
+          {name:'primeng-dropdown',component:FormlyFieldPrimengDropdownNewComponent, wrappers:['form-field']},
           { name: 'repeat', component: RepeatsectiontypeComponent },
           // custom repeat section that provides the add button via addText prop
           { name: 'repeatFormlySection', component: RepeatFormlySectionComponent },
@@ -71,11 +83,11 @@ export const appConfig: ApplicationConfig = {
         
          
     
-          { name: 'questionTextDisplay', component: QuestiontextComponent }
-        ]
+      //     { name: 'questionTextDisplay', component: QuestiontextComponent }
+         ]
         
 
-      }),
+       }),
             FormlyPrimeNGModule,FormlySelectModule,FormlyDatepickerModule
          
         ),
@@ -87,9 +99,16 @@ export const appConfig: ApplicationConfig = {
         provideAnimationsAsync(),
 
         //
-       provideAppInitializer(()=>{
+       provideAppInitializer(async()=>{
+        //Load enums
+        const enumConfigService=inject(EnumConfigService);
+         enumConfigService.LoadEnums();
+        
         const configService=inject(ConfigService);
-        return configService.loadAppConfig();
+        return await configService.loadAppConfig();
+
+       
+
        }),
         //
         

@@ -19,24 +19,24 @@
 </ng-container>
  
     <!-- 4. Explicit Delete Action block spanning full-width -->
-    <div class="field-full-width delete-container">
+    <div class="col-span-2 md:col-span-2 delete-container">
       <button 
         type="button" 
         pButton 
-        label="Delete Item" 
+        label="Delete" 
         icon="pi pi-trash" 
-        class="p-button-danger p-button-text text-sm"
+        class="p-button-danger p-button-text text-sm "
         (click)="remove(i)">
       </button>
     </div>
   </ng-container>
 
   <!-- 5. Main form insertion action trigger pinned at layout footer -->
-  <div class="field-full-width button-container">
+  <div class="col-span-2 md:col-span-2 button-container">
     <button 
       type="button" 
       pButton 
-      label="Add New Item" 
+      label="Add" 
       icon="pi pi-plus" 
       class="p-button-outlined"
       (click)="add()">

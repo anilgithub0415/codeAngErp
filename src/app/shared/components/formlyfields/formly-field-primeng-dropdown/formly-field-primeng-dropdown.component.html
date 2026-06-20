@@ -1,11 +1,23 @@
- <p-select
+{{to['options$'] | async|json}}
+{{to['optionValue']|json}}
+  <div classs="field"><!--     
+             dataKey="value"  [dataKey]="to['dataKey']" *ngIf="myStaticOptions && myStaticOptions.length > 0" -->
+  <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
+    {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+  </label>
+  <p-select
+  
+  #primeDropdown
+   class="w-full"
       [formControl]="formControl"
-   [options]="(to['options$'] | async) ?? []"
+     [options]="(to['options$'] | async) ?? []"
       [placeholder]="to.placeholder"
-      [optionLabel]="optionLabel" 
+      [optionLabel]="to['optionLabel'] || 'label'"
       [optionValue]="to['optionValue'] || 'value'"
       (onChange)="onDropdownChange($event)"
       [filter]="to['filter'] || false"
       [showClear]="to['showClear'] || false"
       [formlyAttributes]="field">
  </p-select>
+ </div>
+ <pre>Current Form Value: {{ formControl.value | json }}</pre>

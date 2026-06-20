@@ -29,10 +29,10 @@ interface JwtPayload {
 function getRemainingTokenExpiry(token: string): number | null { 
  
   try {
-    const decodedToken = jwtDecode<JwtPayload>(token); console.log('decodedToken:',decodedToken?.exp);
+    const decodedToken = jwtDecode<JwtPayload>(token); 
     if (decodedToken?.exp) {
       //const currentTime = Math.floor(Date.now() / 1000);
-      const remainingTime = decodedToken.exp - currentTimestamp(); console.log('remainingTime:',remainingTime);
+      const remainingTime = decodedToken.exp - currentTimestamp(); 
       
      
       

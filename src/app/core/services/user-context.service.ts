@@ -27,12 +27,12 @@ private authService = inject(AuthService)
                 
                     const userId = this.authService.getUserId(); // Get ID from auth service
                   
-                  if(!userId){console.log('*****user context not finding userid')} else{console.log('usercontext loading data of userid:',userId);
+                  if(!userId){console.log('*****user context not finding userid')} else{
                   }
                     
                     if (userId) {
                   
-                        console.log('returning '+userId+"s getUser data");
+                        
                         
                         return this.userService.getUser(userId); // Fetch full profile
                     }

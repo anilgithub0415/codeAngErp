@@ -22,24 +22,31 @@ import { RepeatFormlySectionComponent } from '../../shared/components/formlyfiel
 import { FormlyInputModule } from '@ngx-formly/primeng/input';
 import { RippleModule } from 'primeng/ripple';
 import { FormlyCustomRowBridgeComponent } from '../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
+import { CustomdropdownComponent } from '../../shared/components/formlyfields/customdropdown/customdropdown.component';
 //import { createFormDto } from '../../../core/models/form.model';
 
 
 @NgModule({
   // providers:[
-                    // provideFormlyConfig({
-                    //     types:[{name: 'p-select', component:FormlyFieldPrimengDropdownComponent},
-                    //         { name: 'repeatFormlySection', component:RepeatFormlySectionComponent}
-                    //     ]
-                    // })
-                // ],
-  declarations: [CustomerComponent,TestComponent],
+  //                   provideFormlyConfig({
+  //                       types:[{name: 'p-select', component:FormlyFieldPrimengDropdownComponent},
+  //                           { name: 'repeatFormlySection', component:RepeatFormlySectionComponent},
+  //                           { name: 'custom-dropdown', component: CustomdropdownComponent },
+  //                       ]
+  //                   })
+  //               ],
+  declarations: [], //CustomerComponent
   imports: [
     ReactiveFormsModule, FormsModule,CommonModule,SelectModule,
         DataViewModule,TagModule,FormlyPrimeNGModule,
          TableModule, ButtonModule, RippleModule,PanelModule, InputNumberModule, FormlyInputModule,InputTextModule, ToastModule,
-    CustomerMgtRoutingModule, FormlyModule,FormlyPrimeNGModule,FormlyCustomRowBridgeComponent
-
-  ]
+    CustomerMgtRoutingModule, FormlyModule,FormlyPrimeNGModule,FormlyCustomRowBridgeComponent,
+    CustomdropdownComponent,
+// FormlyModule.forChild({
+//   types:[
+//     { name: 'customdropdown', component: CustomdropdownComponent },
+//   ]
+// })
+  ],//exports:[CustomdropdownComponent]
 })
 export class CustomerMgtModule { }

@@ -1,0 +1,7 @@
+<p>repeatsectionformly‑new works!</p>
+
+<div [formGroup]="formGroup">
+  <ng-container *ngFor="let _ of rows; let i = index">
+    <ng-container *ngComponentOutlet="rowBuilder(i)"></ng-container>
+  </ng-container>
+</div>

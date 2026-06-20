@@ -10,8 +10,10 @@ export interface Customer {
   id: number;
   tenantId: number;
   customerName: string;
+  leadStatus:string;
   organisations: Organisation[];
   createdByUserId: any;
+
 }
 /** One organisation entry inside the repeat‑section */
 export interface Organisation {

@@ -5,6 +5,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { SelectModule } from 'primeng/select';
 import { LookupService } from '../../../../core/services/lookup.service';
 import { map } from 'rxjs';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-formly-field-dropdown',schemas:[CUSTOM_ELEMENTS_SCHEMA],
@@ -14,11 +15,15 @@ import { map } from 'rxjs';
 })
 export class FormlyFieldDropdownComponent extends FieldType {
 private lookupService = inject(LookupService);
+private authServ=inject(AuthService);
+
+tenantId!:number;
 
   ngOnInit(): void {
     const to = this.to as any;
+    this.tenantId=this.authServ.getTenantId()!
 
-      to.options$ = this.lookupService.searchLookup('roleTypes', 4, '')
+      to.options$ = this.lookupService.searchLookup('roleTypes', this.tenantId, '')
        .pipe(
           map((options:any) => options.map((o:any) => ({ ...o,
       //label:o.label ?? o.name   // copy existing label to the expected property

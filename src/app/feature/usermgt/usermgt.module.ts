@@ -19,7 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     FormlyPrimeNGModule,
     UsermgtRoutingModule,
     // NgxPermissionsModule - configure forRoot
-    BrowserAnimationsModule,
+    //BrowserAnimationsModule,
 NgxPermissionsModule.forRoot(), // <-- Add this here
   ]
 })

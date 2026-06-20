@@ -29,9 +29,6 @@ export class FormlyCustomRowBridgeComponent extends FieldType implements OnInit 
   // component (simplified)
 ngOnInit(): void {
 
-  console.log('This is ngOnInit of FormlyCustomRowBridgeComponent....................');
-  
-
   //const rowIndex = Number(this.field?.parent?.key?.match(/\d+/)?.[0]) ?? 0;
  const keyAsString = String(this.field?.parent?.key ?? '');
   const rowIndex = Number(keyAsString.match(/\d+/)?.[0]) ?? 0;
@@ -43,7 +40,7 @@ ngOnInit(): void {
   // inside FormlyCustomRowBridgeComponent – replace the `mapped = …` block
 const copyCssProps = (src: any, dst: any) => {
   // copy the standard Formly `className`
-  if (src.className) { console.log('src.className:',src.className);
+  if (src.className) { 
   
     dst.className = src.className;
   }
@@ -57,7 +54,6 @@ const copyCssProps = (src: any, dst: any) => {
    // this.field.fieldGroupClassName = cfg.fieldGroupClassName ?? 'p-grid p-fluid flex flex-wrap';
 //console.log('cfg.fieldGroup[0].fieldGroupClassName :',cfg.fieldGroupClassName );
 
-console.log('cfg:',cfg);
 
 
   this.field.fieldGroupClassName = cfg.fieldGroupClassName ?? 'grid grid-cols-12 gap-4 w-full p-fluid';
@@ -93,11 +89,11 @@ console.log('cfg:',cfg);
 
   
     // **Attach to the field tree**
-    this.field.fieldGroup = mapped;   console.log('Mapped fields for row', rowIndex, this.field.fieldGroup);
+    this.field.fieldGroup = mapped;  
   
     
     // **Re‑build once**
-    this.builder.build(this.field);  console.log('in row bridge comp field:',this.field);
+    this.builder.build(this.field);  
   }
 }
 

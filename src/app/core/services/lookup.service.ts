@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, shareReplay, tap } from 'rxjs/operators'; // Import catchError and tap
+import { Observable, of, throwError, timer } from 'rxjs';
+import { catchError, delayWhen, shareReplay, tap } from 'rxjs/operators'; // Import catchError and tap
 
 // Import the User interfaces/DTOs you just defined
 import { Program} from '../models/program';
@@ -28,14 +28,7 @@ interface ProgramOption {
 })
 export class LookupService {
   
-  private dummyPrograms: ProgramOption[] = [
-    { label: '11th Sci JEE Main & Advanced Prep', value: 'P1' },
-    { label: '12th Sci NEET Prep', value: 'P2' },
-    { label: 'Foundation Course 9th-10th', value: 'P3' },
-  ];
-
-
-
+  
 
   private apiUrl = '/lookups';
 
@@ -67,10 +60,14 @@ export class LookupService {
   getLookupDataByKey(key:string,ptenantId:number):Observable<any[]>{
    
     var url=`/lookups/${key}/ptenantId/`+ptenantId; 
+    console.log('getLookupDataByKey url:',url);
+      
     
     return this.http.get<any[]>(url).pipe(
-      shareReplay(1)
-    )
+  delayWhen(() => timer(2000)),
+  shareReplay(1)
+);
+
   }
   
   /**
@@ -80,12 +77,14 @@ export class LookupService {
    */
   getCustomerCategories(ptenanId:number): Observable<CustomerCategory[]> {
       var url=this.apiUrl+'/customerCategoryTypes/ptenantId/'+ptenanId;
-        
+        console.log('getCustomerCategories url:',url);
+       
       return this.http.get<CustomerCategory[]>(url).pipe(
+
+  delayWhen(() => timer(2000)),
        //   tap(users => console.log('Fetched users:', users)),
           catchError(this.handleError)
       );
-     // return of(this.dummyPrograms);
   }
 
   /**
@@ -95,12 +94,14 @@ export class LookupService {
    * @param query search string
    */
   searchLookup(key: string, ptenantId: number, query: string): Observable<any[]> {
+    
     const q = encodeURIComponent(query ?? '');
     
     
-    const url = `/lookups/${key}/ptenantId/${ptenantId}?q=${q}`;
-    
-    return this.http.get<any[]>(url).pipe(
+    const url = `/lookups/${key}/ptenantId/${ptenantId}?q=${q}`; console.log('searchLookup url:',url);
+        return this.http.get<any[]>(url).pipe(
+
+  delayWhen(() => timer(2000)),
       catchError(this.handleError)
     );
   }

@@ -18,7 +18,6 @@ export class UserService {
     private apiUrl = '/user';
 
     constructor(private http: HttpClient) {
- console.log('userservice constructor is running');
 
      }
 

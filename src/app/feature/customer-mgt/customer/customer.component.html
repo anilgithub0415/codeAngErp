@@ -1,6 +1,5 @@
-
-model.organisations[0].customerDetailsRequired:{{model.organisations[0].customerDetailsRequired}}
-<div *ngIf="currOpMode=='ADD'" class="customer-container p-4" style="display: block; width: 100%;">
+{{model|json}}
+<div *ngIf="currOpMode=='ADD' || currOpMode=='UPDATE'" class="customer-container p-4" style="display: block; width: 100%;">
 <div *ngIf="!fields || fields.length===0">
   spinner.......
 </div>
@@ -13,16 +12,16 @@ model.organisations[0].customerDetailsRequired:{{model.organisations[0].customer
       <button
         pButton
         type="button"
-        label="Save Customer"
+        label="Save Lead"
         icon="pi pi-save"
         (click)="saveCustomer()"
         class="p-button-success"
-        [disabled]="!customers?.length || !form.valid">
+        [disabled]="!form.valid">
       </button>
       <button
         pButton
         type="button"
-        label="Clear Customer"
+        label="Clear Lead"
         icon="pi pi-times"
         (click)="clearCustomer()"
         class="p-button-secondary"
@@ -37,7 +36,7 @@ model.organisations[0].customerDetailsRequired:{{model.organisations[0].customer
         (click)="CancelFormOp()"
         class="p-button-secondary"
         style="margin-left: 0.5rem"
-         [disabled]="currOpMode!=='ADD'&& currOpMode!=='EDIT'">
+         [disabled]="currOpMode!=='ADD'&& currOpMode!=='UPDATE'">
       </button>
       </div>
     <div class="customer-section mb-4" *ngIf="customers?.length">
@@ -85,11 +84,12 @@ model.organisations[0].customerDetailsRequired:{{model.organisations[0].customer
 </div> 
 
 
-<p-button 
-    label="New Customer" 
+<p-button *ngIf="currOpMode=='VIEW'"
+    label="New Lead" 
     icon="pi pi-plus" 
     (click)="Add()" 
-    [disabled]="currOpMode === 'ADD'">
+   
+    >
 </p-button>
 
 
@@ -145,7 +145,7 @@ model.organisations[0].customerDetailsRequired:{{model.organisations[0].customer
           <ng-template pTemplate="body" let-org>
             <tr>
               <td>{{ org.organisationName }}</td>
-              <td>{{ org.customerCategory.customerCategory }}</td>
+              <td>{{ org.customerCategory }}</td>
               <td>{{ org.contactPersonName }}</td>
               <td>{{ org.mobileNumber }}</td>
               <td>{{ org.EmailId }}</td>
