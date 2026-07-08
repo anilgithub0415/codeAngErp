@@ -5,7 +5,7 @@ export interface Vendor {
 }
 
 export interface CreateVendorDto {
-   tenantId:string;
+   tenantId:number;
     vendorName: string;
     [key : string]:any
 }

@@ -1,8 +1,8 @@
 /* 1. Main CSS Grid Container Layer */
 .custom-formly-grid {
   display: grid !important;
-  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
-  gap: 1.25rem !important;
+  grid-template-columns: repeat(24, minmax(0, 1fr)) !important;
+  gap: 0.9rem;//1.25rem !important;
   width: 100% !important;
 }
 

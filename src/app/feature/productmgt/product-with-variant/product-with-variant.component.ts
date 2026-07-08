@@ -30,6 +30,7 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './product-with-variant.component.scss'
 })
 export class ProductWithVariantComponent implements OnInit {
+   tenantId!:number;
   productForm = new FormGroup({
     prodName: new FormControl('', Validators.required),
     description: new FormControl(''),
@@ -49,8 +50,11 @@ export class ProductWithVariantComponent implements OnInit {
   saving = false;
 
   private svc = inject(ProductWithService);
+  private authServ=inject(AuthService);
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+this.tenantId=this.authServ.getTenantId()!;
+}
 
   addVariant() {
     if (this.variantForm.invalid) { alert('Fill variant fields'); return; }
@@ -70,9 +74,9 @@ export class ProductWithVariantComponent implements OnInit {
     if (!this.variants.length) { if(!confirm('Save product without variants?')) return; }
 
     const dto: Partial<CreateProductWithVariantsDto> = {
-      tenantId: 1,
+      tenantId: this.tenantId,
       product: {
-        tenantId: '1',
+        tenantId: 1,
         prodName: this.productForm.value.prodName!,
         description: this.productForm.value.description!,
         sku: this.productForm.value.sku!,

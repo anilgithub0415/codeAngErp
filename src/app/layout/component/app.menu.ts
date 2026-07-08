@@ -55,22 +55,100 @@ export class AppMenu {
                         routerLink: ['/']
                     },
                     {
-                        label: 'Customer',
+                        label: 'ClientMgt',
                         icon: 'pi pi-fw pi-pencil',
                         routerLink: ['/app/custmgt']
-                    },{
-                        label: 'Purchase',
+                    },
+                     {
+                        label: 'Site Mgt',
+                        icon: 'pi pi-fw pi-user',
+                        items: [
+                            {
+                                label: 'Site',
+                                icon: 'pi pi-fw pi-sign-in',
+                                routerLink: ['/app/sitemgt']
+                            },
+                            {
+                                label: 'siteusers',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/sitemgt/siteusers']
+                            },{
+                                label: 'internalpurchaseorder',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/sitemgt/sitepurchase']
+                            },{
+                                label: 'Master2',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/mastermgt']
+                            },
+                                                 
+                        ]
+                    },
+                    {
+                        label: 'global Mgt',
+                        icon: 'pi pi-fw pi-pencil',
+                        routerLink: ['/app/globalmgt']
+                    }
+                    ,{
+                        label: 'Purchase Mgt',
                         icon: 'pi pi-fw pi-pencil',
                         routerLink: ['/app/purchasemgt']
                     }, {
-                        label: 'Sales',
+                        label: 'Sales Mgt',
                         icon: 'pi pi-fw pi-pencil',
                         routerLink: ['/app/salesmgt']
                     },{
-                        label: 'ProductWithVariant',
+                        label: 'Deli-Challan',
                         icon: 'pi pi-fw pi-pencil',
-                        routerLink: ['/app/productmgt']
+                        routerLink: ['/app/dcmgt']
                     },
+                    {
+                        label: 'Master Mgt',
+                        icon: 'pi pi-fw pi-user',
+                        items: [
+                            {
+                                label: 'Vendor',
+                                icon: 'pi pi-fw pi-sign-in',
+                                routerLink: ['/app/mastermgt']
+                            },
+                            {
+                                label: 'City',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/mastermgt/city']
+                            },{
+                                label: 'District',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/mastermgt/district']
+                            },{
+                                label: 'Master2',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/mastermgt']
+                            },
+                                                 
+                        ]
+                    },
+                    {
+                        label: 'ProductMgt',
+                        icon: 'pi pi-fw pi-user',
+                        items: [
+                            {
+                                label: 'Product',
+                                icon: 'pi pi-fw pi-sign-in',
+                                routerLink: ['/app/productmgt']
+                            },
+                            {
+                                label: 'Unit Of Measurement',
+                                icon: 'pi pi-fw pi-times-circle',
+                                routerLink: ['/app/sitemgt/UOMConversion']
+                            },
+                                                 
+                        ]
+                    },
+                    // {
+                    //     label: 'ProductWithVariant',
+                    //     icon: 'pi pi-fw pi-pencil',
+                    //     routerLink: ['/app/productmgt']
+                    // },
                     {
                         label: 'Auth',
                         icon: 'pi pi-fw pi-user',

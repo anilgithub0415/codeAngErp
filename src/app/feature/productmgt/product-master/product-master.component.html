@@ -1,26 +1,41 @@
-
-
+{{model|json}}<!-- currOpMode:{{currOpMode}}
+isFormHidden:{{isFormHidden}} -->
 <div class="sales-order-container p-4">
   <p-toast></p-toast>
 
+<!--Filter component--> 
+<!-- visibleDataArray is agian  processed to modifiedDataArray bcos
+  we need nested field hsnCode for filter-->
+<app-filter-control 
+      [dataSource]="modifiedDataArray ? modifiedDataArray : []" 
+      [filterFields]="['prodName','sku','hsnCode']" 
+      (filteredData)="onDataFiltered($event)">
+</app-filter-control>
+<!--Filter component-->
 
-  <form [formGroup]="form" class="order-form">
+<p-button *ngIf="currOpMode=='VIEW'"
+    label="New Item" 
+    icon="pi pi-plus" 
+    (click)="Add()" 
+   
+    >
+</p-button>
+  <form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
     <div class="order-header mb-4">
       <h2 class="text-xl font-bold mb-3">Product</h2>
       <formly-form class="grid" [form]="form" [fields]="fields" [model]="model"></formly-form>
     </div>
- 
+ </form>
 
-<div class="product-actions">
-      <button
-        pButton
-        type="button"
+<div class="product-actions" *ngIf="currOpMode!=='VIEW'" >
+      <p-button
+        
         label="Save Product"
         icon="pi pi-save"
         (click)="saveProduct()"
-        class="p-button-success"
+       
         [disabled]="form.invalid">
-      </button>
+      </p-button>
       <button
         pButton
         type="button"
@@ -30,18 +45,29 @@
         class="p-button-secondary"
         style="margin-left: 0.5rem">
       </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+         [disabled]="currOpMode!=='ADD'&& currOpMode!=='UPDATE'">
+      </button>
     </div>
 
-    <div class="product-section mb-4" *ngIf="products?.length">
-      <h3 class="text-lg font-semibold mb-2">Products</h3>
-      <p-table [value]="products" class="products-table">
+    <div class="product-section mb-0" *ngIf="products?.length">
+      <h3 class="text-lg font-semibold mb-2">Items</h3>
+      <p-table [value]="visibleDataArray ? visibleDataArray : []" class="products-table">
         <ng-template pTemplate="header">
           <tr>
             <th width="50px"></th>
+            <th>HSNCode</th>
             <th>Product</th>
             <th>SKU</th>
              <th>current Stock</th>
-            <th width="120px">Unit Price</th>
+            <th width="120px">Base Price</th>
             <th width="120px"></th>
           </tr>
         </ng-template>
@@ -56,8 +82,9 @@
                 (click)="onEditClick(aproduct)">
               </button>
             </td>
+            <td>{{ aproduct.hsnTaxRule?.hsnCode }}</td>
             <td>{{ aproduct.prodName }}</td>
-            <td>{{ aproduct.sku }}</td>
+            <td>{{ aproduct.baseUom }}</td>
             <td>{{ aproduct.currentstock }}</td>
             <td>₹{{ aproduct.basePrice | number:'1.2-2' }}</td>
             
@@ -75,5 +102,8 @@
       </p-table>
     </div>
 
- </form>
+
+
+
+ 
 </div>

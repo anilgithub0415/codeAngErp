@@ -2,7 +2,7 @@
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators'; // Import catchError and tap
 
 // Import the Customer interfaces/DTOs you just defined
@@ -54,13 +54,28 @@ export class CustomerService {
         catchError(this.handleError)
     );
 }
+/**
+ * Triggers a PUT mutation request mapping directly onto path parameters logic interfaces.
+ */
+updateCustomer(id: number, customerData: any): Observable<Customer> {
+  return this.http.put<Customer>(`/customer/${id}`, customerData).pipe(
+    tap(updatedCustomer => console.log('Successfully updated customer tracking record graphs:', updatedCustomer)),
+    catchError(this.handleError)
+  );
+}
+
 getCustomer(ptenantId:number,prodId:number): Observable<Customer[]> {
     return this.http.get<Customer[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
 getCustomers(ptenantId:number): Observable<Customer[]> {
-    return this.http.get<Customer[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
+    return this.http.get<Customer[]>(this.apiUrl+'/'+ptenantId)
 }
 
+checkMobileNumberExists(ptenantId:number,mobileNo:string): Observable<boolean|null> {
+    // this.http.get<Customer[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
+    return of(true);
+
+}
 
 }

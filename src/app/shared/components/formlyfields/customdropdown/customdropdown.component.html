@@ -18,4 +18,31 @@
 </div>
 
 </div>-->
- <label>its label in custom cntrl</label>
+{{to['options$'] | async|json}}
+{{to['optionValue']|json}}
+{{myStaticOptions|json}}
+  <div classs="field"><!--   [formControl]="formControl"     [options]="(to['options$'] | async) ?? []"
+             dataKey="value"  [dataKey]="to['dataKey']" *ngIf="myStaticOptions && myStaticOptions.length > 0" -->
+  <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
+    {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+  </label>
+  <p-select
+  
+  #primeDropdown
+   class="w-full"
+      
+  [options]="(to['options$'] | async) ?? []"
+      [placeholder]="to.placeholder"
+      [optionLabel]="to['optionLabel'] || 'label'"
+      [optionValue]="to['optionValue'] || 'value'"
+      (onChange)="onDropdownChange($event)"
+      [filter]="to['filter'] || false"
+      [showClear]="to['showClear'] || false"
+      [formlyAttributes]="field">
+ </p-select>
+ </div>
+ <pre>Current Form Value: {{ formControl.value | json }}</pre>
+
+<div class="w-full block mb-4" style="display: block; width: 100%;">
+ <p>its label in custom cntrl</p>
+ </div>

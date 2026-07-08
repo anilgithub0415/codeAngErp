@@ -22,7 +22,7 @@ import { RepeatFormlySectionComponent } from '../../shared/components/formlyfiel
 import { FormlyInputModule } from '@ngx-formly/primeng/input';
 import { RippleModule } from 'primeng/ripple';
 import { FormlyCustomRowBridgeComponent } from '../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { CustomdropdownComponent } from '../../shared/components/formlyfields/customdropdown/customdropdown.component';
+
 //import { createFormDto } from '../../../core/models/form.model';
 
 
@@ -41,12 +41,14 @@ import { CustomdropdownComponent } from '../../shared/components/formlyfields/cu
         DataViewModule,TagModule,FormlyPrimeNGModule,
          TableModule, ButtonModule, RippleModule,PanelModule, InputNumberModule, FormlyInputModule,InputTextModule, ToastModule,
     CustomerMgtRoutingModule, FormlyModule,FormlyPrimeNGModule,FormlyCustomRowBridgeComponent,
-    CustomdropdownComponent,
+    
 // FormlyModule.forChild({
 //   types:[
 //     { name: 'customdropdown', component: CustomdropdownComponent },
 //   ]
 // })
   ],//exports:[CustomdropdownComponent]
+  
+ 
 })
 export class CustomerMgtModule { }

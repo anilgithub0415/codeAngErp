@@ -1,0 +1,20 @@
+.hidden-form {
+  display: none !important;
+}
+
+// //for p-card
+// /* 1. Target the internal PrimeNG card wrapper to drop the overall heavy padding */
+// :host ::ng-deep .p-card .p-card-body {
+//     padding: 7px !important; /* Default PrimeNG padding is usually 24px+ */
+// }
+
+// /* 2. Target the inner content area to remove any vertical gaps */
+// :host ::ng-deep .p-card .p-card-content {
+//     padding: 0px 0 0 0 !important; 
+// }
+
+// /* 3. Drop excess space sitting directly below the header/subheader texts */
+// :host ::ng-deep .p-card .p-card-caption {
+//     margin-bottom: 0px !important;
+// }
+

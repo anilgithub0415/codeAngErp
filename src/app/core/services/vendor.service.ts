@@ -2,16 +2,16 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators'; // Import catchError, tap and map
-import { CreateProductDto, Product } from '../models/product.model';
-import { Vendor } from '../models/vendor.model';
+import { CreateVendorDto, Vendor } from '../models/vendor.model';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class VendorService {
 
-    // Base URL for your Product API endpoints on the backend
-    // Assuming your backend serves product APIs under /api/products
+    // Base URL for your Vendor API endpoints on the backend
+    // Assuming your backend serves vendor APIs under /api/vendors
     private apiUrl = '/vendor';
 
     constructor(private http: HttpClient) { }
@@ -35,28 +35,28 @@ export class VendorService {
                 `body was: ${JSON.stringify(error.error)}`);
             errorMessage = `Server error: ${error.status} - ${error.error?.message || error.statusText}`;
         }
-        // Return an observable with a product-facing error message.
+        // Return an observable with a vendor-facing error message.
         return throwError(() => new Error(errorMessage));
     }
 
  /**
-     * Creates a new product by sending data to the backend API.
-     * @param productData The data for the new product (CreateProductDto).
-     * @returns An Observable of the created Product object (including its new ID).
+     * Creates a new vendor by sending data to the backend API.
+     * @param vendorData The data for the new vendor (CreateVendorDto).
+     * @returns An Observable of the created Vendor object (including its new ID).
      */
- createProduct(productData: Partial<CreateProductDto>): Observable<Product> {
-    console.log(`Creating product at ${this.apiUrl} with data:`, productData);
-    return this.http.post<Product>(this.apiUrl, productData).pipe(
-        tap(newProduct => console.log('Created product:', newProduct)),
+ createVendor(vendorData: Partial<CreateVendorDto>): Observable<Vendor> {
+    console.log(`Creating vendor at ${this.apiUrl} with data:`, vendorData);
+    return this.http.post<Vendor>(this.apiUrl, vendorData).pipe(
+        tap(newVendor => console.log('Created vendor:', newVendor)),
         catchError(this.handleError)
     );
 }
-getProduct(ptenantId:number,prodId:number): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
+getVendor(ptenantId:number,prodId:number): Observable<Vendor[]> {
+    return this.http.get<Vendor[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
-getProducts(ptenantId:number): Observable<Vendor[]> {
-    return this.http.get<Vendor[]>(this.apiUrl+'/?activeTenantId='+ptenantId).pipe(
+getVendors(ptenantId:number): Observable<Vendor[]> {
+    return this.http.get<Vendor[]>(this.apiUrl+'/'+ptenantId).pipe(
       map((data: any) => {
         // Ensure the response is an array and map it properly
         const vendors = Array.isArray(data) ? data : [];
@@ -68,22 +68,8 @@ getProducts(ptenantId:number): Observable<Vendor[]> {
       })
     );
 }
-getProductFinalPrice(pProductId:number,ptenantId:number,p:any): Observable<number> {
-    var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/1';
-    console.log('posting url:',url);
-    
-    return this.http.post<number>(url,p)
-}
 
-    //for ngx-formly to work
-    getProducttableFieldsConfig(ptenantId:any):Observable<any>{
-        var url=this.apiUrl+'/product_table_fields/'+ptenantId;
-        
-        
-        return this.http.get<any[]>(url).pipe(
-            // tap(tenants => console.log('Fetched tenants:', tenants)),
-             catchError(this.handleError)
-         );
-     }
+
+  
 
 }

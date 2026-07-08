@@ -6,43 +6,45 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.order-form {
-  .order-header {
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-  }
-}
+// .order-form {
+//   .order-header {
+//     padding: 1rem; //1rem
+//     background: #f8f9fa;
+//     border-radius: 6px;
+//     margin-bottom: 1rem;
+//   }
+// }
 
-.order-lines-table {
-  .p-datatable {
-    .p-datatable-thead > tr > th {
-      background: #e9ecef;
-      font-weight: 600;
-    }
-  }
-}
+// .order-lines-table {
+//   .p-datatable {
+//     .p-datatable-thead > tr > th {
+//       background: #e9ecef;
+//       font-weight: 600;
+//     }
+//   }
+// }
 
-.order-totals {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 6px;
-  max-width: 400px;
-  margin-left: auto;
+// .order-totals {
+//   background: #f8f9fa;
+//   padding: 1rem;
+//   border-radius: 6px;
+//   max-width: 400px;
+//   margin-left: auto;
 
-  .totals-row {
-    font-size: 1rem;
+//   .totals-row {
+//     font-size: 1rem;
 
-    &.grand-total {
-      font-size: 1.1rem;
-      color: #28a745;
-    }
-  }
-}
+//     &.grand-total {
+//       font-size: 1.1rem;
+//       color: #28a745;
+//     }
+//   }
+// }
 
 .order-actions {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #dee2e6;
 }
+
+

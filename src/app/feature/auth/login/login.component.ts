@@ -35,19 +35,31 @@ export class LoginComponent {
       rememberMe: [false], // Optional remember me checkbox
     });}
     ngOnInit(): void {
-      const globalConfigData=this.configService.config;
+   
+      this.configService.loadAppConfig().then((configResponse:any)=>{
+        this.config_usersCreatedby=configResponse.config_useraddthru;
+        console.log('its changed to:',configResponse.config_useraddthru);
+     });
+
+    }
+    
+    getConfig(){
+       const globalConfigData=this.configService.config;
           if(globalConfigData){
+            console.log('globalConfigData:',globalConfigData);
+            
               this.config_usersCreatedby=globalConfigData.config_useraddthru;
           }
     }
-    
   onSubmit(): void {
     if (this.loginForm?.valid) {
        const { UserName, password, rememberMe } = this.loginForm.value;
 
        this.authService.login(UserName, password).subscribe({
-         next: (response) => {
-          
+         next: (response) => { 
+         
+
+
            this.errorMessage = '';
            // Navigate to the desired page after successful login
            this.router.navigate(['/app']); // Example: Navigate to the employees list

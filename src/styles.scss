@@ -1,8 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+
+
 @use './tailwind.css';
 @use './assets/layout/layout.scss';
 @use 'primeicons/primeicons.css';
 @use './assets/demo/demo.scss';
+
+//@import "@primeng/theme/aura"; /* or whichever theme file you're referencing */
+//@import "node_modules/primeng/resources/primeng.min.css";
 
 // .options-container {
 //     display: flex;
@@ -55,9 +60,17 @@ display: block; width: 100%;
 }
 
 /* Forces all nested formly component layers to fill out their grid columns */
+// formly-field, 
+// formly-field-input,
+// .p-fluid input {
+//   display: block;
+//   width: 100% !important;
+// }
 formly-field, 
 formly-field-input,
-.p-fluid input {
+.p-fluid input,
+.p-fluid p-dropdown,  p-select,      /* 🌟 Target the Formly custom component tag */
+.p-fluid .p-dropdown {      /* 🌟 Target PrimeNG's internal wrapper class */
   display: block;
   width: 100% !important;
 }
@@ -67,3 +80,28 @@ formly-field-input,
     border:4px sol red;
     background-color: #ffe6e6; 
 }
+:host {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep {
+  .p-panel {
+    width: 100% !important;
+  }
+}
+
+//for p-card
+/* Inside global styles.scss */
+/* Inside global styles.scss */
+@layer app-overrides {
+  p-card .p-card {
+    background: #ffffff; padding:0rem; margin: 0rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+.hidden-form {
+  display: none !important;
+}
+
+

@@ -8,7 +8,7 @@ import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { Dropdown, DropdownModule } from 'primeng/dropdown';
 import { LookupService } from '../../../../core/services/lookup.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { SelectModule } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { delay, map, of, Subscription } from 'rxjs';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -19,29 +19,66 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   imports: [CommonModule,DropdownModule,SelectModule],
   templateUrl: './formly-field-primeng-dropdown-new.component.html',
   styleUrl: './formly-field-primeng-dropdown-new.component.scss',
-  providers:[{
-    provide:NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(()=>FormlyFieldPrimengDropdownNewComponent),
-    multi:true
-  }]
+ host: {
+    'class': 'block w-full',
+    'style': 'display: block; width: 100%;'
+  }
 })
-export class FormlyFieldPrimengDropdownNewComponent extends FieldType<FieldTypeConfig> implements OnInit, OnDestroy
+export class FormlyFieldPrimengDropdownNewComponent extends FieldType<FieldTypeConfig> //implements OnInit
 //implements ControlValueAccessor
 
 {
-   private formlyControlSubscription!: Subscription;
+   isPropagating:boolean=false; 
+  @ViewChild('primeSelect') primeSelect!: Select;
 
+myoptions:any[]=[
+            { "label": "B2B", "value": "B2B" },
+            { "label": "B2BC", "value": "B2BC" },
+            { "label": "B2C", "value": "B2C" },
+            { "label": "Dealer", "value": "Dealer" },
+            { "label": "OEM", "value": "OEM" },
+            { "label": "Wholesaler", "value": "Wholesaler" }
+          ]
   
 
  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone) {
     super();
   }
-selectedValue: string = '';
+//selectedValue: string = '';
 
-lookupService=inject(LookupService)
-authService=inject(AuthService)
- myStaticOptions: any[] = []; 
-  ngOnInit(): void {
+// lookupService=inject(LookupService)
+// authService=inject(AuthService)
+ 
+ 
+ ngOnInit() {
+    if (this.formControl) {
+      this.formControl.valueChanges.subscribe((newValue) => {
+        console.log('value changes .........', newValue);
+        
+        setTimeout(() => {
+          if (this.primeSelect) {
+            // Force PrimeNG to process the value manually 
+            this.primeSelect.updateModel(newValue); 
+          }
+          this.cdr.markForCheck();
+        }, 100);
+      });
+    }
+  }
+  //ngOnInit() 
+//  {
+//     if (this.formControl) {
+//       this.formControl.valueChanges.subscribe(() => { console.log('value changes .........');
+      
+//         // Yield execution thread temporarily so PrimeNG can map option configurations safely
+//         setTimeout(() => {
+//           this.cdr.markForCheck();
+//         }, 100);
+//       });
+//     }
+//   }
+
+ //  ngOnInit(): void {
     //  if (this.formControl) {
     //   // Listen explicitly to external reactive model changes
     //   // 1. Instantly listen to any manual UI updates or programmatic setValue changes
@@ -82,52 +119,73 @@ authService=inject(AuthService)
     //   this.myStaticOptions = to.options;
     // }
 
-    if (this.formControl) {
-      // Direct listener for programmatic actions: formControl.setValue('B2BC')
-      this.formlyControlSubscription = this.formControl.valueChanges.subscribe((externalValue) => {
-        this.ngZone.run(() => {
-          // 1. Manually update Formly's root data object model representation tree
-          if (this.model && this.key) {
-            this.model[this.key as string] = externalValue;
-          }
-        })
-      })
-    }
+    
   
           
-  }
+  //} end of ngOnInit
 
   // Captures structural mouse click operations natively from PrimeNG's UI panel view
-  onManualUISelection(event: any) {
-    this.ngZone.run(() => {
-      const selectedValueString = event.value;
+//   onManualUISelection(event: any) { console.log('its running onManualselection');
+  
+//     this.ngZone.run(() => {
+//       const selectedValueString = event.value;
+// console.log('selectedValueString need to set in model:',selectedValueString);
 
-      // 1. Synchronize the underlying Angular form control state
-      if (this.formControl) {
-        this.formControl.setValue(selectedValueString, { emitEvent: false });
-        this.formControl.markAsDirty();
-        this.formControl.markAsTouched();
-      }
+//       // 1. Synchronize the underlying Angular form control state
+//       if (this.formControl) {
+//         this.formControl.setValue(selectedValueString, { emitEvent: false });
+//         this.formControl.markAsDirty();
+//         this.formControl.markAsTouched();
+//       }
 
-      // 2. Synchronize Formly's internal model dictionary tree
-      if (this.model && this.key) {
-        this.model[this.key as string] = selectedValueString;
-      }
+//       // 2. Synchronize Formly's internal model dictionary tree
+//       if (this.model && this.key) {
+//         this.model[this.key as string] = selectedValueString;
+//       }
 
-      this.cdr.markForCheck();
-    });
+//       this.cdr.markForCheck();
+//     });
+//   }
+onManualUISelection(event: any) { 
+  console.log('its running onManualselection');
+
+  const selectedValueString = event.value;
+
+  // 🌟 BREAK THE LOOP: If the UI selection matches what's already in the form control, stop!
+  if (this.formControl && this.formControl.value === selectedValueString) {
+    return;
   }
+
+  this.ngZone.run(() => {
+    console.log('selectedValueString need to set in model:', selectedValueString);
+
+    this.isPropagating = true; 
+
+    if (this.formControl) {
+      this.formControl.setValue(selectedValueString, { emitEvent: true });
+      this.formControl.markAsDirty();
+      this.formControl.markAsTouched();
+    }
+
+    if (this.model && this.key) {
+      this.model[this.key as string] = selectedValueString;
+    }
+
+    this.isPropagating = false; 
+    this.cdr.markForCheck();
+  });
+}
 
 
   // Custom Dropdown Class Method
-onManualSelection(event: any) {
+onManualSelection_notinuse(event: any) {
   if (this.formControl && this.model && this.key) {
     this.formControl.setValue(event.value, { emitEvent: true });
     this.model[this.key as string] = event.value;
   }
 }
 
-   onManualUISelect(event: any) {
+   onManualUISelect_notinuse(event: any) {
     const selectedVal = event.value;
 
     if (this.formControl) {
@@ -195,21 +253,17 @@ onManualSelection(event: any) {
     });
   }
 
- ngOnDestroy() {
-    if (this.formlyControlSubscription) {
-      this.formlyControlSubscription.unsubscribe();
-    }
-  }
+ 
   // Angular calls this when you execute .setValue('B2BC')
-  writeValue(value: any): void {
+  writeValue_notinuse(value: any): void {
     if (value) { console.log('writevalue is running now...........');
     
-      this.selectedValue = value; 
+      //this.selectedValue = value; 
     }
   }
 
-  registerOnChange(fn: any): void {}
-  registerOnTouched(fn: any): void {}
+  registerOnChange_notinuse(fn: any): void {}
+  registerOnTouched_notinuse(fn: any): void {}
 
  
 

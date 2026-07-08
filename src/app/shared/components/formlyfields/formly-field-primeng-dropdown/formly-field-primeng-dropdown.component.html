@@ -1,23 +1,71 @@
-{{to['options$'] | async|json}}
-{{to['optionValue']|json}}
-  <div classs="field"><!--     
-             dataKey="value"  [dataKey]="to['dataKey']" *ngIf="myStaticOptions && myStaticOptions.length > 0" -->
+<!-- 
+
+   <div classs="field">
   <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
     {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
   </label>
-  <p-select
+<p-select
+  [formControl]="formControl"
+  #primeSelect
+  [formlyAttributes]="field"
   
-  #primeDropdown
-   class="w-full"
-      [formControl]="formControl"
-     [options]="(to['options$'] | async) ?? []"
-      [placeholder]="to.placeholder"
-      [optionLabel]="to['optionLabel'] || 'label'"
-      [optionValue]="to['optionValue'] || 'value'"
-      (onChange)="onDropdownChange($event)"
-      [filter]="to['filter'] || false"
-      [showClear]="to['showClear'] || false"
-      [formlyAttributes]="field">
- </p-select>
- </div>
- <pre>Current Form Value: {{ formControl.value | json }}</pre>
+  [options]="(to['options$'] | async) ?? []"
+  [optionLabel]="props['optionLabel'] || 'label'"
+  [optionValue]="props['optionValue'] || 'value'"
+  [placeholder]="props['placeholder'] || 'Select'"
+  [filter]="props['filter']"
+   [style]="{'width':'100%'}"
+   
+  (onChange)="onManualUISelection($event)"
+  >
+</p-select>
+</div>
+
+
+ -->
+<!-- Cast formControl to any to allow custom runtime properties -->
+<!-- <select [formControl]="$any(formControl)">
+  <option *ngFor="let opt of ($any(formControl)?.customOptions ?? props?.options)" [value]="opt.value">
+    {{ opt.label }}
+  </option>
+</select> -->
+<!-- <div class="field">
+  <label *ngIf="props.label" [attr.for]="id" class="block mb-1 font-semibold text-sm">
+    {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+  </label>
+
+  <p-select
+    [formControl]="$any(formControl)"
+    #primeSelect
+    [formlyAttributes]="field"
+    [options]="resolvedOptions"
+    [optionLabel]="props['optionLabel'] || 'label'"
+    [optionValue]="props['optionValue'] || 'value'"
+    [placeholder]="props['placeholder'] || 'Select'"
+    [filter]="props['filter']"
+    [style]="{'width':'100%'}"
+    styleClass="w-full"
+    (onChange)="onManualUISelection($event)"
+  >
+  </p-select>
+</div> -->
+<!-- If you are using PrimeNG's new Select component -->
+<!-- For p-select or p-dropdown -->
+ <!--<div class="grid grid-cols-24 w-full p-fluid">-->
+ 
+ <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
+    {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+  </label>
+<p-select 
+  #primeSelect
+  [options]="resolvedOptions" 
+  [formControl]="$any(formControl)" 
+  [optionLabel]="props['optionLabel'] || 'label'"
+  [optionValue]="props['optionValue'] || 'value'"
+  [placeholder]="props['placeholder'] || 'Select'"
+  (onChange)="onManualUISelection($event)"
+   [filter]="to['filter']"
+  [filterBy]="to['filterBy'] || 'label'"
+  [filterMatchMode]="to['filterMatchMode'] || 'contains'">
+</p-select>
+<!-- </div> -->

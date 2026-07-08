@@ -1,1 +1,88 @@
-<p>product-with-varaints works!</p>
+<p>product-with-varaints works! this is AI generated</p>
+<div class="sales-order-container p-4">
+  <p-toast></p-toast>
+
+  <form [formGroup]="form" class="order-form">
+    <!-- 1. Parent Template Information Formly Layout -->
+    <div class="order-header mb-4">
+      <h2 class="text-xl font-bold mb-3">Product Template Configuration</h2>
+      <formly-form class="grid" [form]="form" [fields]="fields" [model]="model"></formly-form>
+    </div>
+
+    <!-- 2. Interactive Variant Generator Panel -->
+    <div class="variant-generator-section card p-3 mb-4 bg-gray-50 border-round border-1 border-300">
+      <h3 class="text-md font-bold mb-2">Add Product Variant</h3>
+      <div class="grid gap-3 align-items-end">
+        <div class="col-fixed" style="width:180px">
+          <label class="block font-semibold mb-1 text-sm">Variant SKU</label>
+          <input type="text" pInputText [(ngModel)]="newVariant.sku" [ngModelOptions]="{standalone: true}" placeholder="e.g., SKU-12-CHROME" class="w-full p-inputtext-sm"/>
+        </div>
+        <div class="col-fixed" style="width:120px">
+          <label class="block font-semibold mb-1 text-sm">Size / Dimension</label>
+          <input type="text" pInputText [(ngModel)]="newVariant.size" [ngModelOptions]="{standalone: true}" placeholder="1/2 Inch" class="w-full p-inputtext-sm" />
+        </div>
+        <div class="col-fixed" style="width:120px">
+          <label class="block font-semibold mb-1 text-sm">Finish / Material</label>
+          <input type="text" pInputText [(ngModel)]="newVariant.finish" [ngModelOptions]="{standalone: true}" placeholder="Chrome" class="w-full p-inputtext-sm" />
+        </div>
+        <div class="col-fixed" style="width:100px">
+          <label class="block font-semibold mb-1 text-sm">Base Price</label>
+          <p-inputNumber [(ngModel)]="newVariant.basePrice" [ngModelOptions]="{standalone: true}" mode="currency" currency="INR" locale="en-IN" class="p-inputtext-sm"></p-inputNumber>
+        </div>
+        <div class="col-fixed" style="width:90px">
+          <label class="block font-semibold mb-1 text-sm">Initial Stock</label>
+          <p-inputNumber [(ngModel)]="newVariant.currentstock" [ngModelOptions]="{standalone: true}" class="p-inputtext-sm"></p-inputNumber>
+        </div>
+        <div class="col">
+          <button pButton type="button" label="Add Variant" icon="pi pi-plus" (click)="addVariantToGrid()" class="p-button-sm p-button-outlined"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Actions for Template saving -->
+    <div class="product-actions mb-4">
+      <button pButton type="button" label="Save Product & Variants" icon="pi pi-save" (click)="saveProduct()" class="p-button-success" [disabled]="form.invalid || !variantsList.length"></button>
+      <button pButton type="button" label="Clear Form" icon="pi pi-times" (click)="clearProduct()" class="p-button-secondary" style="margin-left: 0.5rem"></button>
+    </div>
+
+    <!-- 4. Variant Data Table Grid Grid Layout -->
+    <div class="product-section mb-0">
+      <h3 class="text-lg font-semibold mb-2">Defined Variants for this Template</h3>
+      <p-table [value]="variantsList" class="products-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="60px">Edit</th>
+            <th>SKU</th>
+            <th>Size</th>
+            <th>Finish</th>
+            <th>Current Stock</th>
+            <th width="140px">Wholesale Price</th>
+            <th width="140px">Base Price</th>
+            <th width="60px">Delete</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-variant let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="onEditVariant(variant, rowIndex)"></button>
+            </td>
+            <td><strong>{{ variant.sku }}</strong></td>
+            <td>{{ variant.size || 'N/A' }}</td>
+            <td>{{ variant.finish || 'N/A' }}</td>
+            <td>{{ variant.currentstock }}</td>
+            <td>₹{{ variant.customAttributes?.tier_prices?.Wholesaler_price | number:'1.2-2' }}</td>
+            <td>₹{{ variant.basePrice | number:'1.2-2' }}</td>
+            <td>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm" (click)="removeVariant(rowIndex)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center p-4 text-gray-500">No variants added yet. Use the panel above to define at least one variant item.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </form>
+</div>

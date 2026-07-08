@@ -1,23 +1,34 @@
-{{model|json}}
-<div *ngIf="currOpMode=='ADD' || currOpMode=='UPDATE'" class="customer-container p-4" style="display: block; width: 100%;">
+<!--  fields:{{fields|json}} currOpMode:{{currOpMode}}{{model|json}}-->
+
+ <!--*ngIf="currOpMode=='ADD' || currOpMode=='UPDATE'"-->
+ <p-toast></p-toast>
+<div  class="customer-container p-4" style="display: block; width: 100%;">
 <div *ngIf="!fields || fields.length===0">
   spinner.......
 </div>
- <form [formGroup]="form" pFluid (ngSubmit)="onSubmit()" *ngIf="fields && fields.length>0">
-      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-      <button type="submit">Submit</button>
-    
 
-      <div class="customer-actions">
-      <button
-        pButton
+<!--Filter component-->
+<app-filter-control 
+      [dataSource]="customers?customers:[]" 
+      [filterFields]="['customerName', 'leadStatus']" 
+      (filteredData)="onDataFiltered($event)">
+    </app-filter-control>
+<!--Filter component-->
+ <form [formGroup]="form" pFluid  [class.hidden-form]="isFormHidden">
+     
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    
+      <div class="customer-actions" *ngIf="currOpMode!=='VIEW'">
+      <p-button
+        
         type="button"
-        label="Save Lead"
+        label="Save Client"
         icon="pi pi-save"
         (click)="saveCustomer()"
-        class="p-button-success"
+       
         [disabled]="!form.valid">
-      </button>
+      </p-button>
       <button
         pButton
         type="button"
@@ -39,14 +50,16 @@
          [disabled]="currOpMode!=='ADD'&& currOpMode!=='UPDATE'">
       </button>
       </div>
+
+      <!--commented grid with edit button-->
     <div class="customer-section mb-4" *ngIf="customers?.length">
       <h3 class="text-lg font-semibold mb-2">Customers</h3>
-      <p-table [value]="customers?customers:[]" class="customers-table">
+      <p-table [value]="visibleDataArray?visibleDataArray:[]" class="customers-table">
         <ng-template pTemplate="header">
           <tr>
             <th width="50px"></th>
             <th>Customer</th>
-            
+             <th>LeadStatus</th>
             <th width="120px"></th>
             
           </tr>
@@ -63,7 +76,7 @@
               </button>
             </td>
             <td>{{ acustomer.customerName }}</td>
-           
+           <td>{{ acustomer.clientStatus }}</td>
             
             
             <td>
@@ -85,24 +98,29 @@
 
 
 <p-button *ngIf="currOpMode=='VIEW'"
-    label="New Lead" 
+    label="New Client" 
     icon="pi pi-plus" 
     (click)="Add()" 
    
     >
 </p-button>
 
+<!--search-->
+
+
+<!--end search-->
 
 
 <div class="card" *ngIf="currOpMode=='VIEW'" >
-  <p-table  [value]="customers ?? []"   dataKey="id"   [expandedRowKeys]="expandedRows"   >
+  <p-table  [value]="visibleDataArray || []"   dataKey="id"   [expandedRowKeys]="expandedRows"   >
     
   <ng-template pTemplate="header">
       <tr>
         <th style="width: 5rem"></th> 
-        <th>ID</th>
+        <!-- <th>ID</th> -->
+         <th></th>
         <th>Person Name</th>
-        <th>Email</th>
+        <th>ClientStatus</th>
       </tr>
     </ng-template>
     
@@ -116,29 +134,35 @@
             [text]="true" 
             [rounded]="true" 
             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-          </p-button>
-         
+          </p-button>         
         </td>
-        <td> {{customer.id}} </td>
-        <td>{{customer.customerName}} </td>
-        <td>customer.email </td>
+        <td>
+           <p-button 
+            type="button" 
+            pRipple 
+            [pRowToggler]="customer" 
+            [text]="true" 
+            [rounded]="true"   (click)="onEditClick(customer)"
+            [icon]="'pi pi-pencil'">
+          </p-button>         
+        </td>
+        <!-- <td> {{customer.id}} </td> -->
+        <td><strong>{{customer.customerName}}</strong> </td>
+        <td>{{customer.clientStatus}} </td>
       </tr>
     </ng-template>
     
       <ng-template pTemplate="expandedrow" let-customer>
       <tr>
       <td colspan="4">
-        <p-table *ngIf='customer && customer?.organisations && customer?.organisations.length' [value]="customer?.organisations" dataKey="id" class="p-datatable-sm">
+        <p-table *ngIf='customer && customer?.sites && customer?.sites.length' [value]="customer?.sites" dataKey="id" class="p-datatable-sm">
           <ng-template pTemplate="header">
             <tr>
-              <th>Organisation</th>
+              <th>Firm</th>
               <th>Category</th>
               <th>Contact Person</th>
               <th>Mobile</th>
-              <th>Email</th>
-              <th>City</th>
-              <th>Credit Days</th>
-              <th>Credit Limit</th>
+              
             </tr>
           </ng-template>
 
@@ -148,10 +172,7 @@
               <td>{{ org.customerCategory }}</td>
               <td>{{ org.contactPersonName }}</td>
               <td>{{ org.mobileNumber }}</td>
-              <td>{{ org.EmailId }}</td>
-              <td>{{ org.city }}</td>
-              <td>{{ org.creditDays }}</td>
-              <td>{{ org.creditLimit }}</td>
+              
             </tr>
           </ng-template>
         </p-table>

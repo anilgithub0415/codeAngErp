@@ -25,17 +25,17 @@ import { QuestiontextComponent } from './questiontext/questiontext.component';
 
 
 @NgModule({
-  declarations: [RepeatsectiontypeComponent,QuestiontextComponent],
+  declarations: [QuestiontextComponent],
   
   //schemas:[NO_ERRORS_SCHEMA],
   imports: [
     CommonModule,FormsModule,InputTextModule,
     ReactiveFormsModule, ButtonModule, DropdownModule,
-    FormlyModule.forRoot(), 
+    //FormlyModule.forRoot(), 
     FormlyPrimeNGModule,
 
     TableModule,CheckboxModule,DialogModule,SelectModule
   ],
-  exports:[RepeatsectiontypeComponent,QuestiontextComponent]
+  exports:[QuestiontextComponent]
 })
 export class RepeattypeModule { }

@@ -16,18 +16,21 @@ export class ConfigService {
   
   private http =inject(HttpClient);
 
-  loadAppConfig():Promise<void>{
-    return firstValueFrom(
-      this.http.get<GlobalConfig>(this.apiUrl)
-    ).then(data=>{
-      this.configData=data;
-    })
-    .catch(error=>{
-      console.error('Could not load application configuration');
-      this.configData={config_useraddthru:'signup'}
-      
-    })
-  }
+  loadAppConfig(): Promise<GlobalConfig> { // 👈 Changed return type
+  return firstValueFrom(
+    this.http.get<GlobalConfig>(this.apiUrl)
+  ).then(data => {
+    this.configData = data;
+    return data; // 👈 Explicitly return data
+  })
+  .catch(error => {
+    console.error('Could not load application configuration');
+    const fallback = { config_useraddthru: 'signup' };
+    this.configData = fallback;
+    return fallback; // 👈 Explicitly return fallback
+  });
+}
+
 
   get config():GlobalConfig|null{
     return this.configData;

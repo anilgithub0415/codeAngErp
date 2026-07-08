@@ -1,10 +1,12 @@
 
-import {  Component, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {  Component, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, OnInit } from '@angular/core';
 import { FieldArrayType, FormlyFieldConfig } from '@ngx-formly/core';
 import { ButtonModule } from 'primeng/button';
 @Component({
-  selector: 'app-repeatsectiontype',standalone:false,// imports:[ButtonModule],
-  //schemas:[NO_ERRORS_SCHEMA],
+  selector: 'app-repeatsectiontype',standalone:true,// 
+  imports:[CommonModule,ButtonModule],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './repeatsectiontype.component.html',
   styleUrl: './repeatsectiontype.component.scss'
 })

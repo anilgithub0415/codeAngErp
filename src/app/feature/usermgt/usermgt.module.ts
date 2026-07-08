@@ -15,7 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   declarations: [],
   imports: [
     CommonModule,
-    ReactiveFormsModule, FormsModule,  FormlyModule.forRoot(), 
+    ReactiveFormsModule, FormsModule,  //FormlyModule.forRoot(), 
     FormlyPrimeNGModule,
     UsermgtRoutingModule,
     // NgxPermissionsModule - configure forRoot

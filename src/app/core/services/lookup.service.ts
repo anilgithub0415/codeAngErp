@@ -15,6 +15,9 @@ import { Topic } from '../models/topic.model';
 import { CourseOffering } from '../models/course-offering';
 import { UserRole } from '../models/user.model';
 import { CustomerCategory } from '../models/customer-category';
+import { Product } from '../models/product.model';
+import { City } from '../models/city.model';
+import { Customer } from '../models/customer.model';
 
 // No need for InventoryStatus here, that was from the product example
 
@@ -59,8 +62,9 @@ export class LookupService {
 
   getLookupDataByKey(key:string,ptenantId:number):Observable<any[]>{
    
+   
     var url=`/lookups/${key}/ptenantId/`+ptenantId; 
-    console.log('getLookupDataByKey url:',url);
+   
       
     
     return this.http.get<any[]>(url).pipe(
@@ -77,7 +81,7 @@ export class LookupService {
    */
   getCustomerCategories(ptenanId:number): Observable<CustomerCategory[]> {
       var url=this.apiUrl+'/customerCategoryTypes/ptenantId/'+ptenanId;
-        console.log('getCustomerCategories url:',url);
+     
        
       return this.http.get<CustomerCategory[]>(url).pipe(
 
@@ -86,7 +90,18 @@ export class LookupService {
           catchError(this.handleError)
       );
   }
+  //customerTypes
+getcustomerTypes(ptenanId:number): Observable<Customer[]> {
+      var url=this.apiUrl+'/customerTypes/ptenantId/'+ptenanId;
+     
+       
+      return this.http.get<Customer[]>(url).pipe(
 
+  delayWhen(() => timer(2000)),
+       //   tap(users => console.log('Fetched users:', users)),
+          catchError(this.handleError)
+      );
+  }
   /**
    * Generic search helper for lookup keys.
    * @param key lookup key (e.g. 'vendors', 'roleTypes')
@@ -94,11 +109,12 @@ export class LookupService {
    * @param query search string
    */
   searchLookup(key: string, ptenantId: number, query: string): Observable<any[]> {
-    
+      
     const q = encodeURIComponent(query ?? '');
     
     
     const url = `/lookups/${key}/ptenantId/${ptenantId}?q=${q}`; console.log('searchLookup url:',url);
+        console.log('searchLookup url:',url); 
         return this.http.get<any[]>(url).pipe(
 
   delayWhen(() => timer(2000)),
@@ -115,8 +131,37 @@ getRoleTypes(ptenanId:number): Observable<UserRole[]> {
    //   tap(users => console.log('Fetched users:', users)),
       catchError(this.handleError)
   );
- // return of(this.dummyPrograms);
+ 
 }
 
+//
+getProductTypes(ptenanId:number): Observable<Product[]> {
+  var url=this.apiUrl+'/productTypes/ptenantId/'+ptenanId;
+    
+  return this.http.get<Product[]>(url).pipe(
+   //   tap(users => console.log('Fetched users:', users)),
+      catchError(this.handleError)
+  );
+ 
+}
+//withvariant
+// In lookup.service.ts
+getProductTypesWithVariants(ptenantId: number): Observable<any[]> {
+    var url = this.apiUrl + '/productTypesWithVariants/ptenantId/' + ptenantId;
+    return this.http.get<any[]>(url).pipe(
+        catchError(this.handleError)
+    );
+}
+
+
+getCityTypes(ptenanId:number): Observable<City[]> {
+  var url=this.apiUrl+'/cityTypes/ptenantId/'+ptenanId;
+    
+  return this.http.get<City[]>(url).pipe(
+   //   tap(users => console.log('Fetched users:', users)),
+      catchError(this.handleError)
+  );
+ 
+}
 
 }

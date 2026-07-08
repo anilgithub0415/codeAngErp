@@ -1,0 +1,36 @@
+<!-- <p>formly-wrapper-typeahead works!</p>
+ <div class="position-relative">
+     
+      <ng-container #fieldComponent></ng-container>
+
+     
+      <ul class="suggestion-list" *ngIf="props['suggestions']?.length > 0">
+        <li *ngFor="let match of props['suggestions']" (click)="selectOption(match)">
+         
+        </li>
+      </ul>
+    </div> -->
+
+    <!-- formly-wrapper-typeahead.component.html -->
+<div class="typeahead-wrapper">
+  <!-- The actual input field – you can keep any additional classes you need -->
+  <!-- <input
+    type="text"
+    class="p-inputtext p-component w-full"
+    [formControl]="formControl"
+    [formlyAttributes]="field"
+    (input)="field.props?.onInput?.($event)"   
+    placeholder="{{ field.props?.placeholder || '' }}"
+  /> -->
+
+  <!-- Suggestion list – shown only when there are suggestions -->
+  <!-- <ul *ngIf="field.props && field.props?['suggestions'] && field.props?['suggestions']?.length" class="suggestion-list">
+    <li
+      *ngFor="let match of field.props['suggestions']"
+      (click)="selectOption(match)"
+      class="suggestion-item"
+    >
+       match[field.key] 
+    </li>
+  </ul> -->
+</div>

@@ -7,9 +7,10 @@ import { CardModule } from 'primeng/card';
   standalone: true,
   imports: [CardModule],
   template: `
-    <p-card [header]="props.label" [subheader]="props.description" [class]="field.className || 'col-12'">
-      <ng-container #fieldComponent></ng-container>
-    </p-card>
+   <p-card [header]="props.label" [subheader]="props.description" [class]="field.className || 'col-span-24'">
+  <ng-container #fieldComponent></ng-container>
+</p-card>
+
   `,
   styleUrls: ['./formly-card-wrapper.component.scss']
 })

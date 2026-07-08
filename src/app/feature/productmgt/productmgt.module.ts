@@ -18,7 +18,7 @@ import { ProductWithVariantComponent } from './product-with-variant/product-with
   declarations: [ProductvariantComponent, ProductWithVariantComponent],
   imports: [
     CommonModule,
-    ReactiveFormsModule, FormsModule,  FormlyModule.forRoot(), 
+    ReactiveFormsModule, FormsModule, // FormlyModule.forRoot(), 
     FormlyPrimeNGModule,
     DataViewModule,ButtonModule,TagModule, 
     ProductmgtRoutingModule

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
+import { FormlyConfig, FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { ProductService } from '../../../core/services/product.service';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../../core/models/product.model';
@@ -13,20 +13,40 @@ import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PurchaseService } from '../../../core/services/purchase.service';
 import { VendorService } from '../../../core/services/vendor.service';
+import { FormlyFieldProductsearch } from '../../../shared/components/formlyfields/productsearch/productsearch.component';
+import { FormlyFieldPrimengDropdownComponent } from '../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
+import { RepeatsectionformlyComponent } from '../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
+import { typeaheadSearchExtension } from '../../../shared/components/formlyfields/typeaheadSearchExtension';
+import { FORMLY_ROW_REGISTRY } from '../../customer-mgt/formly-registry';
+import { FormService } from '../../../core/services/form.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { FormlyCardWrapperComponent } from '../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
+import { FormlyCustomRowBridgeComponent } from '../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
+import { Purchase } from '../../../core/models/purchase.model';
+import { FormOpMode } from '../../../shared/enums/FormOpMode.enum';
+import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
+import { FormlyFieldPrimengDatepickerComponent } from '../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
+import { hydrateFormlyConfig, injectPurchaseUomMatrixListeners } from '../../../shared/utils/hydrationOfFormlyJson';
+import { firstValueFrom } from 'rxjs';
+
 
 @Component({
-  selector: 'app-purchase-order',
-  imports: [ReactiveFormsModule, FormsModule, FormlyModule, CommonModule, 
+  selector: 'app-purchase-order',standalone:true,
+  imports: [ReactiveFormsModule, FormsModule, FormlyModule,CommonModule, 
     TableModule, ButtonModule, InputNumberModule, InputTextModule, ToastModule
-  ,DatePickerModule
+  ,DatePickerModule, FormlyPrimeNGModule,FormlyModule
   ],
   templateUrl: './purchase-order.component.html',
   styleUrl: './purchase-order.component.scss',
    providers: [MessageService]
 })
 export class PurchaseOrderComponent implements OnInit {
+  tenantId!:number; POs: Purchase[] |undefined = [] ; 
+   expandedRows: { [id: number]: boolean } = {};
+  currOpMode: FormOpMode = FormOpMode.View; isFormHidden:boolean=true;
    form = new FormGroup({});
   model: any = { 
+    tenantId:0,
     poNumber: '', 
     vendorId: null,
     vendor: null,
@@ -35,76 +55,657 @@ export class PurchaseOrderComponent implements OnInit {
     status: 'DRAFT',
     totalAmount: 0,
     notes: '',
-    lines: [] 
+    items: [{productId:0,quantity:0,finalPrice:0}] 
   };
 
   totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
+  private formlyConfig = inject(FormlyConfig);
+aForm!:any;
+  raw:any;
 
-  fields: FormlyFieldConfig[] = [
-    {
-      key: 'poNumber',
-      type: 'input',
-      props: { label: 'Purchase Order Number', required: true }
-    },
-    
-     {
-      key: 'vendorId',
-     type: 'vendor-search',
-      props: {
-        label: 'Search Vendor',
-        placeholder: 'Type to search vendor...',
-        vendorSelected: (vendor: any) => this.onVendorSelected(vendor)
-      }
-    },
+   private formService=inject(FormService);
+    private productService=inject(ProductService); 
+  private authServ=inject(AuthService);
+    private purchaseService=inject(PurchaseService);
+    private vendorService=inject(VendorService);
+    private messageService=inject(MessageService);
 
-     {
-      key: 'orderDate',
-      type:'datepicker',
-      defaultValue: new Date().toISOString().substring(0,10),
-      props: { label: 'Order Date', required: true , 
-        dateFormat:'dd-mm-yy'
-      }
-    },
-    {
-      key: 'deliveryDate',
-      type:'datepicker',
-      props: { label: 'Delivery Date', required: false , 
-        dateFormat:'dd-mm-yy'
-      }
-    },
-    {
-      key: 'status',
-      type: 'input',
-      props: { label: 'Status', required: true, defaultValue: 'DRAFT' }
-    },
-    {
-      key: 'notes',
-      type: 'textarea',
-      props: { label: 'Notes', required: false }
-    },
-    {
-      key: 'productSearch',
-      type: 'product-search',
-      props: {
-        label: 'Search Product',
-        placeholder: 'Type to search products...',
-        productAdded: (product: any) => this.onProductAdded(product)
-      }
-    }
-  ];
+ fields: FormlyFieldConfig[] = [];
 
-  constructor(
-    private productService: ProductService, 
-    private purchaseService:PurchaseService,
-    private vendorService: VendorService,
-    private messageService: MessageService
+  constructor(private cd:ChangeDetectorRef
+   
   ) {}
 
   ngOnInit(): void {
-    // Recompute totals when form value changes
+       this.tenantId = this.authServ.getTenantId()!;   // <-- store once
+
+       // Recompute totals when form value changes
     this.form.valueChanges?.subscribe(() => this.computeTotals());
+       this.formlyConfig.setWrapper({name:'panel',component:FormlyCardWrapperComponent}),
+
+       this.formlyConfig.setType({
+              name: 'primeng-dropdown',
+              component: FormlyFieldPrimengDropdownComponent,
+            });
+         this.formlyConfig.setType({
+              name: 'datepicker',
+              component: FormlyFieldPrimengDatepickerComponent,
+            });
+    
+              this.formlyConfig.setType({
+                 name: 'p-repeatsectionformly',
+                 component: RepeatsectionformlyComponent
+               });
+
+              this.formlyConfig.setType({
+                name:'custom',component:FormlyCustomRowBridgeComponent
+              })
+  this.getForm_PO(); 
+    this.getPOList();
+  
+              }
+  getForm_PO(){
+ //formkey:customer_form
+  
+ //var raw:any;
+    //  this.formService.getForm(this.tenantId!,'customer_form').subscribe(aform=>{
+       
+       
+    //    this.aForm=aform; 
+      
+     
+      
+       
+    //     this.raw=JSON.parse(this.aForm.FormlyConfig) ;
+        
+    //  })
+   
+     //without $index and rowtemplate
+     this.raw=[
+  { "key": "id", "type": "input", "hide": true },
+  { "key": "createdByUserId", "type": "input", "hide": true },
+  { "key": "tenantId", "type": "input", "hide": true },
+ 
+
+  {
+    "wrappers": ["panel"],
+    "className": "col-span-24 w-full block mb-0",
+    "props": {
+     // "label": "PO Information"
+        },
+    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+   
+    "fieldGroup": [
+       {
+    "type": "input",
+    
+    "key": "poNumber",
+        "className": "col-span-6 md:col-span-4",
+    "props": {
+      "label": "Purchase Order#", "readonly": true,
+      "placeholder": "PO#",
+     // "required": true
+    }
+  },
+    {
+        "type": "primeng-dropdown",
+        "key": "vendorId",
+        "className": "col-span-12 md:col-span-6",
+        "props": {
+          "label": "Vendor:",
+          "optionLabel": "label",
+          "optionValue": "value",
+          "placeholder": "Select Vendor",
+          "lookupKey": "vendorTypes",
+          "filter": true,
+      "required": true
+        }
+      },
+      
+      {
+  "type": "datepicker",
+  "key": "orderDate",
+        "className": "col-span-12 md:col-span-6",
+  "props": {
+    "label": "Order Date",
+     "dateFormat": "dd-mm-yy",
+    "numberOfMonths": 1,
+    "selectionMode": "single"
+  }
+}
+
+
+    ]
+  },
+
+  {
+    "key": "items",
+    "type": "p-repeatsectionformly",
+    "wrappers": ["panel"],
+    "defaultValue": [],
+    "props": {
+      "label": "",
+      "addText": "Add Organisation",
+      "rowDefaults":{"quantity":"1"} 
+        },
+    "fieldArray": {
+      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+      "fieldGroup": [
+        { "key": "id", "type": "input", "hide": true },
+        
+           {
+                    "type": "primeng-dropdown",
+                    "key": "productId",
+                    "className": "col-span-6 md:col-span-11",
+                    "props": {
+                        //"label": "Item",
+                        "optionLabel": "label",
+                        "optionValue": "value",
+                        "placeholder": "Select Item",
+                        "lookupKey": "productTypes", // conditional:productTypesWithVariants
+                        "required": true,
+                        "filter": true,
+                        // Add variant display in dropdown
+                        "optionDisabled": (option: any) => !option.variants?.length
+                    },
+                    "expressions": {
+                      "props.label": "field.parent.index === 0 ? 'Item' : ''"
+                      }
+                },
+        
+        {
+          "type": "input",
+          "key": "quantity",
+          "className": "col-span-3 md:col-span-3",
+          "props": {
+           // "label": "Quantity",
+            "placeholder": "Enter name",
+            "required": true
+          },
+                    "expressions": {
+                      "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
+                      }
+        },
+        
+//         {
+//   "type": "primeng-dropdown",
+//   "key": "purchaseUom",
+//   "className": "col-span-12 md:col-span-6",
+//   "props": {
+//     "label": "Purchase UOM:",
+//     "optionLabel": "label",
+//     "optionValue": "value",
+//     "placeholder": "Select UOM",
+//     "filter": true,
+//     "required": true,
+//     "options": [] // 🌟 Starts empty, populated dynamically at runtime
+//   }
+// }
+,
+        {
+        "type": "primeng-dropdown",
+        "key": "vendorId",
+        "className": "col-span-12 md:col-span-6",
+        "props": {
+          "label": "Vendor:",
+          "optionLabel": "label",
+          "optionValue": "value",
+          "placeholder": "Select Vendor",
+          "lookupKey": "vendorTypes",
+          "filter": true,
+      "required": true
+        }
+      },
+        {
+          "type": "input",
+          "key": "finalPrice",
+          "className": "col-span-3 md:col-span-4",
+          "props": {
+           // "label": "Price",
+            "placeholder": "Enter finalPrice",
+            "required": true
+          },
+            "expressions": {
+                 "props.label": "field.parent.index === 0 ? 'Price' : ''"
+             }
+        },
+        
+      ]
+    }
+  },
+  {
+    "type": "button",
+    "className": "col-span-3 md:col-span-3 mt-4",
+    "props": {
+      "text": "Save PO",
+      "type": "submit",
+      "styleClass": "p-button-success"
+    }
+  }
+]
+this.raw=[
+  { "key": "id", "type": "input", "hide": true },
+  { "key": "createdByUserId", "type": "input", "hide": true },
+  { "key": "tenantId", "type": "input", "hide": true },
+  {
+    "wrappers": ["panel"],
+    "className": "col-span-24 w-full block mb-0",
+    "props": {
+     // "label": "PO Information"
+        },
+    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+   
+    "fieldGroup": [
+       {
+    "type": "input",
+    
+    "key": "poNumber",
+        "className": "col-span-6 md:col-span-4",
+    "props": {
+      "label": "Purchase Order#", "readonly": true,
+      "placeholder": "PO#",
+     // "required": true
+    }
+  },
+    {
+        "type": "primeng-dropdown",
+        "key": "vendorId",
+        "className": "col-span-12 md:col-span-9",
+        "props": {
+          "label": "Vendor:",
+          "optionLabel": "label",
+          "optionValue": "value",
+          "placeholder": "Select Vendor",
+          "lookupKey": "vendorTypes",
+          "filter": true,
+      "required": true
+        }
+      },
+      
+      {
+  "type": "datepicker",
+  "key": "orderDate",
+        "className": "col-span-12 md:col-span-6",
+  "props": {
+    "label": "Order Date",
+     "dateFormat": "dd-mm-yy",
+    "numberOfMonths": 1,
+    "selectionMode": "single"
+  }
+}
+
+
+    ]
+  },{
+    "key": "items",
+    "type": "p-repeatsectionformly",
+    "wrappers": ["panel"],
+    "defaultValue": [],
+    "props": {
+      "label": "",
+      "addText": "Add Organisation",
+      "rowDefaults":{"quantity":"1"} 
+        },
+    "fieldArray": {
+      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+      "fieldGroup": [
+        { "key": "id", "type": "input", "hide": true },
+        
+           {
+                    "type": "primeng-dropdown",
+                    "key": "productId",
+                    "className": "col-span-6 md:col-span-7",
+                    "props": {
+                        "label": "Item",
+                        "optionLabel": "label",
+                        "optionValue": "value",
+                        "placeholder": "Select Item",
+                        "lookupKey": "productTypes", // conditional:productTypesWithVariants
+                        "required": true,
+                        "filter": true,
+                        // Add variant display in dropdown
+                        "optionDisabled": (option: any) => !option.variants?.length
+                    },
+                    "expressions": {
+                      "props.label": "field.parent.index === 0 ? 'Item' : ''"
+                      }
+                },
+          // {
+          //   key: 'productVariantId',
+          //   type: 'primeng-dropdown',
+          //   className: 'col-span-12 md:col-span-6',
+          //   templateOptions: {
+          //     label: 'Select Target Product',
+          //     placeholder: '-- Search Product --',
+          //     required: true,
+          //     lookupKey: 'productTypesWithVariants' // or productTypesWithVariants
+          //   }
+          // },
+        
+        {
+          "type": "input",
+          "key": "quantity",
+          "className": "col-span-3 md:col-span-2",
+          "props": {
+           // "label": "Quantity",
+            "placeholder": "Enter name",
+            "required": true
+          },
+                    "expressions": {
+                      "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
+                      }
+        },
+  
+  //       {
+  // "type": "input",
+  // "key": "purchaseUom",
+  // "className": "col-span-12 md:col-span-4","props": {
+  //   "label": "Purchase Unit:",}
+  // },
+        {
+  "type": "primeng-dropdown",
+  "key": "purchaseUom",
+  "className": "col-span-12 md:col-span-4",
+  "props": {
+    "label": "Purchase UOM:",
+    "optionLabel": "label",
+    "optionValue": "value",
+    "placeholder": "Select UOM",
+    "filter": true,
+    "required": true,
+    "options": [] // 🌟 Starts empty, populated dynamically at runtime
+  }
+}
+,
+        {
+        "type": "primeng-dropdown",
+        "key": "vendorId",
+        "className": "col-span-12 md:col-span-4",
+        "props": {
+          //"label": "Vendor:",
+          "optionLabel": "label",
+          "optionValue": "value",
+          "placeholder": "Select Vendor",
+          "lookupKey": "vendorTypes",
+          "filter": true,
+      "required": true
+        },
+                    "expressions": {
+                      "props.label": "field.parent.index === 0 ? 'Vendor' : ''"
+                      }
+      },
+        {
+          "type": "input",
+          "key": "finalPrice",
+          "className": "col-span-3 md:col-span-3",
+          "props": {
+           // "label": "Price",
+            "placeholder": "Enter finalPrice",
+            "required": true
+          },
+            "expressions": {
+                 "props.label": "field.parent.index === 0 ? 'Price' : ''"
+             }
+        },
+        
+      ]
+    }
+  },
+  {
+    "type": "button",
+    "className": "col-span-3 md:col-span-3 mt-4",
+    "props": {
+      "text": "Save PO",
+      "type": "submit",
+      "styleClass": "p-button-success"
+    }
+  }
+]
+
+        const hydrated = hydrateFormlyConfig(this.raw);
+        this.fields=hydrated; console.log('fields loaded now...............................');
+        injectPurchaseUomMatrixListeners(this.fields,this.purchaseService,this.tenantId)
+        //this.applyLocalSearchExtension(this.fields);
+
+  
+
+
+
+   }
+
+
+   //=========================================================================================
+   /**
+ * Safe processing engine traversing the hydrated formly fields 
+ * to inject lifecycle runtime hooks into your repeated fields grid.
+ * Put this method directly inside your PurchaseOrderComponent class.
+ */
+/**
+ * Safe processing engine traversing the hydrated formly fields 
+ * to inject lifecycle runtime hooks into your repeated fields grid.
+ * const uomField = groupFields.find(f => f.key === 'purchaseUom');
+ */
+
+   //=========================================================================================
+
+
+  getPOList(){
+    this.purchaseService.getPOs(this.tenantId).subscribe(pos=>{
+      this.POs=pos; 
+        console.log(pos);
+        
+      
+    })
+  }
+  Add() {
+    this.isFormHidden = false;
+    this.currOpMode = FormOpMode.Add; 
+    localStorage.setItem('currOpMode', this.currOpMode);
+    
+    // Explicitly reset form array trees to ensure clean data isolation
+    this.form.reset();
+
+    this.model = { 
+      id: 0, // Identifies a completely fresh transaction instance
+      tenantId: this.tenantId,
+      poNumber: '', 
+      vendorId: null,
+      vendor: null,
+      orderDate: new Date().toISOString().substring(0, 10),
+      deliveryDate: null,
+      status: 'DRAFT',
+      totalAmount: 0,
+      notes: '',
+      items: [] // Initialize as clean array ready for dynamic Formly rows
+    };
+    
+    this.totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
+    this.cd.detectChanges();
   }
 
+  async onEditClick(selectedRecord: any) {
+    this.isFormHidden = false;
+    this.currOpMode = FormOpMode.Update;
+    localStorage.setItem('currOpMode', this.currOpMode);
+
+    // Deep clone record snapshot securely to break shared frontend component states
+    const clonedRecord = JSON.parse(JSON.stringify(selectedRecord));
+    
+    // Unify sub-collections parameter naming convention structures
+    this.model = {
+      ...clonedRecord,
+      items: clonedRecord.items || []
+    };
+
+    console.log('Edit record model synchronized safely:', this.model);
+
+    setTimeout(() => {
+      try {
+        this.form.patchValue(this.model);
+        this.computeTotals();
+        console.log('Form values mapped to layout grid arrays in Update context window.');
+      } catch (error) {
+        console.error('An error occurred during transaction patch initialization:', error);
+      }
+      this.cd.detectChanges();
+    }, 50);
+  }
+
+  async addProductToOrder(product: any) {
+    if (!product) return;
+
+    const productId = product?.id ?? product?.value ?? product?.sku ?? product?.code ?? product?.prodName ?? product?.name ?? String(product);
+    
+    // Unified array structure: changed from '.lines' to strict '.items' validation checks
+    if (this.model.items?.find((l: any) => l.productId === productId)) {
+      this.messageService.add({ severity: 'warn', summary: 'Duplicate', detail: 'Product already added to order lines.' });
+      return;
+    }
+
+    if (!this.model.items) this.model.items = [];
+
+    const basePrice = product?.basePrice ?? product?.price ?? 0;
+    const finalPrice = await this.getProductFinalPrice(productId, product);
+
+    this.model.items.push({
+      productId,
+      productName: product?.prodName ?? product?.name ?? product?.label ?? String(product),
+      sku: product?.sku ?? product?.code ?? '',
+      quantity: 1, // Matches DTO input tracking property
+      price: basePrice,
+      finalPrice: finalPrice,
+      lineTotal: basePrice
+    });
+
+    this.form.patchValue({ items: this.model.items });
+    this.computeTotals();
+    this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Product added to purchase sequence.' });
+  }
+
+  removeLine(index: number) {
+    this.model.items.splice(index, 1);
+    this.form.patchValue({ items: this.model.items });
+    this.computeTotals();
+  }
+
+  updateLineTotal(line: any) {
+    const qty = Number(line.quantity || 0);
+    const cost = Number(line.finalPrice || line.price || 0);
+    line.lineTotal = +(qty * cost).toFixed(2);
+    this.computeTotals();
+  }
+
+  computeTotals() {
+  // Cast form value and model as any to bypass strict type checking during deep trace extraction
+  const formValue = (this.form?.value as any);
+  const lines = formValue?.items || (this.model as any).items || [];
+  
+  let sub = 0;
+  for (const l of lines) {
+    const qty = Number(l.quantity || 0);
+    const base = Number(l.finalPrice || l.price || 0);
+    l.lineTotal = +(qty * base).toFixed(2);
+    sub += l.lineTotal;
+  }
+  
+  this.totals.subTotal = +(sub).toFixed(2);
+  this.totals.taxTotal = +(this.totals.subTotal * 0).toFixed(2); // Adjust multiplier if tax rule is used
+  this.totals.grandTotal = +(this.totals.subTotal + this.totals.taxTotal).toFixed(2);
+  
+  // Keep parent metadata total attribute in absolute synchronization
+  this.model.totalAmount = this.totals.grandTotal;
+}
+
+
+  async savePurchase() {
+    if (!this.model.vendorId || !this.form.valid) {
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Vendor ID and valid line item definitions are required parameters.' 
+      });
+      return;
+    }
+
+    // Capture precise parameters context directly out of live component UI structures
+    const submissionPayload = {
+      ...this.model,
+      ...this.form.value,
+      tenantId: this.tenantId,
+      totalAmount: this.totals.grandTotal
+    };
+
+    console.log('Forwarding procurement payload layout data structure:', submissionPayload);
+
+    try {
+      let response: any;
+
+      // Conditional switch routing execution contexts via explicit REST actions
+      if (this.currOpMode === FormOpMode.Update && submissionPayload.id) {
+        console.log('Routing PUT modification layout context for transaction ID:', submissionPayload.id);
+        response = await firstValueFrom(
+          this.purchaseService.updatePurchaseOrder(submissionPayload.id, submissionPayload)
+        );
+        this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Purchase order updated successfully' });
+      } else {
+        console.log('Routing fresh POST registration sequence across multi-tenant arrays...');
+        response = await firstValueFrom(
+          this.purchaseService.createPurchaseOrder(submissionPayload)
+        );
+        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'New purchase order generated successfully.' });
+      }
+
+      // Shared cleanup routine parameters execution paths
+      this.currOpMode = FormOpMode.View; 
+      this.isFormHidden = true;
+      this.form.reset();
+
+      // Force instant display reload refresh data sets context sync
+      this.getPOList();
+      this.cd.detectChanges();
+
+    } catch (error: any) {
+      console.error('Procurement persistence operation failed:', error);
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: error.message || 'Failed to successfully sync purchase order records.' 
+      });
+    }
+  }
+
+  clearPurchase() {
+    this.model = { 
+      poNumber: '', 
+      vendorId: null,
+      vendor: null,
+      orderDate: new Date().toISOString().substring(0, 10),
+      deliveryDate: null,
+      status: 'DRAFT',
+      totalAmount: 0,
+      notes: '',
+      items: [] 
+    };
+    this.totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
+    this.form.reset();
+  }
+
+  async getProductFinalPrice(prodId: number, p: Product): Promise<any> {
+    return firstValueFrom(this.productService.getProductFinalPrice(prodId, this.tenantId, p));
+  }
+
+
+ 
+
+
+
+   
+onProductAdded(product: any) {
+    this.addProductToOrder(product);
+  }
+
+
+CancelFormOp(){this.currOpMode=FormOpMode.View; this.isFormHidden=true;}
   onVendorSelected(vendor: any) {
     if (vendor) {
       this.model.vendorId = vendor.id;
@@ -113,118 +714,20 @@ export class PurchaseOrderComponent implements OnInit {
       this.messageService.add({ severity: 'success', summary: 'Vendor Selected', detail: `Vendor ${vendor.vendorName} selected` });
     }
   }
-
-onProductAdded(product: any) {
-    this.addProductToOrder(product);
-  }
-
-  async addProductToOrder(product: any) {
-    if (!product) return;
-
-    const productId = product?.id ?? product?.value ?? product?.sku ?? product?.code ?? product?.prodName ?? product?.name ?? String(product);
-    if (this.model.lines?.find((l: any) => l.productId === productId)) {
-      this.messageService.add({ severity: 'warn', summary: 'Duplicate', detail: 'Product already added to order' });
-      return;
-    }
-
-    if (!this.model.lines) this.model.lines = [];
-
-    const basePrice = product?.basePrice ?? product?.price ?? 0;
-    const finalPrice = await this.getProductFinalPrice(productId, product);
-
-    this.model.lines.push({
-      productId,
-      productName: product?.prodName ?? product?.name ?? product?.label ?? String(product),
-      sku: product?.sku ?? product?.code ?? '',
-      basePrice,
-      finalPrice,
-      qty: 1,
-      lineTotal: basePrice
-    });
-
-    this.form.patchValue({ lines: this.model.lines });
-    this.computeTotals();
-    this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Product added to order' });
-  }
-
-  removeLine(index: number) {
-    this.model.lines.splice(index, 1);
-    this.form.patchValue({ lines: this.model.lines });
-    this.computeTotals();
-  }
-
-  updateLineTotal(line: any) {
-    line.lineTotal = +(line.qty * line.basePrice).toFixed(2);
-    this.computeTotals();
-  }
-
-  savePurchase() {
-    console.log('model of purchase:',this.model);
-    
-    if ( !this.model.vendorId || !this.model.lines?.length) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Purchase order number, vendor, and at least one product are required' });
-      return;
-    }
-
-    // Format the data to match the backend entity structure
-    const purchaseOrderData = {
-      poNumber: this.model.poNumber,
-      tenantId: 1, // You might want to get this from a service or config
-      vendorId: this.model.vendorId,
-      orderDate: this.model.orderDate,
-      deliveryDate: this.model.deliveryDate,
-      status: this.model.status || 'DRAFT',
-      totalAmount: this.totals.grandTotal,
-      notes: this.model.notes || '',
-      items: this.model.lines.map((line:any) => ({
-        productId: line.productId,
-        quantity: line.qty,
-        finalPrice: line.finalPrice
-      }))
-    };
-
-   this.purchaseService.createPurchaseOrder(purchaseOrderData).subscribe(res=>console.log('Product saved successfully!',res)   )
-
-    // TODO: Implement API call to save order
-    console.log('Saving purchase order:', purchaseOrderData);
-    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Purchase order saved successfully' }); 
-  }
-
-  clearPurchase() {
-    this.model = { 
-      poNumber: '', 
-      vendorId: null,
-      vendor: null,
-      orderDate: new Date().toISOString().substring(0,10),
-      deliveryDate: null,
-      status: 'DRAFT',
-      totalAmount: 0,
-      notes: '',
-      lines: [] 
-    };
-    this.totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
-    this.form.reset();
-  }
-  async getProductFinalPrice(prodId: number, p: Product): Promise<any> {
-    return new Promise((resolve) => {
-      this.productService.getProductFinalPrice(prodId, 1, p).subscribe(afinalPrice => {
-        resolve(afinalPrice);
+  private applyLocalSearchExtension(fields: FormlyFieldConfig[]) {
+      fields.forEach(field => {
+        // If the field is flagged searchable in your JSON
+        if (field.props && field.props['searchable']) {
+          
+          // Dynamically inject the wrapper name into the field's array stack
+          field.wrappers = [...(field.wrappers || []), 'typeahead-wrapper'];
+          typeaheadSearchExtension(field);
+        }
+         if (field.fieldGroup) {
+          this.applyLocalSearchExtension(field.fieldGroup);
+        }
       });
-    });
-  }
-
-  computeTotals() {
-    const lines = this.model.lines || [];
-    let sub = 0;
-    for (const l of lines) {
-      const qty = Number(l.qty || 0);
-      const base = Number(l.basePrice || 0);
-      l.lineTotal = +(qty * base).toFixed(2);
-      sub += l.lineTotal;
-    }
-    this.totals.subTotal = +(sub).toFixed(2);
-    this.totals.taxTotal = +(this.totals.subTotal * 0).toFixed(2);
-    this.totals.grandTotal = +(this.totals.subTotal + this.totals.taxTotal).toFixed(2);
-  }
+    } 
+    
 }
 

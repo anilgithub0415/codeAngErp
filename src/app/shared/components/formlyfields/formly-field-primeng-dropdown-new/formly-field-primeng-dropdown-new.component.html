@@ -1,34 +1,21 @@
-<p>formly-field-primeng-dropdown-new works!</p><!--  [options]="(to['options$'] | async) ?? []"-->
-{{(to['options$'] | async|json) ?? []}}
-{{(to['options'] |json) ?? []}}
-<!--
-<p-select
-      [formControl]="formControl"
-     [options]="myStaticOptions"
-      [placeholder]="to.placeholder"
-      [optionLabel]="to['optionLabel'] || 'label'"
-      [optionValue]="to['optionValue'] || 'value'"
-      [filter]="to['filter']"
-      [showClear]="to['showClear']"
-      >
-    </p-select>-->
-
-    <!-- Inside formly-field-primeng-dropdown-new.component.html -->
-<!-- Inside formly-field-primeng-dropdown-new.component.html -->
-<!-- Inside formly-field-primeng-dropdown-new.component.html -->
- <!-- [ngModel]="formControl.value"-->
+<p>formly-field-primeng-dropdown-new works!</p>
 <div class="w-full min-w-[200px]" style="display: block; width: 100%;">
 <p-select
   [formControl]="formControl"
+  #primeSelect
   [formlyAttributes]="field"
-  [options]="$any(props['options'] || [])"
+  [options]="myoptions"
+  
   [optionLabel]="props['optionLabel'] || 'label'"
   [optionValue]="props['optionValue'] || 'value'"
   [placeholder]="props['placeholder'] || 'Select'"
   [filter]="props['filter']"
    [style]="{'width':'100%'}"
    
-  (onChange)="onManualUISelection($event)">
+  (onChange)="onManualUISelection($event)"
+  >
 </p-select>
 </div>
+
+
 

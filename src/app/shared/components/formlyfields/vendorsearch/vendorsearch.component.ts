@@ -19,7 +19,7 @@ export class FormlyFieldVendorsearch extends FieldType implements OnInit {
   public selectedProduct: any;
   public filteredProducts: any[] = [];
 
-  private productService = inject(VendorService);
+  private vendorService = inject(VendorService);
   public binded_products: boolean = false;
 
   constructor(private cdr: ChangeDetectorRef) {
@@ -27,7 +27,7 @@ export class FormlyFieldVendorsearch extends FieldType implements OnInit {
   }
 
   ngOnInit() {
-    this.productService.getProducts(1).subscribe({
+    this.vendorService.getVendors(1).subscribe({
       next: (data: any[]) => {
         const raw: any[] = Array.isArray(data) ? data : [];
         this.productOptions = raw.map(p => ({

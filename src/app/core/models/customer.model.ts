@@ -9,7 +9,7 @@ export interface CustomerCategory {
 export interface Customer {
   id: number;
   tenantId: number;
-  customerName: string;
+  customerName: string;customer_autocode:string;
   leadStatus:string;
   organisations: Organisation[];
   createdByUserId: any;

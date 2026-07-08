@@ -7,6 +7,9 @@ import { catchError, tap } from 'rxjs/operators'; // Import catchError and tap
 
 // Import the Product interfaces/DTOs you just defined
 import { Product, CreateProductDto } from '../models/product.model';
+
+import { CreateProductWithVariantsDto } from '../models/ProductWithVariant.model';
+import { CreateProductVariantDto } from '../models/product-variant.model';
 // No need for InventoryStatus here, that was from the product example
 
 @Injectable({
@@ -54,15 +57,34 @@ export class ProductService {
         catchError(this.handleError)
     );
 }
-getProduct(ptenantId:number,prodId:number): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
+//createproduct with variant
+createProductWithVariant(productTemplateData: Partial<CreateProductVariantDto>): Observable<Product> {
+     const url=this.apiUrl+'/withvariant/';
+      console.log(`Creating product withvariant at ${url} with data:`, productTemplateData);
+  
+    return this.http.post<Product>(url, productTemplateData).pipe(
+        tap(newProduct => console.log('Created product:', newProduct)),
+        catchError(this.handleError)
+    );
+}
+getProduct(ptenantId:number,prodId:number): Observable<Product> {
+    return this.http.get<Product>(this.apiUrl+'/'+ptenantId+'/'+prodId)
 }
 
 getProducts(ptenantId:number): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
+    return this.http.get<Product[]>(this.apiUrl+'/'+ptenantId)
 }
-getProductFinalPrice(pProductId:number,ptenantId:number,p:any): Observable<number> {
-    var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/1';
+//with variant
+getProductsWithVariant(ptenantId:number): Observable<Product[]> {
+    const url=this.apiUrl+'/withvariant';
+    return this.http.get<any[]>(url+'/'+ptenantId)
+}
+
+getProductFinalPrice(pProductId:number,ptenantId:number,p:any,customerId?:number): Observable<number> {
+    console.log('getProductFinalPrice for custId:',customerId);
+    
+    var url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId;
+    if(customerId){url=this.apiUrl+'/finalPrice/'+pProductId+'/'+ptenantId+'/'+customerId;}
     console.log('posting url:',url);
     
     return this.http.post<number>(url,p)

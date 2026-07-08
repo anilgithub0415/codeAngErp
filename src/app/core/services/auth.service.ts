@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode';
 import { UrlTree } from '@angular/router';
 
 import { NgxPermissionsService } from 'ngx-permissions'; 
+import { LayoutService } from '../../layout/service/layout.service';
 // Define the structure of your JWT payload (claims)
 // Ensure these property names match exactly what your backend embeds in the JWT.
 interface JwtPayload {
@@ -31,6 +32,7 @@ interface TokenResponse {
     expires_in?: number; // Lifetime in seconds (often from backend, e.g., 3600 for 1 hour)
     exp?: number; // Expiration timestamp (if backend directly provides JWT 'exp' claim, e.g., 1678886400)
     refresh_token?: string;
+    siteId:number,clientId:number;
     message?: string; // For login/registration failure messages from backend
     userId?:number;
     tenantId?:string;
@@ -90,7 +92,9 @@ interface ContextSpecificJwtPayload {
     providedIn: 'root',
 })
 export class AuthService {
-    
+    private _siteId = new BehaviorSubject<number | null>(null);
+private _clientId = new BehaviorSubject<number | null>(null);
+
     private contextsCache: AvailableContext[] | null = null;
 
     private authToken: string | null = null;
@@ -118,7 +122,7 @@ export class AuthService {
     private _activeContext = new BehaviorSubject<AvailableContext | null>(this.loadActiveContext());
     activeContext$ = this._activeContext.asObservable();
 
-    constructor(private http: HttpClient,private permissionsService: NgxPermissionsService ) {
+    constructor(private http: HttpClient,private permissionsService: NgxPermissionsService , private layoutService:LayoutService) {
         // When the service is created, attempt to load tokens from localStorage
         // and set the initial authentication state.
         this.authToken = localStorage.getItem('mytoken');
@@ -169,9 +173,14 @@ export class AuthService {
             tap((response: TokenResponse) => {
                 if (response && response.access_token) {
 
-                    console.log('seeting userId ',response.userId,'with key ');                    
+                    console.log('seeting userId ',response.userId,'with key and response is......................: ',response.availableContexts);                    
                     //added
                     this.setUserId(response.userId!);
+
+this.setSiteId(response.siteId);
+this.setClientId(response.clientId);
+
+
                     console.log('.......................................first login  refresh_token:',response.refresh_token);
 console.log('............response.tenantid:',response.tenantId);
 
@@ -190,8 +199,11 @@ console.log('............response.tenantid:',response.tenantId);
                 //     //added
                     this.saveActiveContext(response.availableContexts[0]);
                      
+                     console.log(' m in authservice caling loadUserPreferences with userId:',response.userId);
                      
-                  
+                     
+                  //read userpreferences from DB
+                  this.layoutService.loadUserPreferences(parseInt(response.tenantId!),response.userId!);
                    
                     
 
@@ -367,6 +379,32 @@ console.log('............response.tenantid:',response.tenantId);
         return localStorage.getItem('mytoken');
     }
 
+    setSiteId(siteId: number): void {
+    if (siteId) {
+        localStorage.setItem('siteId', siteId.toString());
+        this._siteId.next(siteId);
+    }
+}
+
+setClientId(clientId: number): void {
+    if (clientId) {
+        localStorage.setItem('clientId', clientId.toString());
+        this._clientId.next(clientId);
+    }    
+}
+
+
+getSiteId(): number | null {
+    const siteId = localStorage.getItem('siteId');
+    return siteId ? parseInt(siteId, 10) : this._siteId.getValue();
+}
+
+getClientId(): number | null {
+    const clientId = localStorage.getItem('clientId');
+    return clientId ? parseInt(clientId, 10) : this._clientId.getValue();
+}
+
+
     /**
      * Stores the access token in memory and localStorage.
      */
@@ -401,6 +439,10 @@ console.log('............response.tenantid:',response.tenantId);
         this.authToken = null;
         this.tokenExpiryTimestamp = null;
         localStorage.removeItem('mytoken');
+        localStorage.removeItem('siteId');
+        localStorage.removeItem('clientId');
+        this._siteId.next(null);               // 👈 ADDED
+    this._clientId.next(null);
         localStorage.removeItem('tokenExpiry');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem(this.USER_ID_KEY);
@@ -586,7 +628,8 @@ console.log('got userid n Rtoken:',userId);
              //   alert('go for setActiveContext....')
 
              console.log('setting activecontext from response:',response); 
-
+this.setSiteId(response.user.siteId);
+this.setClientId(response.clientId);
                 this.setAuthToken(response.access_token); // Update the main access token
                 this.setRefreshToken( response.refresh_token ); // Update refresh token if rotated  //earlier was response.refresh_token || refreshToken
                                  // Save the selected context from the response (which includes tenantName, permissions)

@@ -1,77 +1,170 @@
 
-import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject,ChangeDetectorRef, ViewChild } from '@angular/core';
 
-import { DropdownModule } from 'primeng/dropdown';
+import { Dropdown, DropdownModule } from 'primeng/dropdown';
 import { SelectModule } from 'primeng/select';
 import { LookupService } from '../../../../core/services/lookup.service';
-import { map } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FormDropdownService } from '../form-dropdown.service';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { delay, map, of } from 'rxjs';
+
 
 @Component({
   selector: 'app-customdropdown',schemas:[CUSTOM_ELEMENTS_SCHEMA],standalone:true,
-  imports: [CommonModule,DropdownModule,SelectModule,FormlyModule],
+  imports: [CommonModule,DropdownModule,SelectModule,FormlyModule,ReactiveFormsModule],
   templateUrl: './customdropdown.component.html',
-  styleUrl: './customdropdown.component.scss'
+  styleUrl: './customdropdown.component.scss',
 })
-export class CustomdropdownComponent extends FieldType<FieldTypeConfig> {
- private valueChangesSub!: Subscription;
-  
-  // 1. Maintain a local copy of options to eliminate PrimeNG reference lag
-  localOptions: any= [];
+export class CustomdropdownComponent extends FieldType<FormlyFieldConfig>{
+   //@ViewChild('primeDropdown', { static: false }) primeDropdown!: Dropdown;
 
-  constructor(private cdr: ChangeDetectorRef) {
-    super();
-  }
+   myStaticOptions: any[] = []; // Natively managed array
+  private _primeDropdown!: Dropdown;
 
-  ngOnInit() {
-    // Populate options from your JSON config right away so PrimeNG knows they exist
-    this.localOptions = this.props['options'] || [];
-
-    if (this.field && this.field.formControl) {
+  // This setter fires dynamically as soon as *ngIf evaluates to true and creates the element
+  // @ViewChild('primeDropdown', { static: false }) set primeDropdown(component: Dropdown) {
+  //   if (component) {
+  //     this._primeDropdown = component;
+  //     console.log('its primedrodown.......... SUCCESSFULLY FOUND!');
       
-      // 2. Safely intercept programmatic button actions like control.setValue('B2BC')
-      this.valueChangesSub = this.field.formControl.valueChanges.subscribe((latestValue: string) => {
-        console.log('Value successfully received inside subscription block:', latestValue);
+  //     // Execute the selection injection immediately now that the element exists
+  //     this.applyPreselectedSelection();
+  //   }
+  // }
+ private lookupService = inject(LookupService);
+  private authService = inject(AuthService);
 
-        // Update the underlying model tree 
-        if (this.model && this.key) {
-          this.model[this.key as string] = latestValue;
+constructor(private cd: ChangeDetectorRef) { super();}
+  ngOnInit(): void {
+    const to = this.to as any;
+
+    // If the field only supplies a lookupKey, create an options$ observable
+      //if(localStorage.getItem('currOpMode')){var mode=localStorage.getItem('currOpMode')?.toString();}
+      //if(mode !=="UPDATE" ){
+
+    if (!to.options && !to.options$ && to.lookupKey) {
+      const ptenantId =
+        to.ptenantId ?? to.tenantId ?? this.authService?.getTenantId?.() ?? null;
+       to.options$ = this.lookupService.searchLookup(to.lookupKey, ptenantId, '')
+    }
+
+    // When options are provided directly via Formly props, store them in myStaticOptions
+    if (to.options && Array.isArray(to.options)) {
+      this.myStaticOptions = to.options;
+    }
+     
+  //     // ---- DEBUG ----
+  //   //to.options$?.subscribe((opts:any) => console.log('OPTIONS EMITTED:', opts));
+  //   // ---------------
+
+  //     .pipe(
+  //   map(options => options.map(o => ({ 
+    
+  //     ...o,
+  //     //label:o.label ?? o.name   // copy existing label to the expected property
+  //   })))
+  // );;
+
+  //setTimeout(() => {
+   // console.log('static options filling........');
+    
+   //static options
+      // to.options$ = 
+//        of([
+//     { "label": "B2B", "value": "B2B" },
+//     { "label": "B2BC", "value": "B2BC" },
+//     { "label": "B2C", "value": "B2C" },
+//     { "label": "Dealer", "value": "Dealer" },
+//     { "label": "OEM", "value": "OEM" },
+//     { "label": "Wholesaler", "value": "Wholesaler" }
+//   ]).pipe(delay(0));
+// //map((options:any) => options.map((opt:any) => ({ label: opt.label, value: opt.value })))
+// //map((options:any) => options.map((opt:any) => opt.value)) 
+//   map((options:any) => {
+//       // Force conversion to a clean PrimeNG SelectItem architecture
+//       return options.map((opt:any) => ({ label: opt.label, value: opt.value }));
+//     })
+
+// of([
+//       { "label": "B2B", "value": "B2B" },
+//       { "label": "B2BC", "value": "B2BC" },
+//       { "label": "B2C", "value": "B2C" },
+//       { "label": "Dealer", "value": "Dealer" }
+//     ]).pipe(
+//       delay(10)
+//     ).subscribe((data:any) => { console.log('its subscribe of of[]');
+    
+//       // 1. Assign options cleanly to a static variable
+//       this.myStaticOptions = data.map((opt:any) => ({ label: opt.label, value: opt.value }));
+//        if (this._primeDropdown && this.formControl && this.formControl.value) {console.log('pdropdown frmcntr its value');
+//        }
+    
+
+//                this.cd.detectChanges();
+  //       }
+  //     }, 50);
+    
+  
+
+
+//}
+   // )
+
+  }
+
+//}
+
+//}
+applyPreselectedSelection() { console.log('this is applyPreselectedSelection.....');
+
+    if (this._primeDropdown && this.formControl && this.formControl.value) {
+      // Prefer static options loaded by the component; fall back to the options passed via Formly props.
+      const staticOpts = this.myStaticOptions && this.myStaticOptions.length ? this.myStaticOptions : (this.to as any).options || [];
+      const matchedOption = staticOpts.find((o: any) => o.value === this.formControl.value);
+      if (matchedOption) {
+        console.log('matchedOption:', matchedOption);
+        // Direct assignment to PrimeNG 7's public value handler property
+        (this._primeDropdown as any).selectedOption = matchedOption;
+        // Update PrimeNG internal state so the label is shown
+        if (typeof (this._primeDropdown as any).updateFilledState === 'function') {
+          (this._primeDropdown as any).updateFilledState();
         }
-
-        // 3. FORCE PRIMENG 19 REPAINT: Delay by an instantaneous microtask cycle
-        // This gives PrimeNG's DOM engine 10 milliseconds to match your value to its options array
-        setTimeout(() => {
-          this.cdr.markForCheck();
-          this.cdr.detectChanges(); 
-        }, 10);
-      });
+        this.cd.detectChanges();
+      }
     }
   }
+  
 
-  // Captures human selection clicks from the dropdown overlay list panel cleanly
-  onUserDropdownClick(eventvalue: any) {
-    const selectedVal = eventvalue;
+ onDropdownChange(event: any) {
+    
+    // Explicitly update the Formly controller to forcefully update the model key
+    this.formControl.setValue(event.value, { emitEvent: true });
+    this.formControl.markAsDirty();
 
-    if (this.formControl) {
-      this.formControl.setValue(selectedVal, { emitEvent: false }); // Prevents circular infinite execution loops
-      this.formControl.markAsDirty();
-      this.formControl.markAsTouched();
-    }
-
-    if (this.model && this.key) {
-      this.model[this.key as string] = selectedVal;
-    }
-
-    this.cdr.markForCheck();
+  
   }
+ get optionLabel_notinuse(): string {
+    const to = this.to as any; 
+    
 
-  ngOnDestroy() {
-    if (this.valueChangesSub) {
-      this.valueChangesSub.unsubscribe();
-    }
+    return to.optionLabel ?? 'label';
   }
+  get optionValue(): string {
+    const to = this.to as any; 
+    
+
+    return to.optionValue ?? 'label';
+  }
+  
+  // get optionLabel(): string { 
+  //   console.log('yes getting optionlabel :',this.to['label']);
+  //  // const to = this.to as any;
+  //   return this.to['label']! ;
+  // }
+
 }

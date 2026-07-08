@@ -83,6 +83,11 @@ export const appRoutes: Routes = [
                 loadChildren: () => import('./app/feature/sales-mgt/sales-mgt-routing.module').then(m => m.SalesMgtRoutingModule)
                 , canActivate: [roleGuard],
                 //    data: { roles: ['Salesman'] }                 
+            },{
+                path: 'dcmgt',
+                loadChildren: () => import('./app/feature/delivery-challan-mgt/delivery-challan-mgt-routing.module').then(m => m.DeliveryChallanMgtRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Salesman'] }                 
             },
             {
                 path: 'purchasemgt',
@@ -97,7 +102,27 @@ export const appRoutes: Routes = [
                 
                 //    data: { roles: ['Salesman'] }                 
             },
-           
+             {
+                path: 'sitemgt',
+                loadChildren: () => import('./app/feature/site-mgt/site-mgt-routing.module').then(m => m.SiteMgtRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
+           {
+                path: 'globalmgt',
+                loadChildren: () => import('./app/feature/global/global-routing.module').then(m => m.GlobalRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
+            {
+                path: 'mastermgt',
+                loadChildren: () => import('./app/feature/master/master-routing.module').then(m => m.MasterRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
            
            
 
