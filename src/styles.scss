@@ -1,25 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
+
+
 @use './tailwind.css';
 @use './assets/layout/layout.scss';
 @use 'primeicons/primeicons.css';
 @use './assets/demo/demo.scss';
 
-.options-container {
-    display: flex;
-    flex-direction: column; /* Stacks options vertically */
-    width: 100%; /* You can adjust this width as needed */
-    gap: 15px; /* Adds vertical space between each option */
+//@import "@primeng/theme/aura"; /* or whichever theme file you're referencing */
+//@import "node_modules/primeng/resources/primeng.min.css";
 
-    .option-item {
-        display: flex;
-        flex-direction: row; /* Arranges inner items horizontally */
-        justify-content: left;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px; width: 100%;
-    }
+// .options-container {
+//     display: flex;
+//     flex-direction: column; /* Stacks options vertically */
+//     width: 100%; /* You can adjust this width as needed */
+//     gap: 15px; /* Adds vertical space between each option */
+
+//     .option-item {
+//         display: flex;
+//         flex-direction: row; /* Arranges inner items horizontally */
+//         justify-content: left;
+//         padding: 10px;
+//         border: 1px solid #ccc;
+//         border-radius: 5px; width: 100%;
+//     }
     
-}
+// }
     // .options-container{
     //     .option-item{
     //   .select-your-answer{
@@ -34,4 +39,69 @@
 .custom-width-input-question-text input {
     width: 500px;  word-wrap: break-word;  word-break: break-all; font-weight:normal; font-size: 1.1rem;;
   }
-      
+      // Force the Formly wrappers to act as standard layout elements
+ formly-group {
+//   display: flex;
+   flex-wrap: wrap;
+//   width: 100%;
+ }
+
+//  formly-field {
+//   display: block;
+// display: contents;
+//  }
+::ng-deep .force-full-width .p-element {
+  width: 100% !important;
+  display: block !important;
+}
+
+formly-field{
+display: block; width: 100%;
+}
+
+/* Forces all nested formly component layers to fill out their grid columns */
+// formly-field, 
+// formly-field-input,
+// .p-fluid input {
+//   display: block;
+//   width: 100% !important;
+// }
+formly-field, 
+formly-field-input,
+.p-fluid input,
+.p-fluid p-dropdown,  p-select,   p-multiSelect,   /* 🌟 Target the Formly custom component tag */
+.p-fluid .p-dropdown {      /* 🌟 Target PrimeNG's internal wrapper class */
+  display: block;
+  width: 100% !important;
+}
+
+.test-border-red{
+  font-size: larger;
+    border:4px sol red;
+    background-color: #ffe6e6; 
+}
+:host {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep {
+  .p-panel {
+    width: 100% !important;
+  }
+}
+
+//for p-card
+/* Inside global styles.scss */
+/* Inside global styles.scss */
+@layer app-overrides {
+  p-card .p-card {
+    background: #ffffff; padding:0rem; margin: 0rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+.hidden-form {
+  display: none !important;
+}
+
+

@@ -1,0 +1,33 @@
+
+<form [formGroup]="form" pFluid  [class.hidden-form]="isFormHidden">
+  <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  
+  <div class="customer-actions" *ngIf="currOpMode !== 'VIEW'">
+    <p-button
+      type="button"
+      label="Save Client"
+      icon="pi pi-save"
+      (click)="save.emit()"
+      [disabled]="!form.valid">
+    </p-button>
+    <button
+      pButton
+      type="button"
+      label="Clear Lead"
+      icon="pi pi-times"
+      (click)="clear.emit()"
+      class="p-button-secondary"
+      style="margin-left: 0.5rem">
+    </button>
+    <button
+      pButton
+      type="button"
+      label="Cancel"
+      icon="pi pi-times"
+      (click)="cancel.emit()"
+      class="p-button-secondary"
+      style="margin-left: 0.5rem"
+      [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+    </button>
+  </div>
+</form>

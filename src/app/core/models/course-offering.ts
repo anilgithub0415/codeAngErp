@@ -2,7 +2,7 @@
 
 // export interface CourseOffering {
 //     id:number;
-//     tenantId?: string;
+//     tenantId?: number
 //     courseId?: number;
 //     facultyProfileId?: number;
 //     offeringName?: string;
@@ -24,7 +24,7 @@
  * and instead uses their foreign key IDs (`tenantId`, `courseId`, `facultyProfileId`).
  */
 export interface CreateCourseOfferingDto {
-    tenantId: string;
+    tenantId: number;
     courseId: number;
     facultyProfileId?: number | null; // Nullable if instructor can be assigned later
     offeringName: string;
@@ -52,7 +52,7 @@ export interface CreateCourseOfferingDto {
    */
   export interface CourseOffering {
     id: number;
-    tenantId: string;
+    tenantId: number;
     courseId: number;
     facultyProfileId: number | null;
     offeringName: string;

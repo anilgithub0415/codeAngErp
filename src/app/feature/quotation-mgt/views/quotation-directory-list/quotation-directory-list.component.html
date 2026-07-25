@@ -1,0 +1,171 @@
+
+<p-toast></p-toast>
+
+<div class="card p-4 surface-section border-round shadow-1">
+    
+    <!-- Management Control Header Element Block -->
+    <div class="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center mb-4 gap-3 border-bottom-1 border-200 pb-3">
+        <div>
+            <h3 class="m-0 font-bold text-xl text-900">Quotation Master Ledger</h3>
+            <p class="m-0 text-xs text-500 mt-1">Execute workflow batch updates, track multi-round negotiations, analyze seasonal pipeline valuations, and export transactional ledgers.</p>
+        </div>
+        
+        <!-- Action Control Buttons Segment Group -->
+        <div class="flex flex-wrap gap-2">
+            <button pButton icon="pi pi-shield" label="Change Workflow Status" class="p-button-outlined p-button-sm"
+                    [disabled]="!selectedQuotations.length" (click)="bulkStatusDialog = true"></button>
+            <button pButton icon="pi pi-whatsapp" label="Ping Clients" class="p-button-success p-button-sm"
+                    [disabled]="!selectedQuotations.length" (click)="executeWhatsAppClientSync()"></button>
+            <button pButton icon="pi pi-print" label="Print Draft Manifests" class="p-button-secondary p-button-sm"
+                    [disabled]="!selectedQuotations.length" (click)="executePrintManifests()"></button>
+            <button pButton icon="pi pi-file-excel" label="Export Ledger (.CSV)" class="p-button-info p-button-sm ml-lg-2"
+                    (click)="exportToCSV()"></button>
+        </div>
+    </div>
+
+    <!-- PrimeNG Datatable Element View Wrapper Grid -->
+    <p-table #dt 
+             [value]="quotations" 
+             [(selection)]="selectedQuotations" 
+             dataKey="id" 
+             [rows]="10" 
+             [paginator]="true"
+             [loading]="loading" 
+             responsiveLayout="scroll"
+             [globalFilterFields]="['quoteNumber', 'clientName', 'contactPerson', 'status']"
+             styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
+             [rowsPerPageOptions]="[10,25,50]">
+        
+        <!-- Global Search Filters Caption Top Deck Header Layout -->
+        <ng-template pTemplate="caption">
+            <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-2">
+                <span class="p-input-icon-left w-full sm:w-20rem">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" [(ngModel)]="globalSearchText" (input)="onGlobalSearch($event)"
+                           placeholder="Search Quote #, Client, Contact or Status..." class="w-full text-xs p-inputtext-sm" />
+                </span>
+                <span class="text-xs font-semibold text-500 p-2 border-round surface-100" *ngIf="selectedQuotations.length">
+                    Selected Records: <b class="text-primary">{{ selectedQuotations.length }}</b>
+                </span>
+            </div>
+        </ng-template>
+
+        <!-- Column Header Setup Definitions Grid Layout Elements -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="quoteNumber" style="min-width:14rem">
+                     Quotation Document <p-sortIcon field="quoteNumber"></p-sortIcon>
+                </th>
+                <th pSortableColumn="clientName" style="min-width:12rem">
+                    Customer / Client <p-sortIcon field="clientName"></p-sortIcon>
+                </th>
+                <th pSortableColumn="totalAmount" style="min-width:9rem">
+                    Total Amount <p-sortIcon field="totalAmount"></p-sortIcon>
+                </th>
+                <th pSortableColumn="createdAt" style="min-width:9rem">
+                    Creation Date <p-sortIcon field="createdAt"></p-sortIcon>
+                </th>
+                <th pSortableColumn="updatedAt" style="min-width:9rem">
+                    Last Modified <p-sortIcon field="updatedAt"></p-sortIcon>
+                </th>
+                <th pSortableColumn="status" style="min-width:8rem">
+                    Workflow Status <p-sortIcon field="status"></p-sortIcon>
+                </th>
+            </tr>
+            
+            <!-- Multi-Column Advanced Filtration Subheader Deck Input Elements Row -->
+            <tr>
+                <th></th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'quoteNumber', 'contains')" placeholder="Filter Quote #" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'clientName', 'contains')" placeholder="Filter Client" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="number" (input)="$any(dt).filter($any($event.target).value, 'totalAmount', 'lte')" placeholder="Max Amount (<=)" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'createdAt', 'contains')" placeholder="Filter Date" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'updatedAt', 'contains')" placeholder="Filter Update" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'status', 'contains')" placeholder="Filter Status" class="w-full text-xs p-inputtext-sm" />
+                </th>
+            </tr>
+        </ng-template>
+
+        <!-- Body Template Row Context Map Array Rows Render Engines -->
+        <ng-template pTemplate="body" let-quote>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="quote"></p-tableCheckbox>
+                </td>
+                <td>
+                    <div class="flex flex-column">
+                        <div class="flex align-items-center gap-2 mb-1">
+                            <span class="font-bold text-800 text-sm">{{ quote.quoteNumber || 'Draft-No Ref' }}</span>
+                            <span *ngIf="quote.isActive" class="text-xs px-1 border-round font-medium bg-green-100 text-green-700">Active v{{ quote.version }}</span>
+                            <span *ngIf="!quote.isActive" class="text-xs px-1 border-round font-medium bg-gray-100 text-gray-500">History v{{ quote.version }}</span>
+                        </div>
+                        <span class="text-500 text-xs flex align-items-center gap-1">
+                            <i class="pi pi-user text-xs"></i> Contact: {{ quote.contactPerson || 'N/A' }} | 
+                            <i class="pi pi-list text-xs"></i> Items: {{ quote.items?.length || 0 }} Lines
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex flex-column gap-1">
+                        <span class="font-semibold text-xs text-800">{{ quote.clientName }}</span>
+                        <span class="text-xs text-500 opacity-80" *ngIf="quote.clientCategory">
+                            <i class="pi pi-tag text-xs"></i> {{ quote.clientCategory }}
+                        </span>
+                    </div>
+                </td>
+                <td class="font-bold text-xs text-900">
+                    ₹{{ quote.totalAmount | number:'1.2-2' }}
+                </td>
+                <td class="font-semibold text-xs text-700">
+                    {{ quote.createdAt | date:'mediumDate' }}
+                </td>
+                <td class="font-semibold text-xs text-700">
+                    {{ quote.updatedAt | date:'mediumDate' }}
+                </td>
+                <td>
+                    <span class="font-bold text-xs p-1 px-2 border-round" 
+                          [style.background-color]="getStatusBgColor(quote.status)" 
+                          [style.color]="getStatusTextColor(quote.status)">
+                        {{ quote.status | uppercase }}
+                    </span>
+                </td>
+            </tr>
+        </ng-template>
+
+        <!-- Empty Filter Results Fallback Template -->
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="text-center p-4 text-500 text-sm">
+                    <i class="pi pi-filter-slash text-2xl block mb-2 opacity-50"></i>
+                    No negotiation items match your filter criteria.
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Bulk Reassignment Interactive Modal Window Sheet Overlay -->
+<p-dialog header="Bulk Negotiation Advancement" [(visible)]="bulkStatusDialog" [modal]="true" [style]="{width: '350px'}" [draggable]="false" [resizable]="false">
+    <div class="p-fluid mt-2">
+        <label class="block text-xs font-semibold text-700 mb-2">Target Workflow Step Status</label>
+        <p-dropdown [options]="statusOptions" [(ngModel)]="targetStatus" placeholder="Select Target Status" appendTo="body" styleClass="w-full text-xs"></p-dropdown>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="bulkStatusDialog = false"></button>
+        <button pButton label="Confirm Shift" class="p-button-success p-button-sm" [disabled]="!targetStatus" (click)="executeBulkStatusReassignment()"></button>
+    </ng-template>
+</p-dialog>

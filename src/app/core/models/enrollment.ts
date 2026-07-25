@@ -5,7 +5,7 @@
 
 // export interface Enrollment {
 //     id:number;
-//     tenantId?: string;
+//     tenantId?: number
 //     studentProfileId?: number;
     
 //     programId?: number;
@@ -16,7 +16,7 @@
 // }
 
 // export interface CreateEnrollmentDto{
-//     tenantId?: string;
+//     tenantId?: number
 //     studentProfileId?: number;
 //     program?: Program;
 //     programId: number;

@@ -1,0 +1,49 @@
+
+<div class="site-section mt-4 mb-0" *ngIf="visibleDataArray?.length">
+  <h3 class="text-lg font-semibold mb-2">System Users</h3>
+  <p-table [value]="visibleDataArray" class="users-table shadow-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="60px">Action</th>
+        <th>User Name</th>
+        <th>Display Name</th>
+        <th>Assigned Roles</th>
+        <th>Client ID</th>
+        <th>Site ID</th>
+        <th width="60px">Delete</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-auser let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning p-button-sm"
+            (click)="onEditClick(auser)">
+          </button>
+        </td>
+        <td>{{ auser.userName }}</td>
+        <td>{{ auser.displayName }}</td>
+        <td>
+          <!-- Joins multiple assigned roles dynamically with a clean badge visualization syntax fallback -->
+          <span class="font-semibold text-primary">
+            {{ auser.assignedRoles && auser.assignedRoles.length ? auser.assignedRoles.join(', ') : 'No Roles Assigned' }}
+          </span>
+        </td>
+        <td>{{ auser.customerName || '-' }}</td>
+        <td>{{ auser.siteId || '-' }}</td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="deleteUser(auser.id, rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

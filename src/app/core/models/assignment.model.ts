@@ -12,7 +12,7 @@ export interface QuestionAssignmentDto {
    * required fields, excluding auto-generated fields like `id`, `createdAt`, etc.
    */
   export interface CreateAssignmentDto {
-    tenantId: string;
+    tenantId: number;
     assignmentName: string;
     description?: string | null;
     dueDate: string; // Using string to match the date input field
@@ -34,7 +34,7 @@ export interface QuestionAssignmentDto {
    */
   export interface Assignment {
     id: number;
-    tenantId: string;
+    tenantId: number;
     assignmentName: string;
     description?: string | null;
     dueDate: Date; // A full Date object is typically returned from the backend

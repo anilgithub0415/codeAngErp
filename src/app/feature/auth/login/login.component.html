@@ -28,9 +28,9 @@
 
              <div>
                 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                    <div>
-                        <label for="UserName" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                      <input pInputText type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8"  id="UserName" formControlName="UserName">
+                    <div>config_usersCreatedby:{{config_usersCreatedby}}
+                        <label for="UserName" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{config_usersCreatedby==='signup'?'Email':'Username'}} </label>
+                      <input pInputText type="text" [placeholder]="config_usersCreatedby==='signup'?'Email address':'Username'" class="w-full md:w-[30rem] mb-8"  id="UserName" formControlName="UserName">
                       <div *ngIf="loginForm.controls['UserName'].invalid && (loginForm.controls['UserName'].dirty || loginForm.controls['UserName'].touched)" class="error-message">
                         <div *ngIf="loginForm.controls['UserName'].errors?.['required']">
                           Email is required.

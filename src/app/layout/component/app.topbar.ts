@@ -19,7 +19,7 @@ import { EventBusService, Events } from '../../core/services/event-bus.service';
 
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
-    tenantId: string;
+    tenantId: number;
     displayName:string;
     tenantName: string;tenantType:string;
     roleName: string;
@@ -30,6 +30,7 @@ interface AvailableContext {
     standalone: true,
     imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu, MenuModule, ButtonModule],
     providers:[MessageService],
+    
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -53,6 +54,7 @@ interface AvailableContext {
                         />
                     </g>
                 </svg>
+
                 <span>HygienicFlow</span>
             </a>
         </div>
@@ -77,6 +79,7 @@ interface AvailableContext {
         <ng-container *ngIf="!(auth.isLoggedIn$ | async)">
             <p-button label="Login" routerLink="/login" />
         </ng-container>
+       
     </div>
     
 

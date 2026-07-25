@@ -32,6 +32,6 @@ export interface CreatePersonDto {
 export type UpdatePersonDto = Partial<Omit<Person, 'id' >> & {
     // Re-add password as optional string for explicit password updates.
     // TenantId and googleId are typically not changed via a standard update DTO.
-    //googleId?:string;isEmailVerified?:boolean; isActive?:boolean;  tenantId?: string;
+    //googleId?:string;isEmailVerified?:boolean; isActive?:boolean;  tenantId?: number
     //password?: string;
 };

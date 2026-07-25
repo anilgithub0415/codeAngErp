@@ -1,0 +1,99 @@
+<p>Percentage and Fixed_Amount These 2 are mandatory types to maintain</p>
+<!-- fields:{{fields|json}} -->
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+
+    <!-- Filter Component -->
+    <app-filter-control 
+        [dataSource]="discountTypes ? discountTypes : []" 
+        [filterFields]="['typeName', 'description']" 
+        (filteredData)="onDataFiltered($event)">
+    </app-filter-control>
+    
+    <!-- Strategy Type Management Definition Form -->
+    <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+        
+        <div class="customer-actions" *ngIf="currOpMode !== 'VIEW'">
+            <button
+                pButton
+                type="button"
+                label="Save Strategy"
+                icon="pi pi-save"
+                class="p-button-success"
+                (click)="saveDiscountType()"
+                [disabled]="!form.valid">
+            </button>
+            <button
+                pButton
+                type="button"
+                label="Clear Form"
+                icon="pi pi-times"
+                class="p-button-secondary"
+                (click)="clearForm()"
+                style="margin-left: 0.5rem">
+            </button>
+            <button
+                pButton
+                type="button"
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-secondary"
+                (click)="CancelFormOp()"
+                style="margin-left: 0.5rem"
+                [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+            </button>
+        </div>
+    </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+    label="New Discount Type Strategy" 
+    icon="pi pi-plus" 
+    (click)="Add()">
+</p-button>
+
+<!-- Grid Preview Rows Table Grid -->
+<div class="site-section mb-0" *ngIf="discountTypes?.length">
+    <h3 class="text-lg font-semibold mb-2">Registered Master Strategy Rules</h3>
+    <p-table [value]="visibleDataArray ? visibleDataArray : []" class="vendors-table">
+        <ng-template pTemplate="header">
+            <tr>
+                <th width="50px"></th>
+                <th>Strategy Name Label</th>
+                <th>Description / Notes Context</th>
+                <th>Status</th>
+                <th width="120px"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-dtype let-rowIndex="rowIndex">
+            <tr>
+                <td>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-danger p-button-sm"
+                        (click)="onEditClick(dtype)">
+                    </button>
+                </td>
+                <td><strong>{{ dtype.typeName }}</strong></td>
+                <td>{{ dtype.description ? dtype.description : 'N/A' }}</td>
+                <td>
+                    <span [class]="dtype.isActive ? 'text-green-600 font-medium' : 'text-gray-400'">
+                        {{ dtype.isActive ? 'Active' : 'Disabled' }}
+                    </span>
+                </td>
+                <td>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-rounded p-button-danger p-button-sm"
+                        (click)="removeDiscountType(rowIndex)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

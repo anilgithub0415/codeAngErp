@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators'; // Import catchError and tap
+import { Observable, of, throwError, timer } from 'rxjs';
+import { catchError, delayWhen, shareReplay, tap } from 'rxjs/operators'; // Import catchError and tap
 
 // Import the User interfaces/DTOs you just defined
 import { Program} from '../models/program';
@@ -14,6 +14,10 @@ import { Question } from '../models/question.model';
 import { Topic } from '../models/topic.model';
 import { CourseOffering } from '../models/course-offering';
 import { UserRole } from '../models/user.model';
+import { CustomerCategory } from '../models/customer-category';
+import { Product } from '../models/product.model';
+import { City } from '../models/city.model';
+import { Customer } from '../models/customer.model';
 
 // No need for InventoryStatus here, that was from the product example
 
@@ -27,14 +31,7 @@ interface ProgramOption {
 })
 export class LookupService {
   
-  private dummyPrograms: ProgramOption[] = [
-    { label: '11th Sci JEE Main & Advanced Prep', value: 'P1' },
-    { label: '12th Sci NEET Prep', value: 'P2' },
-    { label: 'Foundation Course 9th-10th', value: 'P3' },
-  ];
-
-
-
+  
 
   private apiUrl = '/lookups';
 
@@ -63,141 +60,108 @@ export class LookupService {
       return throwError(() => new Error(errorMessage));
   }
 
+  getLookupDataByKey(key:string,ptenantId:number):Observable<any[]>{
+   
+   
+    var url=`/lookups/${key}/ptenantId/`+ptenantId; 
+   
+      
+    
+    return this.http.get<any[]>(url).pipe(
+  delayWhen(() => timer(2000)),
+  shareReplay(1)
+);
+
+  }
+  
   /**
-   * Fetches a list of all users from the backend.
+   * Fetches a list of all Categories of customer from the backend.
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getPrograms(ptenanId:string): Observable<Program[]> {
-      var url=this.apiUrl+'/programs/ptenantId/'+ptenanId;
-        
-      return this.http.get<Program[]>(url).pipe(
+  getCustomerCategories(ptenanId:number): Observable<CustomerCategory[]> {
+      var url=this.apiUrl+'/customerCategoryTypes/ptenantId/'+ptenanId;
+     
+       
+      return this.http.get<CustomerCategory[]>(url).pipe(
+
+  delayWhen(() => timer(2000)),
        //   tap(users => console.log('Fetched users:', users)),
           catchError(this.handleError)
       );
-     // return of(this.dummyPrograms);
+  }
+  //customerTypes
+getcustomerTypes(ptenanId:number): Observable<Customer[]> {
+      var url=this.apiUrl+'/customerTypes/ptenantId/'+ptenanId;
+     
+       
+      return this.http.get<Customer[]>(url).pipe(
+
+  delayWhen(() => timer(2000)),
+       //   tap(users => console.log('Fetched users:', users)),
+          catchError(this.handleError)
+      );
+  }
+  /**
+   * Generic search helper for lookup keys.
+   * @param key lookup key (e.g. 'vendors', 'roleTypes')
+   * @param ptenantId tenant id
+   * @param query search string
+   */
+  searchLookup(key: string, ptenantId: number, query: string): Observable<any[]> {
+      
+    const q = encodeURIComponent(query ?? '');
+    
+    
+    const url = `/lookups/${key}/ptenantId/${ptenantId}?q=${q}`; console.log('searchLookup url:',url);
+        console.log('searchLookup url:',url); 
+        return this.http.get<any[]>(url).pipe(
+
+  delayWhen(() => timer(2000)),
+      catchError(this.handleError)
+    );
   }
 
-  
-  /**
-   * Fetches a list of all subjects from the backend.
-   * In a multi-tenant application, this should eventually be filtered by the current tenant.
-   * @returns An Observable of an array of User objects.
-   */
-  getSubjects(ptenanId:string): Observable<Subject[]> {
-    var url=this.apiUrl+'/subjects/ptenantId/'+ptenanId;
-      
-    return this.http.get<Subject[]>(url).pipe(
-     //   tap(users => console.log('Fetched users:', users)),
-        catchError(this.handleError)
-    );
-   // return of(this.dummyPrograms);
-}
 
 
-  
-  /**
-   * Fetches a list of all subjects from the backend.
-   * In a multi-tenant application, this should eventually be filtered by the current tenant.
-   * @returns An Observable of an array of User objects.
-   */
-  getCourses(ptenanId:string): Observable<Course[]> {
-    var url=this.apiUrl+'/courses/ptenantId/'+ptenanId;
-      
-    return this.http.get<Course[]>(url).pipe(
-     //   tap(users => console.log('Fetched users:', users)),
-        catchError(this.handleError)
-    );
-   // return of(this.dummyPrograms);
-}
-
-getCourseofferings(ptenanId:string): Observable<CourseOffering[]> {
-  var url=this.apiUrl+'/courseofferings/ptenantId/'+ptenanId;
-    
-  return this.http.get<CourseOffering[]>(url).pipe(
-   //   tap(users => console.log('Fetched users:', users)),
-      catchError(this.handleError)
-  );
- // return of(this.dummyPrograms);
-}
-
-getCourseofferingsByFacultyIdThruPersonId(ptenanId:string,personId:number): Observable<CourseOffering[]> {
-  var url=this.apiUrl+'/courseofferings/ptenantId/'+ptenanId+'/personId/'+personId;
-    
-  return this.http.get<CourseOffering[]>(url).pipe(
-   //   tap(users => console.log('Fetched users:', users)),
-      catchError(this.handleError)
-  );
- // return of(this.dummyPrograms);
-}
-
-  
-  /**
-   * Fetches a list of all subjects from the backend.
-   * In a multi-tenant application, this should eventually be filtered by the current tenant.
-   * @returns An Observable of an array of User objects.
-   */
-  getFacultyProfiles(ptenanId:string): Observable<FacultyProfile[]> {
-    var url=this.apiUrl+'/facultyProfiles/ptenantId/'+ptenanId;
-      
-    return this.http.get<FacultyProfile[]>(url).pipe(
-     //   tap(users => console.log('Fetched users:', users)),
-        catchError(this.handleError)
-    );
-   // return of(this.dummyPrograms);
-}
-
-getQuestionTypes(ptenanId:string): Observable<Question[]> {
-    var url=this.apiUrl+'/questionTypes/ptenantId/'+ptenanId;
-      
-    return this.http.get<Question[]>(url).pipe(
-     //   tap(users => console.log('Fetched users:', users)),
-        catchError(this.handleError)
-    );
-   // return of(this.dummyPrograms);
-}
-
-getRoleTypes(ptenanId:string): Observable<UserRole[]> {
+getRoleTypes(ptenanId:number): Observable<UserRole[]> {
   var url=this.apiUrl+'/roleTypes/ptenantId/'+ptenanId;
     
   return this.http.get<UserRole[]>(url).pipe(
    //   tap(users => console.log('Fetched users:', users)),
       catchError(this.handleError)
   );
- // return of(this.dummyPrograms);
+ 
 }
 
-getQuestionCategories(ptenanId:string): Observable<Question[]> {
-  var url=this.apiUrl+'/questionCategorys/ptenantId/'+ptenanId;
+//
+getProductTypes(ptenanId:number): Observable<Product[]> {
+  var url=this.apiUrl+'/productTypes/ptenantId/'+ptenanId;
     
-  return this.http.get<Question[]>(url).pipe(
+  return this.http.get<Product[]>(url).pipe(
    //   tap(users => console.log('Fetched users:', users)),
       catchError(this.handleError)
   );
- // return of(this.dummyPrograms);
+ 
 }
-
-
-getQuestionPurposes(ptenanId:string): Observable<Question[]> {
-    var url=this.apiUrl+'/questionPurposes/ptenantId/'+ptenanId;
-      
-    return this.http.get<Question[]>(url).pipe(
-     //   tap(users => console.log('Fetched users:', users)),
+//withvariant
+// In lookup.service.ts
+getProductTypesWithVariants(ptenantId: number): Observable<any[]> {
+    var url = this.apiUrl + '/productTypesWithVariants/ptenantId/' + ptenantId;
+    return this.http.get<any[]>(url).pipe(
         catchError(this.handleError)
     );
-   // return of(this.dummyPrograms);
 }
 
 
-
-getTopics(ptenanId:string): Observable<Topic[]> {
-  var url=this.apiUrl+'/topics/ptenantId/'+ptenanId;
+getCityTypes(ptenanId:number): Observable<City[]> {
+  var url=this.apiUrl+'/cityTypes/ptenantId/'+ptenanId;
     
-  return this.http.get<Topic[]>(url).pipe(
+  return this.http.get<City[]>(url).pipe(
    //   tap(users => console.log('Fetched users:', users)),
       catchError(this.handleError)
   );
- // return of(this.dummyPrograms);
+ 
 }
 
 }

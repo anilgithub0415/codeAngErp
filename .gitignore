@@ -7,6 +7,7 @@
 /bazel-out
 
 # Node
+.env
 /src/app/Docs
 /node_modules
 npm-debug.log

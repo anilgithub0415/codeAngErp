@@ -1,0 +1,114 @@
+<p>district works!</p>
+
+
+<!-- fields:{{fields}} -->
+ <p-toast></p-toast>
+<div  class="customer-container p-4" style="display: block; width: 100%;">
+
+
+<!--Filter component-->
+<app-filter-control 
+      [dataSource]="districts?districts:[]" 
+      [filterFields]="['districtName']" 
+      (filteredData)="onDataFiltered($event)">
+    </app-filter-control>
+<!--Filter component-->
+ <form [formGroup]="form" pFluid  [class.hidden-form]="isFormHidden">
+     
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    
+      <div class="customer-actions" *ngIf="currOpMode!=='VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Lead"
+        icon="pi pi-save"
+        (click)="saveDistrict()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear District"
+        icon="pi pi-times"
+        (click)="clearDistrict()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        >
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+         [disabled]="currOpMode!=='ADD'&& currOpMode!=='UPDATE'">
+      </button>
+      </div>
+
+      <!--commented grid with edit button-->
+    
+
+ </form>
+</div> 
+
+
+<p-button *ngIf="currOpMode=='VIEW'"
+    label="New District" 
+    icon="pi pi-plus" 
+    (click)="Add()" 
+   
+    >
+</p-button>
+
+
+
+
+    <div class="site-section mb-0" *ngIf="districts?.length">
+      <h3 class="text-lg font-semibold mb-2">Items</h3>
+      <p-table [value]="visibleDataArray ? visibleDataArray : []" class="districts-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="50px"></th>
+          
+            <th>DistrictName</th>
+            <th>DistrictName</th>
+         
+            <th width="120px"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-asite let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="onEditClick(asite)">
+              </button>
+            </td>
+         
+            <td>{{ asite.districtName }}</td>
+            <td>{{ asite.description }}</td>
+         
+            
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeDistrict(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+

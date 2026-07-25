@@ -1,0 +1,52 @@
+
+<div class="card p-4 m-3 surface-card border-round shadow-2 font-sans text-color">
+    <h5 class="text-xl font-bold mb-4 text-900">Dynamic Product UOM Configuration (Formly)</h5>
+
+    <p-messages [(value)]="alertMessages" [enableService]="false" [closable]="true"></p-messages>
+
+    <!-- Structural form wrapper layout engine element -->
+    <form [formGroup]="form" (ngSubmit)="submitNewRuleRow()">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+        
+        <div class="flex justify-content-end mt-3">
+            <button 
+                type="submit" 
+                pButton 
+                label="Add Rule Mapping" 
+                icon="pi pi-plus" 
+                [disabled]="form.invalid"
+                class="p-button-primary w-auto">
+            </button>
+        </div>
+    </form>
+
+    <!-- Table tracking view grid area -->
+    <div class="mt-5">
+        <h6 class="text-sm font-bold uppercase tracking-wider text-700 mb-3">Active Rules Inventory Matrix</h6>
+        <p-table [value]="existingConversions" responsiveLayout="scroll" styleClass="p-datatable-striped p-datatable-gridlines">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Purchase UOM</th>
+                    <th>Sales UOM</th>
+                    <th>Conversion Mathematical Relationship</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-conv>
+                <tr>
+                    <td class="font-bold">{{conv.purchaseUom}}</td>
+                    <td>{{conv.saleUom}}</td>
+                    <td class="text-primary font-mono font-medium">
+                        1 {{conv.purchaseUom}} = {{conv.conversionFactor | number:'1.1-4'}} {{conv.saleUom}}
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="3" class="text-center p-4 text-400 font-italic">
+                        No conversion parameters have been declared for this selection profile context.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

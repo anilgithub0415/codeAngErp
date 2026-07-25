@@ -1,0 +1,109 @@
+<!-- Main Card Wrapper -->
+<div class="p-4 mb-3"
+     style="background-color: var(--surface-card, #ffffff); 
+            border: 1px solid var(--surface-border, #e2e8f0); 
+            border-left: 4px solid var(--primary-color, #3b82f6); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: move;
+            transition: all 0.2s ease-in-out;"
+     onmouseover="this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';"
+     onmouseout="this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';">
+    
+    <!-- Header: Shop/Customer Name & Category Badge -->
+      <!-- Header: Shop/Customer Name & Category Badge -->
+<div class="flex justify-content-between align-items-start mb-2 gap-2">
+    <!-- 💡 LINK UPDATE: Added relative routing array targeting parent tree branch -->
+    <a [routerLink]="['../clientProfile', customer.id]" 
+       class="no-underline hover:underline cursor-pointer"
+       style="color: inherit;">
+        <h5 class="m-0 text-900 font-semibold text-base line-height-3 text-overflow-ellipsis overflow-hidden">
+            {{ customer.customerName }}
+        </h5>
+    </a>
+    
+    <!-- Customer Category/Segment Badge -->
+    <span class="font-medium mt-1 text-xs"
+          style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                 color: var(--text-color-secondary, #64748b); 
+                 padding: 3px 8px; 
+                 border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                 border-radius: 6px; 
+                 display: inline-block;">
+        {{ customer.customerCategoryId || 'General' }}
+    </span>
+</div>
+
+    <!-- Contact Details -->
+    <!-- Contact Details -->
+<div class="flex flex-column gap-1 mb-3 text-xs" style="color: var(--text-color-secondary, #64748b);">
+    
+    <!-- Contact Person Row -->
+    <div class="flex align-items-center gap-2">
+        <!-- 💡 FIX: Replaced native title with PrimeNG's pTooltip directive -->
+        <i class="pi pi-user text-sm" 
+           style="opacity: 0.7;" 
+           pTooltip="Commercial Contact Person" 
+           tooltipPosition="top"></i>
+        <span class="font-medium" style="color: var(--text-color, #334155);">
+            {{ customer.commercialContactPerson || 'N/A' }}
+        </span>
+    </div>
+
+    <!-- Phone Row -->
+    <div class="flex align-items-center gap-2">
+        <i class="pi pi-phone text-sm" 
+           style="opacity: 0.7;" 
+           pTooltip="Phone Number" 
+           tooltipPosition="top"></i>
+        <span>{{ customer.commercialContactPhone || 'No Phone' }}</span>
+    </div>
+
+    <!-- City Row -->
+    <div class="flex align-items-center gap-2 mt-1">
+        <i class="pi pi-map-marker text-sm" 
+           style="opacity: 0.7;" 
+           pTooltip="Location" 
+           tooltipPosition="top"></i>
+        <span class="font-medium">{{ customer.cityName || 'Resolving Location' }}</span>
+    </div>
+</div>
+
+
+    <hr style="border: 0; border-top: 1px solid var(--surface-border, #e2e8f0); margin: 8px 0;" />
+
+    <!-- Footer: Credit Limits & Lead Source Indicators -->
+    <div class="flex justify-content-between align-items-center mt-2 text-xs">
+        <!-- Wholesale Risk Indicator (Credit Limit) -->
+        <div class="flex flex-column">
+            <span class="font-medium" style="color: var(--text-color-secondary, #64748b);">Credit Limit</span>
+            <span class="font-bold" style="color: var(--text-color, #0f172a);">
+                {{ customer.creditLimit ? ('₹' + (customer.creditLimit | number)) : 'No Limit' }}
+            </span>
+        </div>
+
+        <!-- Lead Source Tag -->
+        <div class="flex flex-column align-items-end">
+            <span class="font-medium" style="color: var(--text-color-secondary, #64748b);">Source</span>
+                <!-- 💡 DARK MODE FIX: Replaced fallback #f1f5f9 with var(--surface-b) and text color with var(--text-color-secondary) -->
+                    <span class="font-medium capitalize mt-1 text-xs"
+                        style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                    color: var(--text-color-secondary, #64748b); 
+                    padding: 3px 8px; 
+                    border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                    border-radius: 6px; 
+                    display: inline-block;">
+                        {{ customer.leadSource || 'Direct Walk-In' }}
+                    </span>
+
+        </div>
+
+
+
+      
+
+
+
+
+    </div>
+</div>

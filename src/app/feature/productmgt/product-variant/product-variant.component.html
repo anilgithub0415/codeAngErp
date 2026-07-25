@@ -1,0 +1,244 @@
+
+<!-- {{model|json}} fields:{{fields|json}} currOpMode:{{currOpMode}}-->
+
+ <!--*ngIf="currOpMode=='ADD' || currOpMode=='UPDATE'"-->
+ <p-toast></p-toast>
+<div  class="customer-container p-4" style="display: block; width: 100%;">
+
+
+ <form [formGroup]="form" pFluid (ngSubmit)="onSubmit()" [class.hidden-form]="isFormHidden">
+     
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    
+
+      <div class="customer-actions" *ngIf="currOpMode!=='VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Product"
+        icon="pi pi-save"
+        (click)="saveProduct()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Product"
+        icon="pi pi-times"
+        (click)="clearProduct()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        >
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+         [disabled]="currOpMode!=='ADD'&& currOpMode!=='UPDATE'">
+      </button>
+      </div>
+
+      <!--commented grid with edit button-->
+    <div class="customer-section mb-4" *ngIf="products?.length">
+      <h3 class="text-lg font-semibold mb-2">Products</h3>
+      <p-table [value]="products?products:[]" class="products-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="50px"></th>
+            <th>Product</th>
+             <th>Description</th>
+            <th width="120px"></th>
+            
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-acustomer let-rowIndex="rowIndex">
+          <tr>
+             <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="onEditClick(acustomer)">
+              </button>
+            </td>
+            <td>{{ acustomer.prodName }}</td>
+           <td>{{ acustomer.description }}</td>
+            
+            
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeProduct(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+ </form>
+</div> 
+
+
+<p-button *ngIf="currOpMode=='VIEW'"
+    label="New Product" 
+    icon="pi pi-plus" 
+    (click)="Add()" 
+   
+    >
+</p-button>
+
+<!--search-->
+<!--[paginator]="!!(searchInput && searchInput.value && searchInput.value.trim().length > 0)" -->
+<!--(searchInput && searchInput.value && searchInput.value.trim().length > 0) ? (products || []) : []-->
+
+<!--Filter component-->
+<app-filter-control 
+      [dataSource]="products?products:[]" 
+      [filterFields]="['prodName', 'city']" 
+      (filteredData)="onDataFiltered($event)">
+    </app-filter-control>
+
+<div class="card" *ngIf="currOpMode!=='VIEW'">
+  <p-table 
+    #dt 
+    [value]="(searchString && searchString.length>2)?( products?products:[] ) : []" 
+    
+    [rows]="10"
+    [globalFilterFields]="['prodName', 'city']"
+    responsiveLayout="scroll">
+    
+    <ng-template pTemplate="caption">
+      <div class="flex justify-content-between align-items-center">
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input [(ngModel)]='searchString'
+            #searchInput
+            pInputText 
+            type="text" 
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+            placeholder="Search name or city..." 
+            class="p-inputtext-sm" />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header" *ngIf="searchString && searchString.length">
+      <tr>
+        <th>ID</th>
+        <th>Product Name</th>
+        <th>City</th>
+        <th>Email</th>
+      </tr>
+    </ng-template>
+  <ng-template pTemplate="body" let-customer>
+      <tr>
+        <td>{{ customer.id }}</td>
+        <td>{{ customer.prodName }}</td>
+        <td>{{ customer.city }}</td>
+        <td>{{ customer.email }}</td>
+      </tr>
+    </ng-template>
+
+   
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        
+        <td *ngIf="!searchInput || !searchInput.value || !searchInput.value.trim()" colspan="4" class="text-center text-muted">
+          Please type a name or city to start searching.
+        </td>
+        
+        <td *ngIf="searchInput && searchInput.value && searchInput.value.trim()" colspan="4" class="text-center">
+          No matching products found.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!--end search-->
+
+
+<div class="card" *ngIf="currOpMode=='VIEW'" >
+  
+  <p-table  [value]="products ? products : []"   dataKey="id"   [expandedRowKeys]="expandedRows"   >
+      
+  <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5rem"></th> 
+        <!-- <th>ID</th> -->
+         <th></th>
+        <th>Product Name</th>
+        <th>Description</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-customer let-expanded="expanded">
+      <tr>
+        <td>
+           <p-button 
+            type="button" 
+            pRipple 
+            [pRowToggler]="customer" 
+            [text]="true" 
+            [rounded]="true" 
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+          </p-button>         
+        </td>
+        <td>
+           <p-button 
+            type="button" 
+            pRipple 
+            [pRowToggler]="customer" 
+            [text]="true" 
+            [rounded]="true"   (click)="onEditClick(customer)"
+            [icon]="'pi pi-pencil'">
+          </p-button>         
+        </td>
+        <!-- <td> {{customer.id}} </td> -->
+        <td><strong>{{customer.prodName}}</strong> </td>
+        <td>{{customer.description}} </td>
+      </tr>
+    </ng-template>
+    
+      <ng-template pTemplate="expandedrow" let-customer>
+      <tr>
+      <td colspan="4">
+
+        <p-table *ngIf='customer && customer?.organisations && customer?.organisations.length' [value]="customer?.organisations" dataKey="id" class="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Firm</th>
+              <th>Category</th>
+              <th>Contact Person</th>
+              <th>Mobile</th>
+              
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-org>
+            <tr>
+              <td>{{ org.organisationName }}</td>
+              <td>{{ org.customerCategory }}</td>
+              <td>{{ org.contactPersonName }}</td>
+              <td>{{ org.mobileNumber }}</td>
+              
+            </tr>
+          </ng-template>
+        </p-table>
+      </td>
+    </tr>
+    </ng-template>
+    
+  </p-table>
+</div>

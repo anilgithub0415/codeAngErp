@@ -1,0 +1,94 @@
+<!-- src/app/features/leadsource/leadsource.component.html -->
+<p-toast></p-toast>
+<div class="leadsource-container p-4" style="display: block; width: 100%;">
+
+  <!--Filter component-->
+  <app-filter-control 
+    [dataSource]="leadsources ? leadsources : []" 
+    [filterFields]="['leadSource']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!--Formly Form Entry Area-->
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    
+    <div class="leadsource-actions" *ngIf="currOpMode !== 'VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Leadsource"
+        icon="pi pi-save"
+        (click)="saveLeadsource()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Leadsource"
+        icon="pi pi-times"
+        (click)="clearLeadsource()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+  label="New Leadsource" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!--Data Presentation Grid-->
+<div class="leadsource-section mb-0" *ngIf="leadsources?.length">
+  <h3 class="text-lg font-semibold mb-2">Lead Sources</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="leadsources-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="50px"></th>
+        <th>ID</th>
+        <th>Tenant ID</th>
+        <th>Lead Source</th>
+        <th width="120px"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-aleadsource let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="onEditClick(aleadsource)">
+          </button>
+        </td>
+        <td>{{ aleadsource.id }}</td>
+        <td>{{ aleadsource.tenantId }}</td>
+        <td>{{ aleadsource.leadSource }}</td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="removeLeadsource(rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

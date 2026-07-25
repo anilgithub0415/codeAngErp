@@ -1,0 +1,51 @@
+
+
+
+<p-card styleClass="compact-erp-card">
+    <div class="compact-container">
+        <!-- Top Row: Structural Identifiers -->
+        <div class="row-top">
+            <span class="client-name" [pTooltip]="customer.customerName" tooltipPosition="top">
+                {{ customer.customerName }}
+            </span>
+            <span class="client-id">#{{ customer.id }}</span>
+        </div>
+
+        <!-- Middle Row: Context Metrics (Category, Credit) -->
+        <div class="row-middle">
+            <span class="cat-badge" *ngIf="customer.customerCategory">
+                <!-- {{ customer.customerCategory?.name }} -->
+                     B2B
+            </span>
+            <div class="financial-pills">
+                <span class="pill limit" *ngIf="customer.creditLimit" pTooltip="Credit Limit" tooltipPosition="bottom">
+                    <i class="pi pi-dollar text-xs"></i>{{ customer.creditLimit | currency:'USD':'symbol':'1.0-0' }}
+                </span>
+                <span class="pill terms" *ngIf="customer.creditDays" pTooltip="Credit Terms" tooltipPosition="bottom">
+                    <i class="pi pi-clock text-xs"></i>{{ customer.creditDays }}d
+                </span>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Primary Point of Contact & Relational Badges -->
+        <div class="row-bottom">
+            <div class="poc-info" *ngIf="customer.commercialContactPerson" [pTooltip]="customer.commercialContactPerson" tooltipPosition="top">
+                <i class="pi pi-user font-medium text-xs"></i>
+                <span class="poc-text">{{ customer.commercialContactPerson }}</span>
+            </div>
+            
+            <div class="system-counters">
+                <!-- <span class="counter" *ngIf="customer.sites?.length" pTooltip="Sites" tooltipPosition="bottom"> -->
+                      <span class="counter"  pTooltip="Sites" tooltipPosition="bottom">
+                    <!-- <i class="pi pi-sitemap text-xs"></i>{{ customer.sites.length }} -->
+                      <i class="pi pi-sitemap"></i> 2
+                </span>
+                <!-- <span class="counter" *ngIf="customer.users?.length" pTooltip="Users" tooltipPosition="bottom"> -->
+                     <span class="counter"  pTooltip="Users" tooltipPosition="bottom">
+                    <!-- <i class="pi pi-users text-xs"></i>{{ customer.users.length }} -->
+                     <i class="pi pi-users"></i> 1
+                </span>
+            </div>
+        </div>
+    </div>
+</p-card>

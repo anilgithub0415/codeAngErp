@@ -1,0 +1,48 @@
+ <!-- Use p-select or p-dropdown depending on your exact PrimeNG 19 subversion -->
+<!--<div class="w-full min-w-[200px]" style="display: block; width: 100%;">
+  
+
+  <div class="w-full min-w-[200px]" style="display: block; width: 100%;">
+ 
+  <p-select
+    [formControl]="formControl"
+    [formlyAttributes]="field"
+    [options]="localOptions"
+    [optionLabel]="props['optionLabel'] || 'label'"
+    [optionValue]="props['optionValue'] || 'value'"
+    [placeholder]="props['placeholder'] || 'Select Category'"
+    [filter]="props['filter']"
+    [style]="{'width':'100%'}"
+    (onChange)="onUserDropdownClick($event)">
+  </p-select>
+</div>
+
+</div>-->
+{{to['options$'] | async|json}}
+{{to['optionValue']|json}}
+{{myStaticOptions|json}}
+  <div classs="field"><!--   [formControl]="formControl"     [options]="(to['options$'] | async) ?? []"
+             dataKey="value"  [dataKey]="to['dataKey']" *ngIf="myStaticOptions && myStaticOptions.length > 0" -->
+  <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
+    {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+  </label>
+  <p-select
+  
+  #primeDropdown
+   class="w-full"
+      
+  [options]="(to['options$'] | async) ?? []"
+      [placeholder]="to.placeholder"
+      [optionLabel]="to['optionLabel'] || 'label'"
+      [optionValue]="to['optionValue'] || 'value'"
+      (onChange)="onDropdownChange($event)"
+      [filter]="to['filter'] || false"
+      [showClear]="to['showClear'] || false"
+      [formlyAttributes]="field">
+ </p-select>
+ </div>
+ <pre>Current Form Value: {{ formControl.value | json }}</pre>
+
+<div class="w-full block mb-4" style="display: block; width: 100%;">
+ <p>its label in custom cntrl</p>
+ </div>

@@ -1,0 +1,23 @@
+<p>vendorsearch works!</p> <div *ngIf="filteredProducts">{{filteredProducts}}</div>
+<div class="product-search-container" *ngIf="binded_products">
+  <p-dropdown
+    [options]="filteredProducts"
+    [(ngModel)]="selectedProduct"
+    [filter]="true"
+    [showClear]="true"
+    [placeholder]="field.props?.placeholder || 'Search products...'"
+    optionLabel="label"
+    [style]="{'width': '100%'}"
+    (onFilter)="filterProducts($event)">
+    <ng-template let-product pTemplate="item">
+      <div class="product-item">
+        <div class="product-name">{{ product.vendorName }}</div>
+        
+      </div>
+    </ng-template>
+    <ng-template let-product pTemplate="selectedItem">
+      <span>{{ product?.prodName }}</span>
+    </ng-template>
+  </p-dropdown>
+  
+</div>

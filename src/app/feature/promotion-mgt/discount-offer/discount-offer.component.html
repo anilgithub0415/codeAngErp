@@ -1,0 +1,34 @@
+
+<app-button-tabs [options]="myTabConfig">
+  
+    <ng-template appTab="LineDiscount">
+         Discount On Perticular Product. If 10% discount bcos quantity is 10 and above for perticular product that is trade discount. for particular product is give discount of some amount/percentage
+         <app-line-discount></app-line-discount>
+    </ng-template> 
+    
+    <ng-template appTab="QuantityVolumeDiscount">
+        Buy 1–10 items: No discount. Buy 11–50 items: 5% off. Buy 51+ items: 10% off.
+    </ng-template>
+    
+    <ng-template appTab="SeasonalDiscount">
+            Bound to a specific date range. Example:A "March Madness" 10% discount that automatically expires on April 1st
+    </ng-template>
+    
+
+    <ng-template appTab="OrderValueDiscount">
+          Applied globally when the entire cart reaches a specific monetary amount.
+    </ng-template>
+
+    
+    <ng-template appTab="ProductBundling">
+            Offers discounts only when distinct, supplementary products are bought together. Example:Buy a specific Cleaner   and get 50% off the matching Brush.
+    </ng-template>
+
+   
+    
+    <ng-template appTab="PaymentDiscount">
+         "2/10, Net 30" — The client gets a 2% discount if the invoice is paid in full within 10 days instead of 30 days.
+    </ng-template> 
+   
+
+</app-button-tabs>

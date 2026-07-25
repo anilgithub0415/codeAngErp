@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
 
 import { ButtonModule } from 'primeng/button';
@@ -11,6 +11,9 @@ import { CommonModule } from '@angular/common';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router'; // Import Router for navigation
+import { ConfigService } from '../../../config.service';
+import { NgxPermissionsService } from 'ngx-permissions';
+
 @Component({
   selector: 'app-login',
   imports: [AppFloatingConfigurator,CommonModule,FormsModule,ReactiveFormsModule,ButtonModule,CheckboxModule,InputTextModule,PasswordModule,],
@@ -21,6 +24,9 @@ export class LoginComponent {
   loginForm!: FormGroup;
   errorMessage: string = '';
 
+   private configService=inject(ConfigService)
+    config_usersCreatedby:string='signup';
+  private permissionsService = inject(NgxPermissionsService);
 
   constructor(
     private formBuilder: FormBuilder
@@ -31,16 +37,45 @@ export class LoginComponent {
       password: ['', [Validators.required]],
       rememberMe: [false], // Optional remember me checkbox
     });}
+    ngOnInit(): void {
+   
+      this.configService.loadAppConfig().then((configResponse:any)=>{
+        this.config_usersCreatedby=configResponse.config_useraddthru;
+        console.log('its changed to:',configResponse.config_useraddthru);
+     });
 
+    }
     
+    getConfig(){
+       const globalConfigData=this.configService.config;
+          if(globalConfigData){
+            console.log('globalConfigData:',globalConfigData);
+            
+              this.config_usersCreatedby=globalConfigData.config_useraddthru;
+          }
+    }
   onSubmit(): void {
     if (this.loginForm?.valid) {
        const { UserName, password, rememberMe } = this.loginForm.value;
 
        this.authService.login(UserName, password).subscribe({
-         next: (response) => {
-          
+         next: (response) => { 
+         
+
+
            this.errorMessage = '';
+           //--permission related------------------------------------------------------------------------
+           const userPermissions = response.permissions || [];
+          localStorage.setItem('user_permissions', JSON.stringify(userPermissions));
+          if (response.tenantId) {
+            localStorage.setItem('tenant_id', response.tenantId);
+          }
+          console.log('loading permissions:',userPermissions);
+          
+          this.permissionsService.loadPermissions(userPermissions);
+
+           //--end permission related------------------------------------------------------------------------
+
            // Navigate to the desired page after successful login
            this.router.navigate(['/app']); // Example: Navigate to the employees list
            //window.location.href="http://localhost:4200/app";

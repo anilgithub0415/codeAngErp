@@ -1,0 +1,169 @@
+
+<div class="product-section mb-0" *ngIf="visibleDataArray?.length">
+  
+  <!-- PrimeNG DataView Master Component targeting visible data array -->
+  <p-dataView #dv 
+              [value]="visibleDataArray" 
+              [layout]="layoutMode" 
+              [paginator]="true" 
+              [rows]="10"
+              styleClass="surface-card border-round shadow-1 p-4">
+              
+    <!-- Top Controller Toolbar Deck Header Area -->
+      <ng-template #header>
+      <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-3 w-full">
+         <h3 class="m-0 text-lg font-semibold text-900 flex align-items-center gap-2">
+            <i class="pi pi-box text-primary"></i> Wholesale Stock Catalog
+         </h3>
+         
+         <!-- Layout Toggle Component Bar -->
+         <p-selectButton [(ngModel)]="layoutMode" 
+                         [options]="layoutOptions" 
+                         optionLabel="label" 
+                         optionValue="value" 
+                         [allowEmpty]="false"
+                         styleClass="p-button-sm">
+             <ng-template #item let-layoutOption>
+                 <div class="flex align-items-center justify-content-center px-2 py-1">
+                     <i [class]="layoutOption.icon + ' mr-2'"></i>
+                     <span>{{ layoutOption.label }}</span>
+                 </div>
+             </ng-template>
+         </p-selectButton>
+      </div>
+    </ng-template>
+
+    <!-- 💡 FIXED VIEW PATTERN A: HIGH-DENSITY LIST LAYOUT -->
+    <!-- CRITICAL CHANGE: Changed 'let-paginatedItems' to 'let-products' -->
+    <!-- FIXED VIEW PATTERN A: HIGH-DENSITY LIST LAYOUT -->
+<ng-template #list let-items>
+  <div class="grid grid-nogutter col-12 px-0 flex flex-column w-full mt-2">
+    
+    <table class="w-full text-left border-collapse" style="font-size: 13px;">
+      <thead>
+        <tr class="surface-100 text-600 font-semibold border-bottom-1 surface-border">
+          <th class="p-3" style="width: 50px;"></th>
+          <th class="p-3">Category</th> 
+          <th class="p-3">HSN Code</th>
+          <th class="p-3">Product</th>
+          <th class="p-3">SKU</th>
+          <th class="p-3">Current Stock</th>
+          <th class="p-3" style="width: 120px;">Base Price</th>
+          <th class="p-3" style="width: 50px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 💡 LOOP DIRECTLY OVER THE PARENT COMPONENT PROPERTY TO FORCE RENDERING -->
+        <tr *ngFor="let aproduct of items" class="border-bottom-1 surface-border hover:bg-surface-100 transition-colors transition-duration-150">
+          <td class="p-3">
+            <button pButton type="button" icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-text p-button-sm text-primary p-0 m-0 w-2rem h-2rem flex align-items-center justify-content-center"
+                    (click)="triggerEdit(aproduct)"></button>
+          </td>
+          <td class="p-3 text-700">{{ aproduct.productCategory?.categoryName || 'Unassigned' }}</td>
+          <td class="p-3 font-mono text-xs">{{ aproduct.hsnTaxRule?.hsnCode || 'N/A' }}</td>
+          <td class="p-3 font-semibold text-800">{{ aproduct.prodName }}</td>
+          <td class="p-3 font-mono text-xs">{{ aproduct.sku }}</td>
+          <td class="p-3">
+            <div class="product-stock-container flex align-items-center gap-1">
+              <span class="stock-badge font-bold" [ngClass]="aproduct.currentstock <= (aproduct.reorderLevel || 5) ? 'text-red-600' : 'text-green-700'">
+                {{ aproduct.currentstock || 0 }}
+              </span>
+              <span class="uom-badge text-500">({{ aproduct.baseUom || 'PCS' }})</span>
+            </div>
+          </td>
+          <td class="p-3 font-bold text-900">₹{{ aproduct.basePrice | number:'1.2-2' }}</td>
+          <td class="p-3">
+            <button pButton type="button" icon="pi pi-trash" 
+                    class="p-button-rounded p-button-text p-button-danger p-button-sm p-0 m-0 w-2rem h-2rem flex align-items-center justify-content-center"
+                    (click)="triggerDelete(aproduct)"></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</ng-template>
+
+
+    <!-- 💡 FIXED VIEW PATTERN B: DECORATIVE CARDS GRID LAYOUT -->
+    <!-- CRITICAL CHANGE: Changed 'let-paginatedItems' to 'let-products' -->
+    <ng-template #grid let-items>
+  <div class="grid grid-nogutter col-12 pt-3 w-full flex-wrap">
+    
+    <!-- Loop over products exposed dynamically by the grid engine -->
+    <div class="col-12 sm:col-6 lg:col-4 xl:col-3 p-3 flex" *ngFor="let aproduct of items">
+        
+        <!-- Decorative Product Card Container Element Wrapper -->
+        <div class="p-3 border-1 surface-border surface-card border-round-xl shadow-1 transition-all transition-duration-200 hover:shadow-4 flex flex-column h-full w-full"
+             style="min-height: 250px;"
+             (mouseenter)="setCardHover($event, true)"
+             (mouseleave)="setCardHover($event, false)"> <!-- 💡 FIXED TYPO HERE (Removed Pall) -->
+             
+             <!-- Top Card Header: Visual Tags & Badge Overlay -->
+             <div class="flex justify-content-between align-items-start mb-3 gap-2 w-full">
+               <div class="flex flex-column gap-1">
+                  <span class="font-mono text-500 block" style="font-size: 10px;">SKU: {{ aproduct.sku || 'N/A' }}</span>
+                  <span class="text-xs font-bold text-700 max-w-10rem text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                      {{ aproduct.productCategory?.categoryName || 'Unassigned' }}
+                  </span>
+               </div>
+               
+               <!-- Dynamic Stock Status Pill Indicator -->
+               <span class="text-xs font-bold px-2 py-1 border-round-md flex align-items-center gap-1"
+                     [style.background-color]="aproduct.currentstock <= (aproduct.reorderLevel || 5) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)'"
+                     [style.color]="aproduct.currentstock <= (aproduct.reorderLevel || 5) ? '#ef4444' : '#10b981'"
+                     style="font-size: 11px;">
+                  <i class="pi pi-circle-fill" style="font-size: 6px;"></i>
+                  {{ aproduct.currentstock || 0 }} {{ aproduct.baseUom || 'PCS' }}
+               </span>
+             </div>
+
+             <!-- Middle Card Body: Core Product Titles & Descriptions -->
+             <div class="flex-grow-1 mb-3 w-full">
+                <h4 class="m-0 text-900 font-bold text-base mb-1 text-overflow-ellipsis overflow-hidden line-height-3">
+                    {{ aproduct.prodName }}
+                </h4>
+                <p class="m-0 text-xs text-500 italic max-h-3rem text-overflow-ellipsis overflow-hidden mt-1" *ngIf="aproduct.description">
+                    {{ aproduct.description }}
+                </p>
+
+                <!-- UOM / Operational Tag Pillars Row -->
+                <div class="flex flex-wrap gap-1 mt-2">
+                   <span *ngIf="aproduct.defaultSalesUom" class="font-semibold px-2 py-1 bg-blue-50 border-round text-blue-600 border-1 border-blue-100" style="font-size: 10px;">
+                       Sales: {{ aproduct.defaultSalesUom }}
+                   </span>
+                   <span *ngIf="aproduct.defaultPurchaseUom" class="font-semibold px-2 py-1 bg-orange-50 border-round text-orange-600 border-1 border-orange-100" style="font-size: 10px;">
+                       Purchase: {{ aproduct.defaultPurchaseUom }}
+                   </span>
+                </div>
+             </div>
+
+             <!-- Visual Separation Rules Line -->
+             <hr class="w-full m-0 mb-3 border-0 border-top-1 surface-border" />
+
+             <!-- Bottom Card Footer: Cost Matrix & Action Panel Buttons Deck -->
+             <div class="flex justify-content-between align-items-center mt-auto w-full">
+                <div class="flex flex-column">
+                    <span class="text-500 font-medium" style="font-size: 10px;">Base Price</span>
+                    <span class="text-base font-bold text-900">₹{{ aproduct.basePrice | number:'1.2-2' }}</span>
+                </div>
+                
+                <div class="flex gap-1">
+                    <button pButton type="button" icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-outlined p-button-sm text-primary border-primary w-2rem h-2rem p-0 flex align-items-center justify-content-center"
+                            (click)="triggerEdit(aproduct)"></button>
+                    <button pButton type="button" icon="pi pi-trash" 
+                            class="p-button-rounded p-button-outlined p-button-danger border-danger w-2rem h-2rem p-0 flex align-items-center justify-content-center"
+                            (click)="triggerDelete(aproduct)"></button>
+                </div>
+             </div>
+
+        </div>
+    </div>
+  </div>
+</ng-template>
+
+
+  </p-dataView>
+</div>

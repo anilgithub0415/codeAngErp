@@ -1,0 +1,118 @@
+
+<!--  -->
+ <p-toast></p-toast>
+<div  class="hsnaxrule-container p-4" style="display: block; width: 100%;">
+
+ 
+<!--Filter component-->
+<app-filter-control 
+      [dataSource]="hsnTaxRules?hsnTaxRules:[]" 
+      [filterFields]="['hsnCode', 'description']" 
+      (filteredData)="onDataFiltered($event)">
+    </app-filter-control>
+<!--Filter component-->
+ <form [formGroup]="form" pFluid  [class.hidden-form]="isFormHidden">
+     
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    
+      <div class="hsnaxrule-actions" *ngIf="currOpMode!=='VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save HSNTaxRule"
+        icon="pi pi-save"
+        (click)="saveHSNTaxRule()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear HSNTaxRule"
+        icon="pi pi-times"
+        (click)="clearHSNTaxRule()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        >
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+         [disabled]="currOpMode!=='ADD'&& currOpMode!=='UPDATE'">
+      </button>
+      </div>
+
+      <!--commented grid with edit button-->
+    
+
+ </form>
+</div> 
+
+
+<p-button *ngIf="currOpMode=='VIEW'"
+    label="New HSNTaxRule" 
+    icon="pi pi-plus" 
+    (click)="Add()" 
+   
+    >
+</p-button>
+
+
+
+
+    <div class="hsnTaxRule-section mb-0" *ngIf="hsnTaxRules?.length">
+      <h3 class="text-lg font-semibold mb-2">Items</h3>
+      <p-table [value]="visibleDataArray ? visibleDataArray : []" class="hsnTaxRules-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th width="50px"></th>
+          
+            <th>hsnCode</th>
+            <th>description</th>
+            <th>cgstRate</th>
+            <th>sgstRate</th>
+            <th>igstRate</th>
+         
+            <th width="120px"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-ahsnTaxRule let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="onEditClick(ahsnTaxRule)">
+              </button>
+            </td>
+         
+            <td>{{ ahsnTaxRule.hsnCode }}</td>
+            <td>{{ ahsnTaxRule.description   }}</td>
+         
+            <td>{{ ahsnTaxRule.cgstRate }}</td>
+            <td>{{ ahsnTaxRule.sgstRate }}</td>
+            <td>{{ ahsnTaxRule.igstRate }}</td>
+            
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="removeHSNTaxRule(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+

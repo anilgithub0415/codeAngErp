@@ -1,0 +1,15 @@
+<p>formly-field-dropdown works!</p>
+  <p-dropdown
+      [formControl]="formControl"
+      [options]="(to['options$'] | async) ?? []"
+       [optionLabel]="props['optionLabel'] || 'name'"
+      [optionValue]="props['optionValue'] || 'code'"
+      [placeholder]="props['placeholder']"
+      [filter]="props['filter']"
+     (onChange)="onDropdownChange($event)"
+      [showClear]="props['showClear']">
+    </p-dropdown>
+
+    <div>props['options']:{{props['options'] |json}}</div> 
+     <div>props['optionValue']:{{props['optionValue'] |json}}</div>
+     <div>optionLabel:{{optionLabel}}</div>

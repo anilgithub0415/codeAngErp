@@ -26,3 +26,10 @@ git commands
             git checkout -- comments.txt 
         this command will ignore changes from comments.txt and file will show status of unchanged things 
 
+    below command will push to github repo for main branch
+    git push -u origin main 
+
+    for new branch
+        git checkout -b login-feature
+    how to publish local     branch to github
+    

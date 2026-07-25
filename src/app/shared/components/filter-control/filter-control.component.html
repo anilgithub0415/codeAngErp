@@ -1,0 +1,11 @@
+
+<div class="p-input-icon-left w-full">
+  <i class="pi pi-search"></i>
+  <input 
+    type="text" 
+    pInputText 
+    [placeholder]="placeholder" 
+    [(ngModel)]="searchQuery" 
+    (ngModelChange)="onFilterChange($event)" 
+    class="w-full" />
+</div>

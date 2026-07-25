@@ -1,0 +1,129 @@
+<!-- Main Purchase Order Card Wrapper -->
+
+<div class="p-4 mb-3 border-round-xl border-1 surface-border surface-card cursor-move transition-all transition-duration-200"
+     [style.border-left]="'4px solid ' + getStatusColor()"
+     [ngClass]="'hover:shadow-4'"
+     style="box-shadow: var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04));"
+     (mouseenter)="setHoverStyle($event, true)"
+     (mouseleave)="setHoverStyle($event, false)">
+    
+    <!-- Header: PO Number & Status Badge -->
+    <div class="flex justify-content-between align-items-start mb-2 gap-2">
+        <a [routerLink]="['../purchaseOrderProfile', purchaseOrder.id]" 
+           class="no-underline hover:underline cursor-pointer"
+           style="color: inherit;">
+            <h5 class="m-0 text-900 font-semibold text-base line-height-3 text-overflow-ellipsis overflow-hidden">
+                {{ purchaseOrder.poNumber }}
+            </h5>
+        </a>
+        
+        <!-- Status Badge -->
+        <span class="font-medium mt-1 text-xs"
+              style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                     color: var(--text-color-secondary, #64748b); 
+                     padding: 3px 8px; 
+                     border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                     border-radius: 6px; 
+                     display: inline-block;
+                     white-space: nowrap;">
+             <p-tag [severity]="getStatusSeverity()" [value]="purchaseOrder.status" [rounded]="true"></p-tag>
+        </span>
+    </div>
+
+    <!-- Purchase Order Core Info & Meta Description -->
+    <div class="flex flex-column gap-2 mb-3 text-xs" style="color: var(--text-color-secondary, #64748b);">
+        
+        <!-- Vendor Info Block with Interactive Overlay Panel Toggle -->
+        <div class="flex align-items-center gap-2">
+            <i class="pi pi-user text-sm" style="color: var(--primary-color);"></i>
+            <span class="font-medium text-700">Vendor:</span>
+            <span class="font-semibold text-primary cursor-pointer hover:underline" 
+                  (click)="op.toggle($event)">
+                {{ purchaseOrder.vendor?.vendorName || 'No Vendor Assigned' }}
+            </span>
+        </div>
+
+        <!-- Notes Snippet -->
+        <div class="flex align-items-center gap-2" *ngIf="purchaseOrder.notes">
+            <i class="pi pi-info-circle text-sm" style="opacity: 0.7;"></i>
+            <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap italic">{{ purchaseOrder.notes }}</span>
+        </div>
+
+        <!-- Metadata Tracking Row (Dates) -->
+        <div class="flex flex-wrap gap-2 mt-1 text-600 font-medium">
+            <span class="flex align-items-center gap-1">
+                <i class="pi pi-calendar" style="font-size: 11px"></i> Order: {{ purchaseOrder.orderDate | date:'mediumDate' }}
+            </span>
+            <span *ngIf="purchaseOrder.deliveryDate" class="flex align-items-center gap-1">
+                <i class="pi pi-truck" style="font-size: 11px"></i> Est Delivery: {{ purchaseOrder.deliveryDate | date:'mediumDate' }}
+            </span>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--surface-border, #e2e8f0); margin: 8px 0;" />
+
+    <!-- Footer: Financial Total & Line Items Metrics -->
+    <div class="flex justify-content-between align-items-center mt-2 text-xs">
+        
+        <!-- Pricing Block -->
+        <div class="flex flex-column">
+            <span class="font-medium" style="color: var(--text-color-secondary, #64748b);">Total Amount</span>
+            <span class="font-bold text-sm" style="color: var(--text-color, #0f172a);">
+                {{ purchaseOrder.totalAmount ? ('₹' + (purchaseOrder.totalAmount | number:'1.2-2')) : '₹0.00' }}
+            </span>
+        </div>
+
+        <!-- Items Quantity Metric Block -->
+        <div class="flex flex-column align-items-end">
+            <span class="font-medium mb-1" style="color: var(--text-color-secondary, #64748b);">Line Items</span>
+            
+            <!-- Contextual Items Count Tag -->
+            <span class="font-bold text-xs flex align-items-center gap-1"
+                  [style.color]="getStatusColor()"
+                  style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                         padding: 3px 8px; 
+                         border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                         border-radius: 6px; 
+                         display: inline-block;">
+                <i class="pi pi-list" [style.color]="getStatusColor()" style="font-size: 11px;"></i>
+                {{ (purchaseOrder.items?.length || 0) }} {{ (purchaseOrder.items?.length === 1) ? 'Item' : 'Items' }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- TARGET PRIMENG OVERLAY PANEL ELEMENT -->
+<p-overlayPanel #op [showCloseIcon]="true" styleClass="shadow-4 border-round-xl">
+    <div class="p-2 w-18rem text-xs flex flex-column gap-2">
+        <div class="font-bold text-sm text-900 border-bottom-1 surface-border pb-1 mb-1">
+            Purchase Order Summary
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">PO Database ID:</span>
+            <span class="font-mono text-800 font-semibold">{{ purchaseOrder.id }}</span>
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">Tenant Target ID:</span>
+            <span class="text-800 font-semibold">{{ purchaseOrder.tenantId }}</span>
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">Vendor ID Reference:</span>
+            <span class="text-800 font-semibold">{{ purchaseOrder.vendorId }}</span>
+        </div>
+        
+        <!-- Live Itemized Breakdown Inside Tooltip -->
+        <div *ngIf="purchaseOrder.items && purchaseOrder.items.length > 0" class="mt-1 pt-1 border-top-1 surface-border">
+            <div class="text-600 font-medium mb-1">Items Checklist Overview:</div>
+            <div class="max-h-6rem overflow-y-auto pr-1">
+                <div *ngFor="let item of purchaseOrder.items" class="flex justify-content-between py-1 border-bottom-1 surface-border last:border-none">
+                    <span class="text-700 font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap w-9rem">
+                        {{ item.prodName }}
+                    </span>
+                    <span class="text-800 font-semibold">
+                        x{{ item.quantity }} {{ item.purchaseUom || 'Units' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</p-overlayPanel>

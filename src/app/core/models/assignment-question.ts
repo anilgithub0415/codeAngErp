@@ -1,6 +1,6 @@
 export interface AssignmentQuestion {
     id:number;
-    tenantId?: string;
+    tenantId?: number
     assignmentId?: number;
     questionId?: number;
     points?: number;

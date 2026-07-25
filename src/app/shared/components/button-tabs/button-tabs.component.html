@@ -1,0 +1,46 @@
+<!-- 
+<div class="tabs-container">
+  
+  <div class="flex justify-content-center mb-3">
+    <p-selectButton
+      [options]="options"
+      [(ngModel)]="activeTab"
+      optionLabel="label"
+      optionValue="id"
+      [allowEmpty]="false"
+      class="compact-tabs-group"
+      
+      >
+    </p-selectButton>
+  </div>
+
+
+  <div class="p-4 border-1 surface-border border-round bg-card mt-1">
+    <ng-container *ngTemplateOutlet="getActiveTemplate()"></ng-container>
+  </div>
+</div> -->
+
+<div class="tabs-container">
+  
+  <!-- 1. Top row containing the buttons -->
+  <div class="flex justify-content-center mb-3">
+    <p-selectButton
+      [options]="options"
+      [(ngModel)]="activeTab"
+      optionLabel="label"
+      optionValue="id"
+      [allowEmpty]="false"
+      class="compact-tabs-group">
+    </p-selectButton>
+  </div>
+
+  <!-- 2. Bottom portion where content lazy-loads dynamically -->
+  <div class="p-4 border-1 surface-border border-round bg-card mt-1">
+    <!-- 💡 LAZY LOADING ENFORCED VIA *ngIf AT TEMPLATE LOOP LAYER -->
+    <div *ngFor="let tab of tabTemplates">
+      <ng-container *ngIf="tab.tabId === activeTab">
+        <ng-container *ngTemplateOutlet="tab.templateRef"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>

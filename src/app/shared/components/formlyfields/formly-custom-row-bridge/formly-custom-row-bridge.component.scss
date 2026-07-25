@@ -1,0 +1,56 @@
+/* 1. Main CSS Grid Container Layer */
+.custom-formly-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  gap: 1.25rem !important;
+  width: 100% !important;
+}
+
+/* 2. PIERCE ENCAPSULATION: Instruct browser to skip Formly structural elements */
+:host ::ng-deep .custom-formly-grid formly-group,
+:host ::ng-deep .custom-formly-grid formly-attributes {
+  display: contents !important;
+}
+
+/* 3. Replaces 'col-span-6' on Mobile Viewports */
+:host ::ng-deep .custom-formly-grid formly-field.field-column {
+  grid-column: span 6 / span 6 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Replaces 'md:col-span-5' on Desktop/Tablets (Widths 768px+) */
+@media (min-width: 768px) {
+  :host ::ng-deep .custom-formly-grid formly-field.field-column {
+    grid-column: span 5 / span 5 !important;
+  }
+}
+
+/* 4. Full Width Action Containers (Forces standard structural rows to wrap underneath) */
+.field-full-width {
+  grid-column: span 12 / span 12 !important;
+}
+
+/* 5. Force Core PrimeNG elements to fill out 100% of the active flex cells */
+:host ::ng-deep .custom-formly-grid formly-field.field-column > div,
+:host ::ng-deep .custom-formly-grid p-dropdown,
+:host ::ng-deep .custom-formly-grid p-calendar,
+:host ::ng-deep .custom-formly-grid p-inputtext,
+:host ::ng-deep .custom-formly-grid .p-component,
+:host ::ng-deep .custom-formly-grid .p-dropdown,
+:host ::ng-deep .custom-formly-grid .p-inputwrapper {
+  width: 100% !important;
+}
+
+/* Styling alignment for the button zones */
+.delete-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1rem;
+}
+
+.button-container {
+  margin-top: 0.5rem;
+}

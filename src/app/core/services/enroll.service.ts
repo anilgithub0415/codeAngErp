@@ -52,7 +52,7 @@ export class EnrollService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getEnrollments(ptenanId:string): Observable<Enrollment[]> {
+  getEnrollments(ptenanId:number): Observable<Enrollment[]> {
       var url=this.apiUrl;
             return this.http.get<Enrollment[]>(url).pipe(
        //   tap(users => console.log('Fetched users:', users)),

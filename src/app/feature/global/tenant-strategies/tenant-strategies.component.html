@@ -1,0 +1,84 @@
+
+<!-- src/app/feature/settings/tenant-strategies/tenant-strategies.component.html -->
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+
+  <!-- Search Parameter Lookup Filter Component -->
+  <app-filter-control 
+    [dataSource]="strategies ? strategies : []" 
+    [filterFields]="['tenantStrategyName', 'tenantStrategy']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!-- Entry Form Field Controls Area Mapping -->
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    <div class="customer-actions" *ngIf="currOpMode !== FormOpMode.View">
+      <button
+        pButton
+        type="button"
+        label="Save Strategy"
+        icon="pi pi-save"
+        (click)="saveStrategy()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Inputs"
+        icon="pi pi-times"
+        (click)="clearStrategy()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<!-- Generation Command Anchor Action Button -->
+<p-button 
+  *ngIf="currOpMode === FormOpMode.View"
+  label="New Tenant Strategy" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!-- Summary Datagrid Mapping Section -->
+<div class="site-section mb-0 mt-4" *ngIf="strategies?.length">
+  <h3 class="text-lg font-semibold mb-2">Tracked Strategy Configurations</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="districts-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="60px">Edit</th>
+        <th>Strategy Name Identifier</th>
+        <th>Configuration Expression</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-strategy>
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning p-button-sm"
+            (click)="onEditClick(strategy)">
+          </button>
+        </td>
+        <td>{{ strategy.tenantStrategyName }}</td>
+        <td>{{ strategy.tenantStrategy }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

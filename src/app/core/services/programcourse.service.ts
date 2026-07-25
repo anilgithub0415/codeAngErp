@@ -79,7 +79,7 @@ export class ProgramcourseService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getProgramCourses(ptenanId:string): Observable<ProgramCourse[]> {
+  getProgramCourses(ptenanId:number): Observable<ProgramCourse[]> {
       var url=this.apiUrl;//+'/0/ptenantId/'+ptenanId;
       
       return this.http.get<ProgramCourse[]>(url).pipe(
@@ -88,7 +88,7 @@ export class ProgramcourseService {
       );
   }
 //byIdOrPersonId:'byId' | 'byPersonId'
-  getById(id: number, activeTenantId:string): Observable<ProgramCourse[]|null> { 
+  getById(id: number, activeTenantId:number): Observable<ProgramCourse[]|null> { 
     console.log('yes its executing.....................................');
     
     const params = new HttpParams().set('activeTenantId',activeTenantId);

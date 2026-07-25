@@ -1,0 +1,54 @@
+
+
+
+
+
+
+
+
+
+
+i think in case of edit mode, if user changes clientId and if still quotation status is draft then like Add mode we can 
+allow 3 options 1. Recalculate 2.Clear 3. Cancel What u say? But quotation is already in Sent status then we should 
+lock clientId
+
+
+
+
+<p-toast></p-toast>
+clientId:{{clientId}}
+<div class="quotation-container p-4">
+
+  <!-- CRUD FORM WORKFLOW LAYERS -->
+  <!-- Inside quotation-mgr.component.html -->
+<div *ngIf="currOpMode !== FormOpMode.View">
+  <app-quotation-form 
+    [tenantId]="tenantId"
+   
+    [opMode]="currOpMode"
+    [quotationData]="selectedQuotation"
+    (onCancel)="onOperationCancelled()"
+    (onSaveSuccess)="onOperationSaved($event)"
+    (onErrorToast)="showToast($event.severity, $event.summary, $event.detail)">
+  </app-quotation-form>
+</div>
+
+
+  <!-- LIST DISCOVERY CONTROL HUD LAYER -->
+  <div class="mb-3" *ngIf="currOpMode === 'VIEW'">
+    <p-button 
+      *ngxPermissionsOnly="['Quotation.create']"
+      label="New Quotation Profile Blueprint" 
+      icon="pi pi-plus" 
+      (click)="onAddTriggered()">
+    </p-button>
+  </div>
+
+  <!-- MASTER TABULAR STORAGE DISPLAY GRID -->
+  <app-quotation-grid
+    *ngIf="currOpMode === 'VIEW'"
+    [quotations]="quotations"
+    (onEditClick)="onEditTriggered($event)">
+  </app-quotation-grid>
+
+</div>

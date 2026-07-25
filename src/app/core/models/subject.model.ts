@@ -6,7 +6,7 @@
  * and instead uses the foreign key ID (`tenantId`).
  */
 export interface CreateSubjectDto {
-    tenantId: string;
+    tenantId: number;
     subjectName: string;
     subjectCode: string;
     isActive?: boolean; // Defaults to true on the backend, but can be specified
@@ -26,7 +26,7 @@ export interface CreateSubjectDto {
    */
   export interface Subject {
     id: number;
-    tenantId: string;
+    tenantId: number;
     subjectName: string;
     subjectCode: string;
     isActive: boolean;

@@ -1,0 +1,13 @@
+<p>migrate-db works!</p>
+
+<!-- Use a native input tag with the pInputText directive -->
+<input type="text" pInputText [(ngModel)]="mypass" />
+
+<!-- Update the (click) target here -->
+<p-button 
+    *ngIf="mypass === secret"
+    label="Migrate DB" 
+    icon="pi pi-plus" 
+    (click)="startMigration()">
+</p-button>
+

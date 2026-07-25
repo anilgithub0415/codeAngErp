@@ -1,0 +1,106 @@
+<p>tenant works!</p>
+
+<!-- src/app/features/tenant/tenant.component.html -->
+<p-toast></p-toast>
+<div class="tenant-container p-4" style="display: block; width: 100%;">
+
+  <!--Filter component-->
+  <app-filter-control 
+    [dataSource]="tenants ? tenants : []" 
+    [filterFields]="['tenantName', 'tenantTypeName', 'subscriptionPlanName']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!--Formly Form Entry Area-->
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    
+    <div class="tenant-actions" *ngIf="currOpMode !== 'VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Tenant"
+        icon="pi pi-save"
+        (click)="saveTenant()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Tenant"
+        icon="pi pi-times"
+        (click)="clearTenant()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+  label="New Tenant" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!--Data Presentation Grid-->
+<div class="tenant-section mb-0" *ngIf="tenants?.length">
+  <h3 class="text-lg font-semibold mb-2">Tenants</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="tenants-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="50px"></th>
+        <th>ID</th>
+        <th>Tenant Name</th>
+        <th>Tenant Type</th>
+        <th>Subscription Plan</th>
+        <th>End Date</th>
+        <th>Status</th>
+        <th width="120px"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-atenant let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="onEditClick(atenant)">
+          </button>
+        </td>
+        <td>{{ atenant.tenantId }}</td>
+        <td>{{ atenant.tenantName }}</td>
+        <td>{{ atenant.tenantTypeName }}</td>
+        <td>{{ atenant.subscriptionPlanName }}</td>
+        <td>{{ atenant.subscriptionEndDate | date:'shortDate' }}</td>
+        <td>
+          <span [class]="atenant.isActive ? 'text-success font-semibold' : 'text-danger font-semibold'">
+            {{ atenant.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="removeTenant(rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,0 +1,28 @@
+
+<p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+    <div class="purchase-management-wrapper p-4">
+      
+      <!-- presentation grid display -->
+      <app-purchase-grid 
+        *ngIf="currOpMode === FormOpMode.View"
+        [POs]="POs"
+        [expandedRows]="expandedRows"
+        (onAdd)="handleAdd()"
+        (onEdit)="handleEdit($event)"
+         (onDeleteClick)="onDeleteRequested($event)">
+      </app-purchase-grid>
+
+      <!-- interactive configuration form -->
+      <app-purchase-form
+        *ngIf="currOpMode !== FormOpMode.View"
+        [model]="activeModel"
+        [currOpMode]="currOpMode"
+        [tenantId]="tenantId"
+        (onSave)="handleSave($event)"
+        (onFinalize)="handleFinalize($event)"
+        (onApprove)="handleApprove($event)"
+        (onCancel)="handleCancel()">
+      </app-purchase-form>
+
+    </div>

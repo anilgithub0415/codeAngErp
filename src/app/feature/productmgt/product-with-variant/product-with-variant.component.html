@@ -1,0 +1,82 @@
+<div class="p-4">
+  <h2>Product (with Variants AI Generated)</h2>
+
+  <form [formGroup]="productForm" class="mb-4">
+    <div>
+      <label>Product Name</label>
+      <input type="text" formControlName="prodName" />
+    </div>
+    <div>
+      <label>Description</label>
+      <input type="text" formControlName="description" />
+    </div>
+    <div>
+      <label>SKU</label>
+      <input type="text" formControlName="sku" />
+    </div>
+    <div>
+      <label>Base Price</label>
+      <input type="number" formControlName="basePrice" step="0.01" />
+    </div>
+  </form>
+
+  <h3>Add Variant</h3>
+  <form [formGroup]="variantForm" class="mb-4">
+    <div>
+      <label>Variant Name</label>
+      <input type="text" formControlName="variantName" />
+    </div>
+    <div>
+      <label>SKU</label>
+      <input type="text" formControlName="sku" />
+    </div>
+    <div>
+      <label>Unit Price</label>
+      <input type="number" formControlName="basePrice" step="0.01" />
+    </div>
+    <div>
+      <label>Grams per unit (conversion)</label>
+      <input type="number" formControlName="conversionFactor" step="0.01" />
+    </div>
+    <div>
+      <label>Initial Stock (units)</label>
+      <input type="number" formControlName="initialStockUnits" />
+    </div>
+    <div class="mt-2">
+      <button type="button" (click)="addVariant()">Add Variant</button>
+    </div>
+  </form>
+
+  <h3>Variants</h3>
+  <div *ngIf="variants?.length; else noVariants">
+    <table class="w-full">
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th>SKU</th>
+          <th>Conv (g)</th>
+          <th>Stock</th>
+          <th>Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of variants; let i = index">
+          <td>{{ v.variantName }}</td>
+          <td>{{ v.sku }}</td>
+          <td>{{ v.conversionFactor }}</td>
+          <td>{{ formatStock(v) }}</td>
+          <td>{{ v.basePrice | number:'1.2-2' }}</td>
+          <td><button (click)="removeVariant(i)">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <ng-template #noVariants>
+    <div>No variants added</div>
+  </ng-template>
+
+  <div class="mt-4">
+    <button (click)="saveProductWithVariants()" [disabled]="saving">Save Product + Variants</button>
+  </div>
+</div>

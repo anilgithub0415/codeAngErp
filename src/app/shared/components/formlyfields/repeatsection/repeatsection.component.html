@@ -1,0 +1,34 @@
+
+<div class="p-fluid">
+  <!-- Grid structural container wrapper -->
+  <div *ngFor="let fieldRow of field.fieldGroup; let i = index" 
+       [class]="'grid grid-cols-12 gap-4 w-full p-fluid'">
+    
+    <!-- Render the layout columns natively using Formly Group -->
+    <!-- <formly-group 
+      [field]="$any(fieldRow)" 
+     class="formgrid grid flex-grow-1">
+    </formly-group> -->
+ <!-- <div >
+      <formly-group [field]="$any(fieldRow)" ></formly-group>
+    </div> -->
+<ng-container *ngFor="let childField of fieldRow.fieldGroup">
+      <formly-field 
+        [field]="childField" 
+        [class]="'col-span-6 md:col-span-5'">
+      </formly-field>
+    </ng-container>
+
+    <!-- Inline action container to clear or delete the line -->
+    <div class="col-fixed" style="width: 100px; align-self: flex-end; padding-bottom: 0.5rem;">
+      <button pButton type="button" icon="pi pi-trash" class="p-button-danger" (click)="remove(i)">
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- Standard add row button action link -->
+  <div class="mt-2">
+    <button pButton type="button" icon="pi pi-plus" [label]="to['addText'] || 'Add Item'" (click)="add()"></button>
+  </div>
+</div>

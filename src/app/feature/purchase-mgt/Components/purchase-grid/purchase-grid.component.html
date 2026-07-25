@@ -1,0 +1,178 @@
+
+
+<div class="grid-actions-bar mb-3" *ngxPermissionsOnly="['PO.create']">
+  <p-button 
+    label="New Purchase Order" 
+    icon="pi pi-plus" 
+    (click)="onAdd.emit()">
+  </p-button>
+</div>
+
+<div class="card shadow-1 border-round surface-card" *ngIf="POs?.length">
+  
+  <p-dataView #dv 
+              [value]="POs" 
+              [layout]="layoutMode" 
+              [paginator]="true" 
+              [rows]="10"
+              styleClass="p-4">
+              
+    <ng-template #header>
+      <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-3 w-full">
+         <h3 class="m-0 text-lg font-semibold text-900 flex align-items-center gap-2">
+            <i class="pi pi-shopping-cart text-primary"></i> Purchase Order Ledger
+         </h3>
+         
+         <p-selectButton [(ngModel)]="layoutMode" 
+                         [options]="layoutOptions" 
+                         optionLabel="label" 
+                         optionValue="value" 
+                         [allowEmpty]="false"
+                         styleClass="p-button-sm">
+             <ng-template #item let-layoutOption>
+                 <div class="flex align-items-center justify-content-center px-2 py-1">
+                     <i [class]="layoutOption.icon + ' mr-2'"></i>
+                     <span>{{ layoutOption.label }}</span>
+                 </div>
+             </ng-template>
+         </p-selectButton>
+      </div>
+    </ng-template>
+    <ng-template #list let-items>
+      <div class="grid grid-nogutter col-12 px-0 flex flex-column w-full mt-2">
+        <table class="w-full text-left border-collapse" style="font-size: 13px;">
+          <thead>
+            <tr class="surface-100 text-600 font-semibold border-bottom-1 surface-border">
+              <th class="p-3" style="width: 50px;"></th> 
+              <th class="p-3" style="width: 50px;"></th>
+              <th class="p-3">PO Number</th>
+              <th class="p-3">Vendor / Supplier</th>
+              <th class="p-3">Order Date</th>
+              <th class="p-3">Status</th>
+              <th class="p-3" style="width: 150px;">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let po of items">
+              <tr class="border-bottom-1 surface-border hover:bg-surface-100 transition-colors">
+                <td class="p-3 text-center">
+                  <button pButton type="button" 
+                          [icon]="expandedRows[po.id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" 
+                          class="p-button-rounded p-button-text p-button-secondary p-0 w-2rem h-2rem"
+                          (click)="toggleRowExpansion(po.id)">
+                  </button>
+                </td>
+                <td class="p-3">
+                  <button pButton type="button" icon="pi pi-pencil" 
+                          class="p-button-rounded p-button-text p-button-sm text-primary p-0 w-2rem h-2rem"
+                          (click)="onEdit.emit(po)"></button>
+                </td>
+                <td class="p-3 font-semibold text-800">{{ po.poNumber }}</td>
+                <td class="p-3 text-700">{{ po.vendorName || po.vendor?.vendorName || 'Unassigned Vendor' }}</td>
+                <td class="p-3 text-700">{{ po.orderDate | date:'mediumDate' }}</td>
+                <td class="p-3">
+                  <span class="text-xs font-bold px-2 py-0.5 border-round surface-200 uppercase text-700">
+                    {{ po.status || 'Draft' }}
+                  </span>
+                </td>
+                <td class="p-3 font-bold text-900">₹{{ (po.totalAmount || 0) | number:'1.2-2' }}</td>
+                <td class="p-3">
+            <button pButton type="button" icon="pi pi-trash" 
+                    class="p-button-rounded p-button-text p-button-danger p-button-sm p-0 m-0 w-2rem h-2rem flex align-items-center justify-content-center"
+                    (click)="triggerDelete(po)"></button>
+          </td>
+              </tr>
+
+              <tr *ngIf="expandedRows[po.id]">
+                <td colspan="7" class="p-3 bg-gray-50 border-bottom-1 surface-border">
+                  <div class="p-3 border-1 border-300 border-round surface-card shadow-1 ml-4" *ngIf="po.items?.length">
+                    <p class="mt-0 mb-2 font-semibold text-sm text-700 flex align-items-center gap-2">
+                      <i class="pi pi-list text-primary"></i> Procurement Lines Itemization ({{ po.items.length }})
+                    </p>
+                    <table class="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr class="surface-200 text-600 font-bold border-bottom-1 surface-border">
+                          <th class="p-2">Product ID</th>
+                          <th class="p-2">Item Name</th>
+                          <th class="p-2">SKU</th>
+                          <th class="p-2 text-right">Quantity</th>
+                          <th class="p-2 text-right">Final Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of po.items" class="border-bottom-1 surface-border">
+                          <td class="p-2 text-500 font-mono">#{{ item.productId }}</td>
+                          <td class="p-2 font-medium text-800">{{ item.prodName || 'Direct Stock Item' }}</td>
+                          <td class="p-2 text-600 font-mono">{{ item.sku || 'N/A' }}</td>
+                          <td class="p-2 text-right font-semibold">{{ item.quantity }}</td>
+                          <td class="p-2 text-right font-bold text-900">₹{{ (item.finalPrice || item.price) | number:'1.2-2' }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="p-3 text-500 text-xs italic ml-4" *ngIf="!po.items?.length">
+                    <i class="pi pi-info-circle mr-1"></i> No itemized lines registered for this order record.
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </ng-template>
+    <ng-template #grid let-items>
+      <div class="grid grid-nogutter col-12 pt-3 w-full flex-wrap">
+        <div class="col-12 sm:col-6 lg:col-4 xl:col-3 p-3 flex" *ngFor="let po of items">
+            <div class="p-3 border-1 surface-border surface-card border-round-xl shadow-1 transition-all flex flex-column h-full w-full"
+                 style="min-height: 250px;"
+                 (mouseenter)="setCardHover($event, true)"
+                 (mouseleave)="setCardHover($event, false)">
+                 
+                 <div class="flex justify-content-between align-items-start mb-3 gap-2 w-full">
+                   <div class="flex flex-column gap-1">
+                      <span class="font-mono text-500 block" style="font-size: 10px;">PO ID: #{{ po.id }}</span>
+                      <span class="text-xs font-bold text-700 max-w-10rem text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                          Date: {{ po.orderDate | date:'mediumDate' }}
+                      </span>
+                   </div>
+                   <span class="text-xs font-bold px-2 py-1 border-round-md flex align-items-center gap-1"
+                         [style.background-color]="po.status === 'draft' || !po.status ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)'"
+                         [style.color]="po.status === 'draft' || !po.status ? '#ef4444' : '#10b981'"
+                         style="font-size: 11px;">
+                      <i class="pi pi-circle-fill" style="font-size: 6px;"></i>
+                      {{ (po.status || 'draft') | uppercase }}
+                   </span>
+                 </div>
+
+                 <div class="flex-grow-1 mb-3 w-full">
+                    <h4 class="m-0 text-900 font-bold text-base mb-1 text-overflow-ellipsis overflow-hidden line-height-3">
+                        {{ po.poNumber }}
+                    </h4>
+                    <p class="m-0 text-xs text-500 max-h-3rem text-overflow-ellipsis overflow-hidden mt-1 font-medium">
+                        Supplier: {{ po.vendorName || po.vendor?.vendorName || 'Unassigned Vendor' }}
+                    </p>
+                    <p class="m-0 text-xs text-400 italic mt-1">
+                        Tracks {{ po.items?.length || 0 }} product row requirements.
+                    </p>
+                 </div>
+
+                 <hr class="w-full m-0 mb-3 border-0 border-top-1 surface-border" />
+
+                 <div class="flex justify-content-between align-items-center mt-auto w-full">
+                    <div class="flex flex-column">
+                        <span class="text-500 font-medium" style="font-size: 10px;">Total Amount</span>
+                        <span class="text-base font-bold text-900">₹{{ (po.totalAmount || 0) | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="flex gap-1">
+                        <button pButton type="button" icon="pi pi-pencil" 
+                                class="p-button-rounded p-button-outlined p-button-sm text-primary border-primary w-2rem h-2rem p-0 flex align-items-center justify-content-center"
+                                (click)="onEdit.emit(po)"></button>
+                    </div>
+                 </div>
+            </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </p-dataView>
+</div>

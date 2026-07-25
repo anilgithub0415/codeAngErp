@@ -1,0 +1,34 @@
+<p>product-master-form works!</p>
+<form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
+  <div class="order-header mb-4">
+    <h2 class="text-xl font-bold mb-3">Product Configuration</h2>
+    <formly-form class="grid" [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </div>
+</form>
+
+<div class="product-actions">
+  <p-button
+    label="Save Product"
+    icon="pi pi-save"
+    (click)="saveProduct()"
+    [disabled]="form.invalid">
+  </p-button>
+  <button
+    pButton
+    type="button"
+    label="Clear Product"
+    icon="pi pi-times"
+    (click)="clearProduct()"
+    class="p-button-secondary"
+    style="margin-left: 0.5rem">
+  </button>
+  <button
+    pButton
+    type="button"
+    label="Cancel"
+    icon="pi pi-times"
+    (click)="CancelFormOp()"
+    class="p-button-secondary"
+    style="margin-left: 0.5rem">
+  </button>
+</div>

@@ -1,0 +1,117 @@
+currentCustomerId:{{currentCustomerId}}
+userId:{{userId}}
+<p>interaction-log works!</p>
+<p-toast></p-toast>
+<div class="interaction-container p-4" style="display: block; width: 100%;">
+
+  <!--Filter control element-->
+  <app-filter-control 
+    [dataSource]="interactions ? interactions : []" 
+    [filterFields]="['channel', 'purpose', 'notes', 'nextFollowUpObjective']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!--Dynamic Input Log Canvas-->
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    
+    <div class="interaction-actions" *ngIf="currOpMode !== 'VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Log Entry"
+        icon="pi pi-save"
+        (click)="saveInteraction()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Values"
+        icon="pi pi-times"
+        (click)="clearInteraction()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+  label="Log New Interaction" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!--Interaction Activity Timeline Grid-->
+<div class="interaction-section mb-0" *ngIf="interactions?.length">
+  <h3 class="text-lg font-semibold mb-2">Communication History</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="interactions-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="50px"></th>
+        <th>Date</th>
+        <th>Channel</th>
+        <th>Direction</th>
+        <th>Purpose / Topic</th>
+        <th>Notes Summary</th>
+        <th>Sample Review</th>
+        <th>Next Follow Up Due</th>
+        <th width="120px"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-aninteraction let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="onEditClick(aninteraction)">
+          </button>
+        </td>
+        <td>{{ aninteraction.createdAt | date:'short' }}</td>
+        <td>
+          <span class="font-semibold p-2 rounded bg-gray-100 text-gray-700">
+            {{ aninteraction.channel }}
+          </span>
+        </td>
+        <td>{{ aninteraction.direction }}</td>
+        <td>{{ aninteraction.purpose }}</td>
+        <td>{{ aninteraction.notes }}</td>
+        <td>
+          <span [class]="aninteraction.isSampleFeedback ? 'text-success font-semibold' : 'text-secondary'">
+            {{ aninteraction.isSampleFeedback ? 'Yes (Mops/Cleaners)' : 'No' }}
+          </span>
+        </td>
+        <td>
+          <div *ngIf="aninteraction.nextFollowUpDate">
+            <small class="block font-bold text-orange-500">{{ aninteraction.nextFollowUpDate | date:'shortDate' }}</small>
+            <small class="text-muted block text-xs">{{ aninteraction.nextFollowUpObjective }}</small>
+          </div>
+        </td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="removeInteraction(aninteraction.interactionId, rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,0 +1,137 @@
+<p>quotation-kanban-board works!</p>
+<p-toast></p-toast>
+
+<div class="card p-4 surface-50 border-round shadow-1 surface-section">
+    <!-- Top Dashboard Header Element -->
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4 gap-3 border-bottom-1 surface-border pb-3">
+        <div>
+            <h3 class="m-0 font-bold text-xl text-900">Quotation Pipeline Pipeline</h3>
+            <p class="m-0 text-xs text-500 mt-1">Drag and drop quotations to shift client negotiation phases safely.</p>
+        </div>
+        
+        <!-- FINANCIAL VOLUME DISTRIBUTION METER GROUP -->
+        <div class="w-full md:w-30rem surface-card p-3 border-round border-1 surface-border">
+            <div class="text-xs font-semibold text-600 mb-2 flex justify-content-between">
+                <span>Negotiation Pipeline Value Allocation</span>
+                <span class="text-primary font-bold">Value-Based Analytics</span>
+            </div>
+            <p-meterGroup [value]="getMeterGroupMetrics()"></p-meterGroup>
+        </div>
+    </div>
+
+    <!-- Filter Control Overlay Bar Panel -->
+    <div class="grid p-fluid mb-4 gap-3 md:gap-0">
+        <!-- Client Profile Selection Dropdown -->
+        <div class="col-12 md:col-4 px-2">
+            <label class="block text-xs font-semibold text-700 mb-2">Customer Portfolio Registry</label>
+            <p-dropdown 
+                [options]="clientOptions" 
+                [(ngModel)]="selectedClient" 
+                (onChange)="applyGlobalFilters()"
+                placeholder="All Active Customers" 
+                [showClear]="true" 
+                styleClass="w-full text-xs">
+            </p-dropdown>
+        </div>
+
+        <!-- Financial Value Limit Filter -->
+        <div class="col-12 md:col-4 px-2">
+            <label class="block text-xs font-semibold text-700 mb-2">Max Valuation Ceiling (INR)</label>
+            <p-inputNumber 
+                [(ngModel)]="maxTotalAmountFilter" 
+                (onInput)="applyGlobalFilters()" 
+                [showClear]="true"
+                mode="currency" 
+                currency="INR" 
+                locale="en-IN"
+                placeholder="Upper financial range filter"
+                styleClass="w-full text-xs">
+            </p-inputNumber>
+        </div>
+
+        <!-- Pipeline Quick Filter View Toggle -->
+        <div class="col-12 md:col-4 px-2 flex align-items-end justify-content-md-end mt-2 md:mt-0">
+            <p-selectButton 
+                [options]="pipelineOptions" 
+                [(ngModel)]="pipelineFilter" 
+                (onChange)="applyGlobalFilters()" 
+                optionLabel="label" 
+                optionValue="value"
+                styleClass="p-button-sm w-full md:w-auto">
+            </p-selectButton>
+        </div>
+    </div>
+
+    <!-- Main Kanban Grid View Area -->
+    <div class="flex flex-row overflow-x-auto gap-3 py-2 scroll-smooth" style="min-height: calc(100vh - 300px); align-items: stretch;">
+        
+        <!-- Loop over each defined Negotiation Status Lane Column -->
+        <ng-container *ngFor="let col of columns">
+            
+            <!-- CONDITION A: COLUMN CONTAINS DATA (STANDARD STRETCH LAYOUT) -->
+            <div *ngIf="getQuotationsByStatus(col.id).length > 0"
+                 style="background-color: var(--surface-b, rgba(148, 163, 184, 0.06)); 
+                        color: var(--text-color-secondary, #64748b); 
+                        padding: 12px; 
+                        border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.12)); 
+                        border-radius: 12px;"
+                 class="flex flex-column flex-shrink-0 w-22rem shadow-1 p-3 transition-all transition-duration-200"
+                 [ngClass]="col.styleClass"
+                 pDroppable="quoteCards" 
+                 (onDrop)="onDrop(col.id)">
+                
+                 <div style="display: block !important; width: 100% !important; clear: both !important;">
+                    <!-- Column Header Area -->
+                    <div class="flex justify-content-between align-items-center mb-3">
+                        <span class="font-bold text-800 text-sm capitalize truncate max-w-14rem">{{ col.title }}</span>
+                        <div class="flex align-items-center gap-2">
+                            <!-- Accumulative Financial Column Sum -->
+                            <span class="text-xs font-semibold text-500">₹{{ getColumnFinancialSum(col.id) | number:'1.0-0' }}</span>
+                            <span class="bg-primary-100 text-primary-700 px-2 py-1 font-bold font-mono inline-flex align-items-center justify-content-center text-xs"
+                                  style="border-radius: 9999px !important; min-width: 1.5rem; line-height: 1;">
+                                {{ getQuotationsByStatus(col.id).length }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Column Cards Scroll Container Area -->
+                    <div class="flex-grow-1 overflow-y-auto pr-1" style="max-height: calc(100vh - 380px); min-height: 200px;">
+                        <div *ngFor="let item of getQuotationsByStatus(col.id)" 
+                             class="mb-3 block w-full"
+                             pDraggable="quoteCards" 
+                             (onDragStart)="onDragStart(item)" 
+                             (onDragEnd)="onDragEnd()">
+                            
+                            <app-quotation-kanban-card [quotation]="item"></app-quotation-kanban-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONDITION B: COLUMN IS EMPTY (COLLAPSED EXPANDABLE VERTICAL STRIP) -->
+            <div *ngIf="getQuotationsByStatus(col.id).length === 0"
+                 style="background-color: var(--surface-b, rgba(148, 163, 184, 0.02)); 
+                        color: var(--text-color-secondary, #94a3b8); 
+                        padding: 16px 8px; 
+                        border: 1px dashed var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                        border-radius: 12px;
+                        width: 3.5rem;
+                        cursor: pointer;"
+                 class="flex flex-column align-items-center flex-shrink-0 shadow-1 transition-all transition-duration-200 hover:bg-primary-50/20"
+                 [pTooltip]="col.title"
+                 tooltipPosition="top"
+                 pDroppable="quoteCards" 
+                 (onDrop)="onDrop(col.id)">
+                
+                <span class="p-badge p-badge-sm bg-gray-200 text-600 font-bold font-mono mb-4">0</span>
+                
+                <div class="text-xs font-semibold uppercase tracking-wider text-center select-none" 
+                     style="writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;">
+                    {{ col.title }}
+                </div>
+            </div>
+
+        </ng-container>
+
+    </div>
+</div>

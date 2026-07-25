@@ -7,6 +7,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { LandingPageComponent } from './app/feature/public/landing-page/landing-page.component';
 import { DashboardComponent } from './app/feature/dashboard/dashboard/dashboard.component';
 import { roleGuard } from './app/core/guards/role.guard';
+import { superAdminGuard } from './app/core/guards/super-admin.guard';
 
 
 export const appRoutes: Routes = [
@@ -33,7 +34,6 @@ export const appRoutes: Routes = [
    
     // Your 404/Notfound page, also independent of AppLayout
     { path: 'notfound', component: Notfound },
-
     // --- AUTHENTICATED ROUTES (Wrapped by AppLayout) ---
     // All routes that require the application's main layout (header, sidebar, etc.)
     // will now live under a common parent path (e.g., 'app' or 'dashboard')
@@ -60,63 +60,95 @@ export const appRoutes: Routes = [
                 data: { roles: ['SuperAdmin'] }     
             },                                                               
             
+          
             {
-                path: 'global_settings',
-                loadChildren: () => import('./app/feature/settings/settings-routing.module').then(m => m.SettingsRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['SuperAdmin'] }     
-                
-            },
-            {
-            path: 'usrmgt',
+            path: 'usermgt',
             loadChildren: () => import('./app/feature/usermgt/usermgt-routing.module').then(m => m.UsermgtRoutingModule)
             , canActivate: [roleGuard],
-                data: { roles: ['InstituteAdmin','AdmissionsOfficer','Faculty','Coordinator','StudentSolo','Assessor','ClassTeacher'] }                 
+             //   data: { roles: ['SuperAdmin'] }                 
             },
             {
-                path: 'coursemgt',
-                loadChildren: () => import('./app/feature/coursemgt/coursemgt-routing.module').then(m => m.CoursemgtRoutingModule)
+                path: 'productmgt',
+                loadChildren: () => import('./app/feature/productmgt/productmgt-routing.module').then(m => m.ProductmgtRoutingModule)
                 , canActivate: [roleGuard],
-                    data: { roles: ['InstituteAdmin','SuperAdmin'] }                 
+                 //   data: { roles: ['DataEntry'] }                 
             },
             {
-                path: 'peoplemgt',
-                loadChildren: () => import('./app/feature/people/people-routing.module').then(m => m.PeopleRoutingModule)
+                path: 'salesmgt',
+                loadChildren: () => import('./app/feature/sales-mgt/sales-mgt-routing.module').then(m => m.SalesMgtRoutingModule)
                 , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin','Faculty'] }     
+                //    data: { roles: ['Salesman'] }                 
+            },{
+                path: 'delichallmgt',
+                loadChildren: () => import('./app/feature/delivery-challan-mgt/delivery-challan-mgt-routing.module').then(m => m.DeliveryChallanMgtRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Salesman'] }                 
             },
             {
-                path: 'qbank',
-                loadChildren: () => import('./app/feature/questionbank/questionbank-routing.module').then(m => m.QuestionbankRoutingModule)
+                path: 'purchasemgt',
+                loadChildren: () => import('./app/feature/purchase-mgt/purchase-mgt-routing.module').then(m => m.PurchaseMgtRoutingModule)
                 , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin','SuperAdmin','Faculty'] }     
+                //    data: { roles: ['Purchaser'] }                 
+            },
+            
+            
+            
+            {
+                path: 'quotationmgt',
+                loadChildren: () => import('./app/feature/quotation-mgt/quotation-routing.module').then(m => m.QuotationRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Purchaser'] }                 
+            },
+            
+            {
+                path: 'custmgt',
+                loadChildren: () => import('./app/feature/customer-mgt/customer-mgt-routing.module').then(m => m.CustomerMgtRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
+            
+  
+            {
+                path: 'sitemgt',
+                loadChildren: () => import('./app/feature/site-mgt/site-mgt-routing.module').then(m => m.SiteMgtRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
+            
+           {
+                path: 'clientportal',
+                loadChildren: () => import('./app/feature/clientportal/clientportal-routing.module').then(m => m.ClientPortalRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
+            //PromotionMgtRoutingModule
+            {
+                path: 'promotion',
+                loadChildren: () => import('./app/feature/promotion-mgt/promotion-mgt-routing.module').then(m => m.PromotionMgtRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
             },
             {
-                path: 'enroll',
-                loadChildren: () => import('./app/feature/enroll/enroll-routing.module').then(m => m.EnrollRoutingModule)
+    path: 'globalmgt',
+    //canActivate: [superAdminGuard], // 💡 Lock the front gate here before the chunk even loads
+    loadChildren: () => import('./app/feature/global/global-routing.module').then(m => m.GlobalRoutingModule)
+  },
+            {
+                path: 'mastermgt',
+                loadChildren: () => import('./app/feature/master/master-routing.module').then(m => m.MasterRoutingModule)
                 , canActivate: [roleGuard],
-                data: { roles: ['AdmissionsOfficer','InstituteAdmin'] }     
+                
+                //    data: { roles: ['Salesman'] }                 
             },
+           
+           
 
-            //for faculty to declare new assignments
-            {
-                path: 'assignmentmgt',
-              
-              loadChildren: () => import('./app/feature/assignment-mgt/Assignment-mgt-routing.module').then(m => m.AssessmentMgtRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['Faculty','InstituteAdmin'] }     
-            },
 
 
-
-            //for student solving assignment
-            {
-                path: 'assignmenthub',
-              
-              loadChildren: () => import('./app/feature/assignment-hub/assignment-hub-routing.module').then(m => m.AssignmentHubRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['Student'] }     
-            },
             // Existing UI Kit routes
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
 
@@ -135,19 +167,4 @@ export const appRoutes: Routes = [
     // Any other unmatched path redirects to notfound
     { path: '**', redirectTo: 'notfound' }
 ];
-//     {
-//         path: '',
-//         component: AppLayout,
-//         children: [
-//             { path: '', component: LandingPageComponent },
-//             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
-//             { path: 'documentation', component: Documentation },
-//             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-          
-//         ]
-//     },
-//     { path: 'landing', component: Landing },
-//     { path: 'notfound', component: Notfound },
-//  { path: 'auth', loadChildren: () => import('./app/feature/auth/auth-routing.module').then(m=>m.AuthRoutingModule) },
-//     { path: '**', redirectTo: '/notfound' }
-// ];
+

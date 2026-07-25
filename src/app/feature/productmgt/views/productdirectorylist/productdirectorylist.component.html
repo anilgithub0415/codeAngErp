@@ -1,0 +1,164 @@
+
+<p-toast></p-toast>
+
+<div class="card p-4 surface-section border-round shadow-1">
+    
+    <!-- Management Control Header Element Block -->
+    <div class="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center mb-4 gap-3 border-bottom-1 border-200 pb-3">
+        <div>
+            <h3 class="m-0 font-bold text-xl text-900">Product Master Directory</h3>
+            <p class="m-0 text-xs text-500 mt-1">Perform stock audits, categorization updates, advanced filtration, and bulk metadata orchestration workflows.</p>
+        </div>
+        
+        <!-- Action Control Buttons Segment Group -->
+        <div class="flex flex-wrap gap-2">
+            <button pButton icon="pi pi-tags" label="Change Category" class="p-button-outlined p-button-sm"
+                    [disabled]="!selectedProducts.length" (click)="bulkCategoryDialog = true"></button>
+            <button pButton icon="pi pi-whatsapp" label="Alert Stock Changes" class="p-button-success p-button-sm"
+                    [disabled]="!selectedProducts.length" (click)="executeWhatsAppBroadcast()"></button>
+            <button pButton icon="pi pi-print" label="Print Labels" class="p-button-secondary p-button-sm"
+                    [disabled]="!selectedProducts.length" (click)="executePrintLabels()"></button>
+            <button pButton icon="pi pi-file-excel" label="Export Catalog (.CSV)" class="p-button-info p-button-sm ml-lg-2"
+                    (click)="exportToCSV()"></button>
+        </div>
+    </div>
+
+    <!-- PrimeNG Datatable Element View Wrapper Grid -->
+    <p-table #dt 
+             [value]="products" 
+             [(selection)]="selectedProducts" 
+             dataKey="id" 
+             [rows]="10" 
+             [paginator]="true"
+             [loading]="loading" 
+             responsiveLayout="scroll"
+             [globalFilterFields]="['prodName', 'sku', 'categoryName', 'hsnCode']"
+             styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
+             [rowsPerPageOptions]="[10,25,50]">
+        
+        <!-- Global Search Filters Caption Top Deck Header Layout -->
+        <ng-template pTemplate="caption">
+            <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-2">
+                <span class="p-input-icon-left w-full sm:w-20rem">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" [(ngModel)]="globalSearchText" (input)="onGlobalSearch($event)"
+                           placeholder="Search Product, SKU, Category or HSN..." class="w-full text-xs p-inputtext-sm" />
+                </span>
+                <span class="text-xs font-semibold text-500 p-2 border-round surface-100" *ngIf="selectedProducts.length">
+                    Selected Items: <b class="text-primary">{{ selectedProducts.length }}</b>
+                </span>
+            </div>
+        </ng-template>
+
+        <!-- Column Header Setup Definitions Grid Layout Elements -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="prodName" style="min-width:14rem">
+                     Product Line <p-sortIcon field="prodName"></p-sortIcon>
+                </th>
+                <th pSortableColumn="categoryName" style="min-width:10rem">
+                    Category <p-sortIcon field="categoryName"></p-sortIcon>
+                </th>
+                <th pSortableColumn="basePrice" style="min-width:8rem">
+                    Base Price <p-sortIcon field="basePrice"></p-sortIcon>
+                </th>
+                <th pSortableColumn="currentstock" style="min-width:8rem">
+                    Available Stock <p-sortIcon field="currentstock"></p-sortIcon>
+                </th>
+                <th pSortableColumn="reorderLevel" style="min-width:8rem">
+                    Reorder Level <p-sortIcon field="reorderLevel"></p-sortIcon>
+                </th>
+                <th pSortableColumn="hsnCode" style="min-width:8rem">
+                    HSN Rule <p-sortIcon field="hsnCode"></p-sortIcon>
+                </th>
+            </tr>
+            
+            <!-- Multi-Column Advanced Filtration Subheader Deck Input Elements Row -->
+            <tr>
+                <th></th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'prodName', 'contains')" placeholder="Filter Item" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'categoryName', 'contains')" placeholder="Filter Category" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="number" (input)="$any(dt).filter($any($event.target).value, 'basePrice', 'equals')" placeholder="Exact Price" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="number" (input)="$any(dt).filter($any($event.target).value, 'currentstock', 'gte')" placeholder="Min Stock (>=)" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="number" (input)="$any(dt).filter($any($event.target).value, 'reorderLevel', 'lte')" placeholder="Max Safety (<=)" class="w-full text-xs p-inputtext-sm" />
+                </th>
+                <th>
+                    <input pInputText type="text" (input)="$any(dt).filter($any($event.target).value, 'hsnCode', 'contains')" placeholder="Filter HSN" class="w-full text-xs p-inputtext-sm" />
+                </th>
+            </tr>
+        </ng-template>
+
+        <!-- Body Template Row Context Map Array Rows Render Engines -->
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                </td>
+                <td>
+                    <div class="flex flex-column">
+                        <span class="font-bold text-800 text-sm mb-1">{{ product.prodName }}</span>
+                        <span class="text-500 text-xs flex align-items-center gap-1">
+                            <i class="pi pi-barcode text-xs"></i> SKU: {{ product.sku || 'No SKU Assigned' }} | 
+                            <i class="pi pi-tag text-xs"></i> UOM: {{ product.baseUom }}
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex align-items-center gap-1 text-700 text-xs">
+                        <span class="font-medium text-xs rounded-sm px-2 py-1" 
+                              style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); border-radius: 4px; color: var(--text-color-secondary);">
+                            {{ product.categoryName }}
+                        </span>
+                    </div>
+                </td>
+                <td class="font-semibold text-xs text-900">
+                    ₹{{ product.basePrice | number:'1.2-2' }}
+                    <span *ngIf="product.isVariablePrice" class="block text-purple-600 font-normal text-3xs" style="font-size: 10px;">Variable pricing active</span>
+                </td>
+                <td class="font-bold text-xs" [ngClass]="product.currentstock <= product.reorderLevel ? 'text-red-600' : 'text-green-700'">
+                    {{ product.currentstock | number }} {{ product.baseUom }}
+                </td>
+                <td class="font-semibold text-xs text-700">
+                    {{ product.reorderLevel | number }} {{ product.baseUom }}
+                </td>
+                <td class="font-mono text-xs text-600 uppercase">
+                    {{ product.hsnCode }}
+                </td>
+            </tr>
+        </ng-template>
+
+        <!-- Empty Filter Results Fallback Template -->
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="text-center p-4 text-500 text-sm">
+                    <i class="pi pi-filter-slash text-2xl block mb-2 opacity-50"></i>
+                    No catalog items match your filter criteria.
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Bulk Reassignment Interactive Modal Window Sheet Overlay -->
+<p-dialog header="Bulk Category Move" [(visible)]="bulkCategoryDialog" [modal]="true" [style]="{width: '350px'}" [draggable]="false" [resizable]="false">
+    <div class="p-fluid mt-2">
+        <label class="block text-xs font-semibold text-700 mb-2">Target Product Category</label>
+        <p-dropdown [options]="categoryOptions" [(ngModel)]="targetCategoryId" placeholder="Select Target Category" appendTo="body" styleClass="w-full text-xs"></p-dropdown>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancel" class="p-button-text p-button-sm" (click)="bulkCategoryDialog = false"></button>
+        <button pButton label="Confirm Move" class="p-button-success p-button-sm" [disabled]="!targetCategoryId" (click)="executeBulkCategoryReassignment()"></button>
+    </ng-template>
+</p-dialog>

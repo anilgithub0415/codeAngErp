@@ -8,7 +8,7 @@ export interface CreateStudentCourseOfferingDto {
 
 // The main DTO for creating a new enrollment
 export interface CreateStudentEnrollmentDto {
-    tenantId: string;
+    tenantId: number;
     studentProfileId: number;
     PersonId?:number;
     programId: number;
@@ -21,7 +21,7 @@ export interface CreateStudentEnrollmentDto {
 // The full Enrollment entity returned from the backend (what the HttpClient expects)
 export interface Enrollment {
     id: number;
-    tenantId: string;
+    tenantId: number;
     studentProfileId: number;
     programId: number;
     enrollmentDate: string;
@@ -37,7 +37,7 @@ export interface Enrollment {
 // The full StudentCourseOffering entity returned from the backend
 export interface StudentCourseOffering {
     id: number;
-    tenantId: string;
+    tenantId: number;
     studentProfileId: number;
     courseOfferingId: number;
     assignmentDate: string;

@@ -1,0 +1,21 @@
+<p>formly-field-primeng-dropdown-new works!</p>
+<div class="w-full min-w-[200px]" style="display: block; width: 100%;">
+<p-select
+  [formControl]="formControl"
+  #primeSelect
+  [formlyAttributes]="field"
+  [options]="myoptions"
+  
+  [optionLabel]="props['optionLabel'] || 'label'"
+  [optionValue]="props['optionValue'] || 'value'"
+  [placeholder]="props['placeholder'] || 'Select'"
+  [filter]="props['filter']"
+   [style]="{'width':'100%'}"
+   
+  (onChange)="onManualUISelection($event)"
+  >
+</p-select>
+</div>
+
+
+

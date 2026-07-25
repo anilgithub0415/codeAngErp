@@ -1,0 +1,56 @@
+<form [formGroup]="form" class="order-form">
+  <!-- INTERACTIVE FORM MATRIX ENGINE CONTAINER -->
+  <div class="order-header mb-4">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-xl font-bold">Customer Quotation Specification</h2>
+      <div class="grand-total-badge p-2 bg-slate-100 rounded border font-semibold text-lg">
+        Estimated Grand Total: ₹{{ model?.totalAmount || 0 | number:'1.2-2' }}
+      </div>
+    </div>
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </div>
+
+  <!-- PIPELINE PROCESSING ACTIONS PANEL -->
+  <div class="order-actions mb-4">
+    <!-- 1. Original Save Button for Internal Wholesaler Team -->
+    <p-button
+      *ngIf="opMode !== FormOpMode.PortalNegotiation"
+      type="button"
+      label="Save Quotation Structure"
+      icon="pi pi-save"
+    
+      (click)="saveQuotation()"
+      [disabled]="!form.valid">
+    </p-button>
+
+    <!-- 2. NEW: Dedicated Client Counter-Offer Button visible inside ClientPortal -->
+    <p-button
+      *ngIf="opMode === FormOpMode.PortalNegotiation"
+      type="button"
+      label="Submit Counter-Offer / Target Price"
+      icon="pi pi-comments"
+      styleClass="p-button-warning"
+      (click)="submitPortalCounterOffer()"
+      [disabled]="!form.valid">
+    </p-button>
+
+    <button
+      pButton
+      type="button"
+      label="Clear Entry"
+      icon="pi pi-refresh"
+      (click)="clearForm()"
+      class="p-button-secondary"
+      style="margin-left: 0.5rem">
+    </button>
+    <button
+      pButton
+      type="button"
+      label="Cancel"
+      icon="pi pi-times"
+      (click)="CancelFormOp()"
+      class="p-button-secondary"
+      style="margin-left: 0.5rem">
+    </button>
+  </div>
+</form>

@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
-    tenantId: string;displayName:string;
+    tenantId: number;displayName:string;
     tenantName: string;tenantType: string;
     roleName: string;
     permissions: string[];

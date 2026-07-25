@@ -1,0 +1,59 @@
+<p>security-settings works!</p>
+<!-- src/app/feature/settings/security-settings/security-settings.component.html -->
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+  <h3 class="text-xl font-semibold mb-4">Application Token Lifetime Controls</h3>
+
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    <div class="customer-actions mt-3">
+      <!-- Edit Mode Anchor Toggle -->
+      <button
+        *ngIf="currOpMode === FormOpMode.View"
+        pButton
+        type="button"
+        label="Modify Configurations"
+        icon="pi pi-pencil"
+        (click)="onEditClick()"
+        class="p-button-warning">
+      </button>
+
+      <!-- Save Command Button -->
+      <button
+        *ngIf="currOpMode !== FormOpMode.View"
+        pButton
+        type="button"
+        label="Save Lifetimes"
+        icon="pi pi-save"
+        (click)="saveSecuritySettings()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+
+      <!-- Reset Local Changes -->
+      <button
+        *ngIf="currOpMode !== FormOpMode.View"
+        pButton
+        type="button"
+        label="Clear Inputs"
+        icon="pi pi-times"
+        (click)="clearSettings()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+
+      <!-- Revert Action Mode -->
+      <button
+        *ngIf="currOpMode === FormOpMode.Update"
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+  </form>
+</div>

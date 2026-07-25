@@ -1,0 +1,41 @@
+
+
+ <div class="p-4 mb-3">
+       <div class="flex justify-content-between align-items-start mb-2 gap-2">
+    <!-- 💡 LINK UPDATE: Added relative routing array targeting parent tree branch -->
+    
+        <h5 class="m-0 text-900 font-semibold text-base line-height-3 text-overflow-ellipsis overflow-hidden">
+            {{ customer.customerName }}
+        </h5>
+    
+    
+    <!-- Customer Category/Segment Badge -->
+    <span class="font-medium mt-1 text-xs"
+          style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                 color: var(--text-color-secondary, #64748b); 
+                 padding: 3px 8px; 
+                 border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                 border-radius: 6px; 
+                 display: inline-block;">
+        {{ customer.customerCategoryId || 'General' }}
+    </span>
+</div>
+ </div>
+  <app-button-tabs [options]="myTabConfig">
+  
+    <ng-template appTab="ClientRequirement">
+           <app-client-requirement [clientId]="clientId"></app-client-requirement>
+    </ng-template> 
+    
+    <ng-template appTab="InteractionLog">
+    <app-interaction-log [currentCustomerId]="clientId"></app-interaction-log>
+    </ng-template>
+    
+    <ng-template appTab="Quotation">
+           <app-quotation-mgr [currentCustomerId]="clientId"></app-quotation-mgr>
+    </ng-template>
+    
+
+   
+
+</app-button-tabs>

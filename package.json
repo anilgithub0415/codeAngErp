@@ -27,6 +27,7 @@
         "jwt-decode": "^4.0.0",
         "ngx-permissions": "^19.0.0",
         "primeclt": "^0.1.5",
+        "primeflex": "^4.0.0",
         "primeicons": "^7.0.0",
         "primeng": "^19.0.8",
         "rxjs": "~7.8.0",

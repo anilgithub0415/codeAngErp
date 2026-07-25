@@ -1,0 +1,2 @@
+Layoutservice.loadUserPreferences method is called from AuthService.:ogin method , no sooner 
+user logs in his preferences are loaded. But if his userprefrences are not exists, it 

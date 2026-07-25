@@ -1,1 +1,35 @@
-<p>user-form works!</p>
+
+<form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden" class="mb-4">
+  <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  
+  <div class="customer-actions mt-3" *ngIf="currOpMode !== FormOpMode.View">
+     <p-button
+      type="button"
+      label="Save User"
+      icon="pi pi-save"
+      (click)="saveUser()"
+      [disabled]="!form.valid">
+    </p-button>
+
+    <button
+      pButton
+      type="button"
+      label="Clear User"
+      icon="pi pi-times"
+      (click)="clearUser()"
+      class="p-button-secondary"
+      style="margin-left: 0.5rem">
+    </button>
+    
+    <button
+      pButton
+      type="button"
+      label="Cancel"
+      icon="pi pi-times"
+      (click)="CancelFormOp()"
+      class="p-button-secondary"
+      style="margin-left: 0.5rem"
+      [disabled]="currOpMode !== FormOpMode.Add && currOpMode !== FormOpMode.Update">
+    </button>
+  </div>
+</form>

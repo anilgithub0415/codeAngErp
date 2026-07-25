@@ -1,0 +1,37 @@
+<p>client-purchase-mgr works!</p>
+Site Purchase Component
+siteId:{{siteId}}
+clientId:{{clientId}}
+currOpMode:{{currOpMode}}
+
+<div class="purchase-order-container p-4">
+  <p-toast></p-toast>
+
+  <!-- FORM EDITING CRADLE LAYER -->
+  <app-client-purchase-form
+    *ngIf="currOpMode === 'ADD' || currOpMode === 'UPDATE'"
+    [tenantId]="tenantId"
+    [clientId]="clientId"
+    [siteId]="siteId"
+    [opMode]="currOpMode"
+    [recordData]="selectedRecord"
+    [isFormHidden]="isFormHidden"
+    (onCancel)="onOperationCancelled()"
+    (onSaveSuccess)="onOperationSaved($event)"
+    (onErrorToast)="showToast($event.severity, $event.summary, $event.detail)">
+  </app-client-purchase-form>
+
+  <!-- VIEW MODE MASTER CONTROLS HUD -->
+  <p-button *ngIf="currOpMode === 'VIEW'"
+    label="New Client Purchase Order" 
+    icon="pi pi-plus" 
+    (click)="onAddTriggered()">
+  </p-button>
+
+  <!-- DISPLAY TABULAR GRID MATRICES -->
+  <app-client-purchase-grid
+    *ngIf="currOpMode === 'VIEW'"
+    [clientPOs]="clientPOs"
+    (onEditClick)="onEditTriggered($event)">
+  </app-client-purchase-grid>
+</div>
