@@ -8,6 +8,7 @@
 
 # Node
 .env
+package-lock.json
 /src/app/Docs
 /node_modules
 npm-debug.log
