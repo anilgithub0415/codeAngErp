@@ -1,0 +1,55 @@
+
+<p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+<app-button-tabs [options]="myTabConfig">
+  <ng-template appTab="salesorders">
+    <div class="purchase-order-container p-4">
+      
+      <!-- Action Controls and Filter Row --> <!--  -->
+      <ng-container *ngIf="currOpMode === 'VIEW'">
+        <p-button 
+          *ngxPermissionsOnly="['SO.create']"
+          label="New Sales Order" 
+          icon="pi pi-plus" 
+          (click)="Add()">
+        </p-button>
+      </ng-container>
+
+      <app-filter-control 
+        [dataSource]="SOs ? SOs : []" 
+        [filterFields]="['soNumber']" 
+        (filteredData)="onDataFiltered($event)">
+      </app-filter-control>
+
+      <!-- 1. FORM COMPONENT (Visible during ADD/UPDATE) -->
+      <app-sales-order-form
+        *ngIf="currOpMode !== 'VIEW'"
+        [form]="form"
+        [fields]="fields"
+        [model]="model"
+        [totals]="totals"
+        (save)="saveSales()"
+        (onFinalize)="handleFinalize($event)"
+  (onApprove)="handleApprove($event)"
+        (clear)="clearSales()"
+        (cancel)="CancelFormOp()">
+      </app-sales-order-form>
+
+      <!-- 2. GRID COMPONENT (Visible during VIEW) -->
+      <app-sales-order-grid
+        *ngIf="currOpMode === 'VIEW'"
+        [visibleDataArray]="visibleDataArray"
+        [expandedRows]="expandedRows"
+        (edit)="onEditClick($event)"
+        (onDeleteClick)="onDeleteRequested($event)">
+      </app-sales-order-grid>
+      
+    </div>
+  </ng-template>
+
+  <!-- Metrics / Client POS Tab Remains Intact -->
+  <ng-template appTab="clientpos">
+    <app-clientpurchaselist></app-clientpurchaselist>
+  </ng-template>
+</app-button-tabs>

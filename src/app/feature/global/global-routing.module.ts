@@ -1,8 +1,51 @@
+// src/app/feature/global/global-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HSNTaxRuleComponent } from './hsntax-rule/hsntax-rule.component';
+import { SubscriptionPlanComponent } from './subscription-plan/subscription-plan.component';
+import { TenantComponent } from './tenant/tenant.component';
+import { PermissionJunctionComponent } from './permission-junction/permission-junction.component';
+import { superAdminGuard } from '../../core/guards/super-admin.guard';
+import { GlobalLayoutComponent } from './global-layout/global-layout.component';
+import { MigrateDBComponent } from './migrate-db/migrate-db.component';
+import { DiagnosisComponent } from './diagnosis/diagnosis.component';
 
-const routes: Routes = [{path:'',component:HSNTaxRuleComponent}];
+import { SecuritySettingsComponent } from './security-settings/security-settings.component';
+import { TenantTypesComponent } from './tenant-types/tenant-types.component';
+import { TenantStrategiesComponent } from './tenant-strategies/tenant-strategies.component';
+import { TenantKanbanCardComponent } from './Kanban/tenant-kanban-card/tenant-kanban-card.component';
+import { TenantKanbanBoardComponent } from './views/tenant-kanban-board/tenant-kanban-board.component';
+import { TenantProfileTabsComponent } from './views/tenant-profile-tabs/tenant-profile-tabs.component';
+
+// src/app/feature/global/global-routing.module.ts
+const routes: Routes = [
+  {
+    path: '',
+    component:GlobalLayoutComponent,
+   // canActivateChild: [superAdminGuard], // 💡 Protects every tab transition reactively
+    children: [
+      { path: '', component: HSNTaxRuleComponent },
+      { path: 'tenant', component: TenantComponent },
+      { path: 'subscription', component: SubscriptionPlanComponent },
+      { path: 'RolePermissionJunction', component: PermissionJunctionComponent },
+      {path:'TenantTypes',component:TenantTypesComponent},
+         {
+                 path:'tenantProfile/:id',
+                 component:TenantProfileTabsComponent
+               },
+      {path:'card',component:TenantKanbanBoardComponent},
+      
+      
+      {path:'TenantStrategies',component:TenantStrategiesComponent},
+      {path:'diagnosis',component:DiagnosisComponent},
+      { path: 'migrateDB', component: MigrateDBComponent },
+      
+      { path: 'SucuritySettings', component: SecuritySettingsComponent },
+
+    ]
+  }
+];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

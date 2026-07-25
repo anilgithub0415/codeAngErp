@@ -1,0 +1,98 @@
+
+<!-- purchase-form.component.html -->
+<div class="order-form border-round surface-card p-4 shadow-1 border-1 surface-border">
+  <div class="order-header mb-4 border-bottom-1 surface-border pb-3 flex justify-content-between align-items-center">
+    <h2 class="text-xl font-bold text-900 m-0">Purchase Order Definition</h2>
+    <h1>we need to take care for stock increase decrease while delete also</h1>
+    <span class="text-xs uppercase font-mono px-2 py-1 bg-primary-100 text-primary-700 border-round font-bold">{{ currOpMode }}</span>
+  </div>
+  
+  <!-- Active Vendor Header Context Block -->
+  <div class="mb-4" *ngIf="model.vendor">
+    <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg flex align-items-center justify-content-between">
+      <div>
+        <span class="text-sm text-gray-600 font-medium">Active Targeted Supplier:</span>
+        <span class="ml-2 font-bold text-green-800">{{ model.vendor.vendorName }}</span>
+      </div>
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-times" 
+        class="p-button-rounded p-button-danger p-button-text p-button-sm"
+        (click)="clearActiveVendor()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Formly Core Configuration Deck Element -->
+  <form [formGroup]="form" (ngSubmit)="submitPurchase()">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    
+    <!-- Calculation totals aggregation row matrices box -->
+    <div class="order-totals my-4 surface-100 p-3 border-round border-1 surface-border max-w-20rem ml-auto text-xs" *ngIf="model.items?.length">
+      <div class="totals-row flex justify-content-between py-1 text-700">
+        <span>Raw Subtotal:</span>
+        <span class="amount font-semibold">₹{{ totals.subTotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="totals-row flex justify-content-between py-1 text-700">
+        <span>Tax Assessment (0%):</span>
+        <span class="amount font-semibold">₹{{ totals.taxTotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="totals-row grand-total flex justify-between py-2 border-top-1 surface-border mt-2 font-bold text-900 text-sm">
+        <span>Grand Aggregate Total:</span>
+        <span class="amount text-primary">₹{{ totals.grandTotal | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Interface Operational Submission Buttons Layout Row -->
+    <div class="order-actions flex gap-2 border-top-1 surface-border pt-3 mt-3">
+      <p-button
+        type="submit"
+        label="Save Purchase"
+        icon="pi pi-save"
+        severity="success"
+        [disabled]="!form.valid || (model?.status && model?.status !== 'DRAFT')">
+      </p-button>
+
+      <p-button
+        type="button"
+        *ngxPermissionsOnly="['PO.SubmitToApprove']"
+        label="Submit for Approval"
+        icon="pi pi-send"
+        styleClass="p-button-success"
+        (click)="submitPurchaseForApproval()"
+         [disabled]="!form.valid || model?.status !== 'DRAFT'">
+      </p-button>
+
+       
+<ng-container *ngxPermissionsOnly="['PO.Approve']">
+  <p-button
+    *ngIf="model?.status === 'PENDING_APPROVAL'"
+    type="button"
+    label="Approve Purchase Order"
+    icon="pi pi-check"
+    styleClass="p-button-success"
+    (click)="onApproveClicked()">
+  </p-button>
+</ng-container>
+
+
+      <button
+        pButton
+        type="button"
+        label="Clear Values"
+        icon="pi pi-refresh"
+        class="p-button-secondary p-button-outlined"
+        (click)="clearPurchaseForm()">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel Operation"
+        icon="pi pi-times"
+        class="p-button-danger p-button-text"
+        (click)="onCancel.emit()">
+      </button>
+    </div>
+  </form>
+</div>

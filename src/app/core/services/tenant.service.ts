@@ -47,8 +47,8 @@ export class TenantService {
    * In a multi-tenant application, this should eventually be filtered by the current tenant.
    * @returns An Observable of an array of User objects.
    */
-  getTenants(ptenantId:number): Observable<Tenant[]> {
-       return this.http.get<Tenant[]>(this.apiUrl+'/0/ptenantId/'+ptenantId).pipe(
+  getTenants(): Observable<Tenant[]> {
+       return this.http.get<Tenant[]>(this.apiUrl).pipe(
          // tap(tenants => console.log('Fetched tenants:', tenants)),
           catchError(this.handleError)
       );

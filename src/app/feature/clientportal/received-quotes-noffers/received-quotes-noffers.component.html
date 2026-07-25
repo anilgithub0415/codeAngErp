@@ -1,0 +1,38 @@
+<p>received-quotes-noffers works!</p>
+
+  <app-button-tabs [options]="myTabConfig">
+  
+    <ng-template appTab="InternalPOs">
+           <app-internal-pos></app-internal-pos>
+    </ng-template> 
+    
+   
+    <ng-template appTab="ReceivedQuotations">
+  Should provide Single Product vs Bulk price compare
+  <app-quotation-mgr [isPortalContext]="true"></app-quotation-mgr>
+</ng-template>
+
+    
+    <ng-template appTab="ContractNOffers">
+            My contract and Offers
+    </ng-template>
+    
+
+    <ng-template appTab="DeliveryLocations">
+          DeliveryLocations
+    </ng-template>
+
+    
+    <ng-template appTab="MSDS">
+            Crucial for commercial cleaning chemicals. Corporate clients are legally required to have these. A tab where they can instantly download safety PDFs for any chemical they quoted/ordered is a massive UX win.
+    </ng-template>
+
+   
+    
+    <ng-template appTab="StandingOrders">
+             StandingOrders
+    </ng-template>
+
+   
+
+</app-button-tabs>

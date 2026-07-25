@@ -1,0 +1,104 @@
+<!-- fields:{{fields|json}} -->
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+
+    <!-- Filter Component -->
+    <app-filter-control 
+        [dataSource]="discounts ? discounts : []" 
+        [filterFields]="['discountCode', 'description', 'product.prodName']" 
+        (filteredData)="onDataFiltered($event)">
+    </app-filter-control>
+    
+    <!-- Discount Definition Form -->
+    <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+        
+        <div class="customer-actions" *ngIf="currOpMode !== 'VIEW'">
+            <button
+                pButton
+                type="button"
+                label="Save Discount"
+                icon="pi pi-save"
+                (click)="saveDiscount()"
+                class="p-button-success"
+                [disabled]="!form.valid">
+            </button>
+            <button
+                pButton
+                type="button"
+                label="Clear Form"
+                icon="pi pi-times"
+                (click)="clearForm()"
+                class="p-button-secondary"
+                style="margin-left: 0.5rem">
+            </button>
+            <button
+                pButton
+                type="button"
+                label="Cancel"
+                icon="pi pi-times"
+                (click)="CancelFormOp()"
+                class="p-button-secondary"
+                style="margin-left: 0.5rem"
+                [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+            </button>
+        </div>
+    </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+    label="New Line Discount" 
+    icon="pi pi-plus" 
+    (click)="Add()">
+</p-button>
+
+<!-- Data Rows Table Grid -->
+<div class="site-section mb-0" *ngIf="discounts?.length">
+    <h3 class="text-lg font-semibold mb-2">Configured Line Discounts</h3>
+    <p-table [value]="visibleDataArray ? visibleDataArray : []" class="vendors-table">
+        <ng-template pTemplate="header">
+            <tr>
+                <th width="50px"></th>
+                <th>Discount Code</th>
+                <th>Target Item (Product)</th>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Description</th>
+                <th width="120px"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-discount let-rowIndex="rowIndex">
+            <tr>
+                <td>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-danger p-button-sm"
+                        (click)="onEditClick(discount)">
+                    </button>
+                </td>
+                <td><strong>{{ discount.discountCode }}</strong></td>
+                <td>
+                    <span *ngIf="discount.product">
+                        {{ discount.product.prodName }} 
+                        <small class="text-gray-500">({{ discount.product.sku }})</small>
+                    </span>
+                    <span *ngIf="!discount.product" class="text-gray-400">N/A</span>
+                </td>
+                <td>{{ discount.discountType }}</td>
+                <td>{{ discount.discountValue }}</td>
+                <td>{{ discount.description }}</td>
+                <td>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-rounded p-button-danger p-button-sm"
+                        (click)="removeDiscount(rowIndex)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

@@ -30,6 +30,7 @@ interface AvailableContext {
     standalone: true,
     imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu, MenuModule, ButtonModule],
     providers:[MessageService],
+    
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -53,6 +54,7 @@ interface AvailableContext {
                         />
                     </g>
                 </svg>
+
                 <span>HygienicFlow</span>
             </a>
         </div>

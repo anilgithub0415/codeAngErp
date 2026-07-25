@@ -45,7 +45,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { loaderInterceptor } from './app/shared/interceptors/loader.interceptor';
 
 export const appConfig: ApplicationConfig = {
-    providers: [
+    providers: [ provideAnimations(),
         importProvidersFrom(
             NgxPermissionsModule.forRoot(),
             FormlyModule.forRoot({

@@ -95,24 +95,153 @@ import { PurchaseService } from "../../core/services/purchase.service";
      return rawConfig as FormlyFieldConfig[];
    }
 
-   export function  applyLocalSearchExtension(fields: FormlyFieldConfig[]) {
-    console.log('...........................fields:',fields);
+  //  export function  applyLocalSearchExtension(fields: FormlyFieldConfig[]) {
+  //   console.log('...........................fields:',fields);
     
    
-       fields.forEach(field => { console.log('iterating for search extension..........................');
-         // If the field is flagged searchable in your JSON
-         if (field.props && field.props['searchable']) {
-           console.log('applying wrapper search extension..........................');
-           // Dynamically inject the wrapper name into the field's array stack
-           field.wrappers = [...(field.wrappers || []), 'typeahead-wrapper'];
-           typeaheadSearchExtension(field);
-         }
-          if (field.fieldGroup) {
-           applyLocalSearchExtension(field.fieldGroup);
-         }
-       });
-     } 
+  //      fields.forEach(field => { console.log('iterating for search extension..........................');
+  //        // If the field is flagged searchable in your JSON
+  //        if (field.props && field.props['searchable']) {
+  //          console.log('applying wrapper search extension..........................');
+  //          // Dynamically inject the wrapper name into the field's array stack
+  //          field.wrappers = [...(field.wrappers || []), 'typeahead-wrapper'];
+  //          typeaheadSearchExtension(field);
+  //        }
+  //         if (field.fieldGroup) {
+  //          applyLocalSearchExtension(field.fieldGroup);
+  //        }
+  //      });
+  //    } 
      
+
+  //------------------------------------------------------------------------------------------------------------
+  export function applyLocalSearchExtension(fields: FormlyFieldConfig[], dataSources: { [key: string]: any[] }) {
+  if (!fields || !Array.isArray(fields)) return;
+
+  fields.forEach(field => {
+    const isSearchable = field.props?.['searchable'] === true || (field as any)['searchable'] === true;
+    const fieldKey = field.key as string;
+
+    if (isSearchable && fieldKey) {
+      console.log('................................got fieldkey:', fieldKey);
+      
+      const currentWrappers = field.wrappers || [];
+      
+      if (!currentWrappers.includes('form-field')) {
+        currentWrappers.unshift('form-field');
+      }
+      
+      if (!currentWrappers.includes('typeahead-wrapper')) {
+        currentWrappers.push('typeahead-wrapper');
+      }
+      
+      field.wrappers = currentWrappers;
+      
+      if (!field.props) field.props = {};
+      
+      // 🌟 FIX 1: Safely fallback to handle plural vs singular key mismatches (e.g., emailId vs emailIds)
+      const dataset = dataSources[fieldKey] || dataSources[`${fieldKey}s`] || dataSources['emailIds'] || [];
+      field.props['datasource'] = dataset;
+      field.props['suggestions'] = [];
+
+      if (field.hooks?.onInit) {
+        const originalOnInit = field.hooks.onInit;
+        field.hooks.onInit = (f) => {
+          originalOnInit(f);
+          setupSearchListener(f);
+        };
+      } else {
+        field.hooks = { ...field.hooks, onInit: (f) => setupSearchListener(f) };
+      }
+    }
+
+    if (field.fieldGroup) {
+      applyLocalSearchExtension(field.fieldGroup, dataSources);
+    }
+
+    if (field.fieldArray) {
+      if (typeof field.fieldArray !== 'function' && field.fieldArray.fieldGroup) {
+        applyLocalSearchExtension(field.fieldArray.fieldGroup, dataSources);
+      }
+    }
+  });
+}
+
+function setupSearchListener(field: FormlyFieldConfig) {
+  const activeKey = field.key as string;
+  console.log(`[Formly Extension] 🚀 Search listener successfully initialized for field key: "${activeKey}"`);
+
+  field.formControl?.valueChanges.subscribe(value => {
+    const datasource = field.props?.['datasource'] || [];
+    
+    let searchTerm = '';
+    if (value) {
+      if (typeof value === 'object') {
+        // 🌟 FIX 2: Safely read from any common data string structures (name, emailId, commercialContactPhone, value)
+        searchTerm = String(value[activeKey] || value['name'] || value['emailId'] || value['commercialContactPhone'] || '');
+      } else {
+        searchTerm = String(value); 
+      }
+    }
+
+    console.log(`\n--- [Typeahead Check: ${activeKey}] ---`);
+    console.log(`🔹 User typed value:`, value);
+    console.log(`🔍 Extracted Search Term: "${searchTerm}" (Length: ${searchTerm.length})`);
+    console.log(`📦 Total items loaded in datasource cache for validation:`, datasource.length);
+
+    if (!searchTerm || searchTerm.trim().length < 3) {
+      console.log(`⚠️ Input length is less than 3 characters. Skipping search filter logic.`);
+      if (field.props) {
+        field.props['suggestions'] = [];
+        field.props.description = ''; 
+      }
+      return;
+    }
+
+    const cleanSearchStr = searchTerm.toLowerCase().trim();
+    
+    // 🌟 FIX 3: Fallback check on standard matching fields so filtering doesn't crash on undefined properties
+    const matches = datasource.filter((item: any) => {
+      const targetValue = String(item[activeKey] || item['name'] || item['emailId'] || item['commercialContactPhone'] || '');
+      return targetValue.toLowerCase().includes(cleanSearchStr);
+    });
+    
+    console.log(`🎯 Partial matches found for dropdown display (${matches.length}):`, matches);
+    
+    if (field.props) {
+      field.props['suggestions'] = matches;
+    }
+
+    const exactMatchExists = datasource.some((item: any) => {
+      const targetValue = String(item[activeKey] || item['name'] || item['emailId'] || item['commercialContactPhone'] || '');
+      return targetValue.trim().toLowerCase() === cleanSearchStr;
+    });
+
+    if (exactMatchExists) {
+      console.log(`⚠️ WARNING: Duplicate record found. Displaying custom warning text.`);
+      if (field.props) {
+        field.props = {
+          ...field.props,
+          description: `⚠️ Notice: This record already exists but is acceptable.`
+        };
+        field.options?.detectChanges?.(field);
+      }
+    } else {
+      if (field.props && field.props.description !== '') {
+        field.props = {
+          ...field.props,
+          description: ''
+        };
+        field.options?.detectChanges?.(field);
+      }
+    }
+  });
+}
+
+
+
+  //------------------------------------------------------------------------------------------------------------
+
 
          
 //calling Generic method for Purchase units for displaying in PurchaseOrder units

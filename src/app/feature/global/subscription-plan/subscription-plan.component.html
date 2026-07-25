@@ -1,0 +1,90 @@
+<!-- src/app/features/subscription-plan/subscription-plan.component.html -->
+<p-toast></p-toast>
+<div class="plan-container p-4" style="display: block; width: 100%;">
+
+  <!--Filter component-->
+  <app-filter-control 
+    [dataSource]="subscriptionPlans ? subscriptionPlans : []" 
+    [filterFields]="['planName']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!--Formly Form Entry Area-->
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    
+    <div class="plan-actions" *ngIf="currOpMode !== 'VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Plan"
+        icon="pi pi-save"
+        (click)="saveSubscriptionPlan()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Plan"
+        icon="pi pi-times"
+        (click)="clearSubscriptionPlan()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+  label="New Subscription Plan" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!--Data Presentation Grid-->
+<div class="plan-section mb-0" *ngIf="subscriptionPlans?.length">
+  <h3 class="text-lg font-semibold mb-2">Subscription Plans</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="plans-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="50px"></th>
+        <th>Plan Name</th>
+        <th width="120px"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-aplan let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="onEditClick(aplan)">
+          </button>
+        </td>
+        <td>{{ aplan.planName }}</td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="removeSubscriptionPlan(rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

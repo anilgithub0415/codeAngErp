@@ -1,0 +1,152 @@
+<p-toast></p-toast>
+<div class="client-requirement-container p-4">
+  
+  <!-- INTERACTIVE FORM MATRIX ENGINE CONTAINER -->
+  <form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
+    <div class="order-header mb-4">
+      <h2 class="text-xl font-bold mb-3">Client Requirement Specification</h2>
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    </div>
+
+    <!-- PIPELINE PROCESSING ACTIONS PANEL -->
+    <div class="order-actions mb-4">
+      <p-button
+        *ngIf="currOpMode === 'ADD' || currOpMode === 'UPDATE'"
+        type="button"
+        label="Save Requirement Structure"
+        icon="pi pi-save"
+       
+        (click)="saveRequirement()"
+        [disabled]="!form.valid">
+      </p-button>
+      <button
+        *ngIf="currOpMode === 'ADD' || currOpMode === 'UPDATE'"
+        pButton
+        type="button"
+        label="Clear Entry"
+        icon="pi pi-refresh"
+        (click)="clearForm()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+      </button>
+    </div>
+  </form>
+
+  <!-- LIST DISCOVERY CONTROL HUD LAYER -->
+  <div class="mb-3" *ngIf="currOpMode === 'VIEW'">
+    <p-button 
+      label="New Client Requirement Blueprint" 
+      icon="pi pi-plus" 
+      (click)="Add()">
+    </p-button>
+  </div>
+
+  <!-- CORE MASTER GRID EXPLORER -->
+  <div class="card" *ngIf="currOpMode === 'VIEW'">
+    <p-table [value]="requirements ?? []" dataKey="id" [expandedRowKeys]="expandedRows">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem"></th>
+          <th style="width: 4rem"></th>
+          <th>Requirement Ref</th>
+          <th>Expected Budget</th>
+          <th>Regular Monthly Budget</th>
+          <th>Profile Created</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-req let-expanded="expanded">
+        <tr>
+          <td>
+            <p-button 
+              type="button" 
+              pRipple 
+              [pRowToggler]="req" 
+              [text]="true" 
+              [rounded]="true" 
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+            </p-button>
+          </td>
+          <td>
+            <p-button 
+              type="button" 
+              pRipple 
+              [text]="true" 
+              [rounded]="true" 
+              (click)="onEditClick(req)"
+              icon="pi pi-pencil">
+            </p-button>
+          </td>
+          <td><strong>REQ-{{req.id}}</strong></td>
+          <td>₹{{ (req.expectedBudget ?? 0) | number:'1.2-2' }}</td>
+          <td>₹{{ (req.monthlyBudget ?? 0) | number:'1.2-2' }}</td>
+          <td>{{ req.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
+        </tr>
+      </ng-template>
+
+      <!-- NESTED DETAIL LINE COLLECTION EXTRUDER MATRIX -->
+      <ng-template pTemplate="expandedrow" let-req>
+        <tr>
+          <td colspan="6">
+            <div class="p-4 bg-gray-50 border border-slate-200 rounded-lg shadow-inner">
+              <h4 class="font-bold mb-3 text-sm text-slate-700"><i class="pi pi-tags mr-1"></i> Structured Material Line Requirements:</h4>
+              
+              <p-table *ngIf="req?.items?.length" [value]="req.items" class="p-datatable-sm">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Product Category</th>
+                    <th>Product Specification Name / Catalog Code</th>
+                    <th>Approximate Demand Quantity</th>
+                    <th>Unit Measure</th>
+                    <th>Wholesale Delivery Frequency</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                  <tr>
+                    <td><strong>{{ item.productCategory }}</strong></td>
+                    <td>{{ item.productName }}</td>
+                    <td>{{ item.approxQuantity | number:'1.2-2' }}</td>
+                    <td><span class="p-tag p-tag-info">{{ item.unit }}</span></td>
+                    <td>
+                      <span class="p-tag" [ngClass]="{
+                        'p-tag-success': item.frequency === 'Monthly' || item.frequency === 'Regular',
+                        'p-tag-warning': item.frequency === 'Weekly',
+                        'p-tag-danger': item.frequency === 'One Time',
+                        'p-tag-primary': item.frequency === 'Contract'
+                      }">{{ item.frequency }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+              
+              <div *ngIf="!req?.items?.length" class="text-xs text-gray-400 p-2 italic">
+                Zero product items are allocated to this configuration profile.
+              </div>
+              
+              <!-- ANCILLARY SPECIFICATION LABELS FOOTER MATRIX -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
+                <div><strong><i class="pi pi-box mr-1"></i> Packing Specification:</strong> {{ req.packingRequirement || 'Standard Bulk Wholesale Packaging' }}</div>
+                <div><strong><i class="pi pi-truck mr-1"></i> Logistics Preference:</strong> {{ req.deliveryRequirement || 'Standard Direct Distribution Network Hub' }}</div>
+                <div><strong><i class="pi pi-info-circle mr-1"></i> Special Context:</strong> {{ req.specialRequirement || 'None Documented' }}</div>
+              </div>
+              <div class="text-xs text-slate-500 mt-2 italic" *ngIf="req.remarksNotes">
+                <strong>Internal Auditor Remarks:</strong> {{ req.remarksNotes }}
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+

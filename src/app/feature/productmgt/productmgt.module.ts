@@ -8,8 +8,7 @@ import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { DataViewModule } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { ProductMasterComponent } from './product-master/product-master.component';
-import { PrimeNG } from 'primeng/config';
+
 import { ProductvariantComponent } from './productvariant/productvariant.component';
 import { ProductWithVariantComponent } from './product-with-variant/product-with-variant.component';
 

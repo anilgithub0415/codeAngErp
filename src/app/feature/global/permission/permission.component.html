@@ -1,0 +1,101 @@
+<!-- src/app/pages/permission/permission.component.html -->
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+
+  <!-- Filter component mapping on permissionName -->
+  <app-filter-control 
+    [dataSource]="permissions ? permissions : []" 
+    [filterFields]="['permissionName']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+       
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+        
+    <div class="customer-actions" *ngIf="currOpMode !== 'VIEW'">
+      <button
+        pButton
+        type="button"
+        label="Save Permission"
+        icon="pi pi-save"
+        (click)="savePermission()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Form"
+        icon="pi pi-refresh"
+        (click)="clearPermission()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== 'ADD' && currOpMode !== 'UPDATE'">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<p-button *ngIf="currOpMode == 'VIEW'"
+    label="New Permission" 
+    icon="pi pi-plus" 
+    (click)="Add()">
+</p-button>
+
+<div class="site-section mb-0" *ngIf="permissions?.length">
+  <h3 class="text-lg font-semibold mb-2">Registered System Permissions</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="vendors-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="60px">Edit</th>
+        <th>Permission Name</th>
+        <th>Description</th>
+        <th width="120px">Status</th>
+        <th width="60px">Delete</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-perm let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info p-button-sm"
+            (click)="onEditClick(perm)">
+          </button>
+        </td>
+     
+        <td><strong>{{ perm.permissionName }}</strong></td>
+        <td>{{ perm.description || 'No description provided.' }}</td>
+        <td>
+          <span 
+            [style.background]="perm.isActive ? '#22c55e' : '#ef4444'"
+            style="color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500;">
+            {{ perm.isActive ? 'Active' : 'Disabled' }}
+          </span>
+        </td>
+        
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="removePermission(rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

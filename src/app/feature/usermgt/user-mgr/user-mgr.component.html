@@ -1,0 +1,37 @@
+
+<!-- <div *ngIf="authServ.getTenantId()">
+   tid exists
+</div>
+<div *ngIf="!authServ.getTenantId()">
+   tid:<input [(ngModel)]="tenantId">
+</div> -->
+
+<p-toast></p-toast>
+
+<div class="customer-container p-4" style="display: block; width: 100%;">
+  
+  <!-- Presentation Form Component -->
+  <app-user-form
+    [modelData]="selectedModel"
+    [tenantId]="tenantId"
+    [isFormHidden]="isFormHidden"
+    [currOpMode]="currOpMode"
+    (save)="onSaveUser($event)"
+    (cancel)="onFormCancelled()">
+  </app-user-form>
+
+</div>
+
+<p-button *ngIf="currOpMode === FormOpMode.View"
+  label="New User" 
+  icon="pi pi-plus" 
+  (click)="onAddRequested()">
+</p-button>
+
+<!-- Presentation Table Component -->
+<app-user-grid
+  [usersList]="users"
+  [visibleDataArray]="visibleDataArray"
+  (edit)="onEditRequested($event)"
+  (delete)="onDeleteUser($event)">
+</app-user-grid>

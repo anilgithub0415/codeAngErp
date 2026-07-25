@@ -1,0 +1,82 @@
+
+<!-- src/app/feature/settings/tenant-types/tenant-types.component.html -->
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+
+  <!-- Lookup Search Filter -->
+  <app-filter-control 
+    [dataSource]="tenantTypes ? tenantTypes : []" 
+    [filterFields]="['typeName']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!-- Entry Form Field Controls -->
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+      
+    <div class="customer-actions" *ngIf="currOpMode !== FormOpMode.View">
+      <button
+        pButton
+        type="button"
+        label="Save Type"
+        icon="pi pi-save"
+        (click)="saveTenantType()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Field"
+        icon="pi pi-times"
+        (click)="clearForm()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<!-- Generation Command Anchor Anchor Trigger Trigger -->
+<p-button 
+  *ngIf="currOpMode === FormOpMode.View"
+  label="New Tenant Type" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!-- Summary Data Grid Rendering Context -->
+<div class="site-section mb-0 mt-4" *ngIf="tenantTypes?.length">
+  <h3 class="text-lg font-semibold mb-2">Configured Lookup Items</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="districts-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Tenant Type Structural Name</th>
+        <th width="120px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-type>
+      <tr>
+        <td>{{ type.typeName }}</td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="removeTenantType(type)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

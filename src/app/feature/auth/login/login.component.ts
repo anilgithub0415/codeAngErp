@@ -12,6 +12,8 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router'; // Import Router for navigation
 import { ConfigService } from '../../../config.service';
+import { NgxPermissionsService } from 'ngx-permissions';
+
 @Component({
   selector: 'app-login',
   imports: [AppFloatingConfigurator,CommonModule,FormsModule,ReactiveFormsModule,ButtonModule,CheckboxModule,InputTextModule,PasswordModule,],
@@ -24,6 +26,7 @@ export class LoginComponent {
 
    private configService=inject(ConfigService)
     config_usersCreatedby:string='signup';
+  private permissionsService = inject(NgxPermissionsService);
 
   constructor(
     private formBuilder: FormBuilder
@@ -61,6 +64,18 @@ export class LoginComponent {
 
 
            this.errorMessage = '';
+           //--permission related------------------------------------------------------------------------
+           const userPermissions = response.permissions || [];
+          localStorage.setItem('user_permissions', JSON.stringify(userPermissions));
+          if (response.tenantId) {
+            localStorage.setItem('tenant_id', response.tenantId);
+          }
+          console.log('loading permissions:',userPermissions);
+          
+          this.permissionsService.loadPermissions(userPermissions);
+
+           //--end permission related------------------------------------------------------------------------
+
            // Navigate to the desired page after successful login
            this.router.navigate(['/app']); // Example: Navigate to the employees list
            //window.location.href="http://localhost:4200/app";

@@ -53,7 +53,7 @@
 <!-- For p-select or p-dropdown -->
  <!--<div class="grid grid-cols-24 w-full p-fluid">-->
  
- <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
+ <!-- <label *ngIf="props.label" [attr.for]="id" class="block  mb-0">
     {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
   </label>
 <p-select 
@@ -67,5 +67,37 @@
    [filter]="to['filter']"
   [filterBy]="to['filterBy'] || 'label'"
   [filterMatchMode]="to['filterMatchMode'] || 'contains'">
-</p-select>
+</p-select> -->
 <!-- </div> -->
+ <label *ngIf="props.label" [attr.for]="id" class="block mb-0">
+  {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+</label>
+
+<!-- Multi Select Mode -->
+<p-multiSelect 
+  *ngIf="props['multiple']"
+  [options]="resolvedOptions" 
+  [formControl]="$any(formControl)" 
+  [optionLabel]="props['optionLabel'] || 'label'"
+  [optionValue]="props['optionValue'] || 'value'"
+  [placeholder]="props['placeholder'] || 'Select Multiple'"
+  (onChange)="onManualUISelection($event)"
+  [filter]="props['filter']"
+  [filterBy]="props['filterBy'] || 'label'"
+  [filterMatchMode]="props['filterMatchMode'] || 'contains'">
+</p-multiSelect>
+
+<!-- Single Select Mode -->
+<p-select 
+  *ngIf="!props['multiple']"
+  #primeSelect
+  [options]="resolvedOptions" 
+  [formControl]="$any(formControl)" 
+  [optionLabel]="props['optionLabel'] || 'label'"
+  [optionValue]="props['optionValue'] || 'value'"
+  [placeholder]="props['placeholder'] || 'Select'"
+  (onChange)="onManualUISelection($event)"
+  [filter]="props['filter']"
+  [filterBy]="props['filterBy'] || 'label'"
+  [filterMatchMode]="props['filterMatchMode'] || 'contains'">
+</p-select>

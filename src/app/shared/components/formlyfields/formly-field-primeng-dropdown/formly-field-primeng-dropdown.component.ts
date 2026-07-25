@@ -8,12 +8,13 @@ import { Select, SelectModule } from 'primeng/select';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MultiSelect } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-formly-field-primeng-dropdown',
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [CommonModule, DropdownModule, SelectModule, ReactiveFormsModule],
+  imports: [CommonModule, DropdownModule, SelectModule, MultiSelect, ReactiveFormsModule],
   templateUrl: './formly-field-primeng-dropdown.component.html',
   styleUrl: './formly-field-primeng-dropdown.component.scss'
 })

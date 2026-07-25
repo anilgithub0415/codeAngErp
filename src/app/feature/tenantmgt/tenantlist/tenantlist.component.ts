@@ -179,7 +179,7 @@ export class TenantlistComponent  implements OnInit {
    // alert('pass this:'+this.currentUser)
   // var tid=this.currentUser?.tenantId;
   // alert('fetching data of tid:'+tid)
-      this.tenantService.getTenants(tid!).subscribe({
+      this.tenantService.getTenants().subscribe({
        
         
           next: (data:any) => {

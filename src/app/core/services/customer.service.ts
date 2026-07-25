@@ -64,14 +64,64 @@ updateCustomer(id: number, customerData: any): Observable<Customer> {
   );
 }
 
-getCustomer(ptenantId:number,prodId:number): Observable<Customer[]> {
-    return this.http.get<Customer[]>(this.apiUrl+'/'+ptenantId+'/'+prodId)
+// 💡 FIX: Changed Observable data shape from array to singular item metadata
+getCustomer(ptenantId: number, prodId: number): Observable<Customer> {
+  return this.http.get<Customer>(this.apiUrl + '/' + ptenantId + '/' + prodId);
 }
+
 
 getCustomers(ptenantId:number): Observable<Customer[]> {
     return this.http.get<Customer[]>(this.apiUrl+'/'+ptenantId)
 }
 
+// Add this method inside your CustomerService class in customer.service.ts
+
+/**
+ * Fetches all customer mobile numbers and names for local lookups.
+ */
+getMobileNumbersLookup(ptenantId: number): Observable<Array<{ id: number; commercialContactPhone: string; name: string }>> {
+    return this.http.get<Array<{ id: number; commercialContactPhone: string; name: string }>>(`/lookups/customerMobileTypes/ptenantId/${ptenantId}`).pipe(
+        catchError(this.handleError)
+    );
+}
+getEmailIDLookup(ptenantId: number): Observable<Array<{ id: number; EmailId: string; name: string }>> {
+    return this.http.get<Array<{ id: number; EmailId: string; name: string }>>(`/lookups/customerEmailIdTypes/ptenantId/${ptenantId}`).pipe(
+        catchError(this.handleError)
+    );
+}
+
+/**
+ * Fetches all city values and display labels for drop-down parsing.
+ * Targets endpoint pattern: /lookups/cityTypes/ptenantId/:tenantId
+ */
+getCityLookup(ptenantId: number): Observable<Array<{ value: string | number; label: string }>> {
+    return this.http.get<Array<{ value: string | number; label: string }>>(`/lookups/cityTypes/ptenantId/${ptenantId}`).pipe(
+        catchError(this.handleError)
+    );
+}
+
+
+//this is notinuse as there are 3 ways to find mobilenumber is already exists
+//one way is use in json field after props that is:
+//"asyncValidators": {  "validation": ["mobileExistsCheck"]   }, and
+   /*    
+                                  this.formlyConfig.validators['mobileExistsCheck'] = {
+                                  name: 'mobileExistsCheck',
+                                  validation: (control: any) => {
+                                    return checkMobileExists(this.tenantId, this.customerService)(control);
+                                  },
+                                  options: { async: true },
+                                  
+                                };
+
+                                this.formlyConfig.addValidatorMessage(
+                                'mobileExistsCheck',
+                                'This mobile number is already registered.'
+                                );
+                            */
+ //second way is use searchable:true where searchable is userdefined term which is used in  utils funcion : applyLocalSearchExtension     
+//third way use hooks, as we dont want to create a situation of declaring field is invalid data consequently form invalid
+//so this is not used currently, currently utils.applyLocalSearchExtension is used for finding already existing mobile#
 checkMobileNumberExists(ptenantId:number,mobileNo:string): Observable<boolean|null> {
     // this.http.get<Customer[]>(this.apiUrl+'/?activeTenantId='+ptenantId)
     return of(true);

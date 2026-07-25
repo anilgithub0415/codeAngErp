@@ -1,0 +1,123 @@
+<p>product-kanban-card works!</p>
+<!-- Main Product Card Wrapper -->
+<div class="p-4 mb-3 border-round-xl border-1 surface-border surface-card cursor-move transition-all transition-duration-200"
+     [style.border-left]="'4px solid ' + getStockColor()"
+     [ngClass]="'hover:shadow-4'"
+     style="box-shadow: var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04));"
+     (mouseenter)="setHoverStyle($event, true)"
+     (mouseleave)="setHoverStyle($event, false)">
+    
+    <!-- Header: Product Name & Category Badge -->
+    <div class="flex justify-content-between align-items-start mb-2 gap-2">
+        <a [routerLink]="['../productProfile', product.id]" 
+           class="no-underline hover:underline cursor-pointer"
+           style="color: inherit;">
+            <h5 class="m-0 text-900 font-semibold text-base line-height-3 text-overflow-ellipsis overflow-hidden">
+                {{ product.prodName }}
+            </h5>
+        </a>
+        
+        <!-- Category Badge -->
+        <span class="font-medium mt-1 text-xs"
+              style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                     color: var(--text-color-secondary, #64748b); 
+                     padding: 3px 8px; 
+                     border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                     border-radius: 6px; 
+                     display: inline-block;
+                     white-space: nowrap;">
+             <p-tag severity="info" icon="pi pi-shopping-bag" value="{{ product.productCategory?.categoryName || 'Unassigned' }}" [rounded]="true"></p-tag>
+        </span>
+    </div>
+
+    <!-- Product Core Info & Meta Description -->
+    <div class="flex flex-column gap-2 mb-3 text-xs" style="color: var(--text-color-secondary, #64748b);">
+        
+        <!-- NEW INTERACTIVE SKU LINK REPLACEMENT -->
+        <div class="flex align-items-center gap-2">
+            <i class="pi pi-barcode text-sm" style="color: var(--primary-color);"></i>
+            <span class="font-medium text-700">SKU:</span>
+            <span class="font-mono font-semibold text-primary cursor-pointer hover:underline" 
+                  (click)="op.toggle($event)">
+                {{ product.sku || 'No SKU' }}
+            </span>
+        </div>
+
+        <!-- Description Snippet -->
+        <div class="flex align-items-center gap-2" *ngIf="product.description">
+            <i class="pi pi-info-circle text-sm" style="opacity: 0.7;"></i>
+            <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap italic">{{ product.description }}</span>
+        </div>
+
+        <!-- Decorative Attributes / Flags Row -->
+        <div class="flex flex-wrap gap-1 mt-1">
+            <span *ngIf="product.isOEMProduct" 
+                  class="font-semibold text-xs flex align-items-center gap-1"
+                  style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 2px 6px; border-radius: 4px;">
+                <i class="pi pi-verified" style="font-size: 10px"></i> OEM
+            </span>
+            <span *ngIf="product.isBulkPacking" 
+                  class="font-semibold text-xs flex align-items-center gap-1"
+                  style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 2px 6px; border-radius: 4px;">
+                <i class="pi pi-box" style="font-size: 10px"></i> Bulk ({{product.baseUom}})
+            </span>
+            <span *ngIf="product.isVariablePrice" 
+                  class="font-semibold text-xs flex align-items-center gap-1"
+                  style="background: rgba(168, 85, 247, 0.1); color: #a855f7; padding: 2px 6px; border-radius: 4px;">
+                <i class="pi pi-percentage" style="font-size: 10px"></i> Flex-Price
+            </span>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--surface-border, #e2e8f0); margin: 8px 0;" />
+
+    <!-- Footer: Base Pricing & Live Inventory Stock Metrics -->
+    <div class="flex justify-content-between align-items-center mt-2 text-xs">
+        
+        <!-- Pricing Block -->
+        <div class="flex flex-column">
+            <span class="font-medium" style="color: var(--text-color-secondary, #64748b);">Base Price</span>
+            <span class="font-bold text-sm" style="color: var(--text-color, #0f172a);">
+                {{ product.basePrice ? ('₹' + (product.basePrice | number:'1.2-2')) : '₹0.00' }}
+            </span>
+        </div>
+
+        <!-- Inventory Stock Metrics Block -->
+        <div class="flex flex-column align-items-end">
+            <span class="font-medium mb-1" style="color: var(--text-color-secondary, #64748b);">Available Stock</span>
+            
+            <!-- Contextual Status Tag -->
+            <span class="font-bold text-xs flex align-items-center gap-1"
+                  [style.color]="getStockColor()"
+                  style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                         padding: 3px 8px; 
+                         border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                         border-radius: 6px; 
+                         display: inline-block;">
+                <i class="pi pi-circle-fill" [style.color]="getStockColor()" style="font-size: 8px;"></i>
+                {{ product.currentstock | number }} {{ product.baseUom }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- TARGET PRIMENG OVERLAY PANEL ELEMENT -->
+<p-overlayPanel #op [showCloseIcon]="true" styleClass="shadow-4 border-round-xl">
+    <div class="p-2 w-18rem text-xs flex flex-column gap-2">
+        <div class="font-bold text-sm text-900 border-bottom-1 surface-border pb-1 mb-1">
+            Extended Part Details
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">Product ID:</span>
+            <span class="font-mono text-800 font-semibold">{{ product.id }}</span>
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">UOM Code:</span>
+            <span class="text-800 font-semibold">{{ product.baseUom || 'N/A' }}</span>
+        </div>
+        <div *ngIf="product.description" class="mt-1 pt-1 border-top-1 surface-border">
+            <div class="text-600 font-medium mb-1">Full Specification Summary:</div>
+            <p class="m-0 text-700 font-normal line-height-2 max-h-5rem overflow-y-auto">{{ product.description }}</p>
+        </div>
+    </div>
+</p-overlayPanel>

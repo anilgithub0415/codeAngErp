@@ -25,6 +25,7 @@ export interface clientPurchaseOrderItem{
 }
 
 export interface createclientPurchase{
+    
     clientPoNumber:number;
     tenantId:number;
     clientId:number;

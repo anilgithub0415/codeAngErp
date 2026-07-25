@@ -1,4 +1,5 @@
 export interface Sales{
+    id?:number;
     soNumber:number;
     tenantId:number;
     customerId:number;

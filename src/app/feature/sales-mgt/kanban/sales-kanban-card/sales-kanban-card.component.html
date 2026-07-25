@@ -1,0 +1,126 @@
+<p>sales-kanban-card works!</p>
+<!-- Main Sales Order Card Wrapper -->
+<div class="p-4 mb-3 border-round-xl border-1 surface-border surface-card cursor-move transition-all transition-duration-200"
+     [style.border-left]="'4px solid ' + getStatusColor()"
+     [ngClass]="'hover:shadow-4'"
+     style="box-shadow: var(--card-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04));"
+     (mouseenter)="setHoverStyle($event, true)"
+     (mouseleave)="setHoverStyle($event, false)">
+    
+    <!-- Header: SO Number & Status Badge -->
+    <div class="flex justify-content-between align-items-start mb-2 gap-2">
+        <a [routerLink]="['../salesOrderProfile', salesOrder.id]" 
+           class="no-underline hover:underline cursor-pointer"
+           style="color: inherit;">
+            <h5 class="m-0 text-900 font-semibold text-base line-height-3 text-overflow-ellipsis overflow-hidden">
+                {{ salesOrder.soNumber }}
+            </h5>
+        </a>
+        
+        <!-- Status Badge -->
+        <span class="font-medium mt-1 text-xs"
+              style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                     color: var(--text-color-secondary, #64748b); 
+                     padding: 3px 8px; 
+                     border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                     border-radius: 6px; 
+                     display: inline-block;
+                     white-space: nowrap;">
+             <p-tag [severity]="getStatusSeverity()" [value]="salesOrder.status | uppercase" [rounded]="true"></p-tag>
+        </span>
+    </div>
+
+    <!-- Sales Order Core Info & Client/Site Summary -->
+    <div class="flex flex-column gap-2 mb-3 text-xs" style="color: var(--text-color-secondary, #64748b);">
+        
+        <!-- Client / Customer Profile Block with Interactive Overlay Panel Toggle -->
+        <div class="flex align-items-center gap-2">
+            <i class="pi pi-building text-sm" style="color: var(--primary-color);"></i>
+            <span class="font-medium text-700">Client:</span>
+            <span class="font-semibold text-primary cursor-pointer hover:underline" 
+                  (click)="op.toggle($event)">
+                {{ salesOrder.client?.customerName || 'Unassigned Client' }}
+            </span>
+        </div>
+
+        <!-- Site Location Subtext -->
+        <div class="flex align-items-center gap-2" *ngIf="salesOrder.site">
+            <i class="pi pi-map-marker text-sm" style="opacity: 0.7;"></i>
+            <span class="font-medium">Site:</span>
+            <span class="text-700">{{ salesOrder.site?.siteName || 'Default Destination' }}</span>
+        </div>
+
+        <!-- External Customer Client PO Reference if available -->
+        <div class="flex align-items-center gap-2 text-500 font-mono" *ngIf="salesOrder.customerPoNumber">
+            <i class="pi pi-file text-sm"></i>
+            <span>Client PO: {{ salesOrder.customerPoNumber }}</span>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--surface-border, #e2e8f0); margin: 8px 0;" />
+
+    <!-- Footer: Financial Total & Line Items Metrics -->
+    <div class="flex justify-content-between align-items-center mt-2 text-xs">
+        
+        <!-- Total Revenue Block -->
+        <div class="flex flex-column">
+            <span class="font-medium" style="color: var(--text-color-secondary, #64748b);">Gross Total</span>
+            <span class="font-bold text-sm" style="color: var(--text-color, #0f172a);">
+                {{ salesOrder.totalAmount ? ('₹' + (salesOrder.totalAmount | number:'1.2-2')) : '₹0.00' }}
+            </span>
+        </div>
+
+        <!-- Items Quantity Metric Block -->
+        <div class="flex flex-column align-items-end">
+            <span class="font-medium mb-1" style="color: var(--text-color-secondary, #64748b);">Order Lines</span>
+            
+            <!-- Contextual Items Count Tag -->
+            <span class="font-bold text-xs flex align-items-center gap-1"
+                  [style.color]="getStatusColor()"
+                  style="background-color: var(--surface-b, rgba(148, 163, 184, 0.08)); 
+                         padding: 3px 8px; 
+                         border: 1px solid var(--surface-border, rgba(148, 163, 184, 0.15)); 
+                         border-radius: 6px; 
+                         display: inline-block;">
+                <i class="pi pi-shopping-bag" [style.color]="getStatusColor()" style="font-size: 11px;"></i>
+                {{ (salesOrder.items?.length || 0) }} {{ (salesOrder.items?.length === 1) ? 'Line' : 'Lines' }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- TARGET PRIMENG OVERLAY PANEL ELEMENT -->
+<p-overlayPanel #op [showCloseIcon]="true" styleClass="shadow-4 border-round-xl">
+    <div class="p-2 w-18rem text-xs flex flex-column gap-2">
+        <div class="font-bold text-sm text-900 border-bottom-1 surface-border pb-1 mb-1">
+            Sales Order Reference Context
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">SO Record ID:</span>
+            <span class="font-mono text-800 font-semibold">{{ salesOrder.id }}</span>
+        </div>
+        <div class="flex justify-content-between" *ngIf="salesOrder.customerPoDate">
+            <span class="text-600 font-medium">Client PO Date:</span>
+            <span class="text-800 font-semibold">{{ salesOrder.customerPoDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="flex justify-content-between">
+            <span class="text-600 font-medium">Subtotal Ex-Tax:</span>
+            <span class="text-800 font-semibold">₹{{ salesOrder.subTotal | number:'1.2-2' }}</span>
+        </div>
+        
+        <!-- Live Itemized Breakdown Inside Tooltip -->
+        <div *ngIf="salesOrder.items && salesOrder.items.length > 0" class="mt-1 pt-1 border-top-1 surface-border">
+            <div class="text-600 font-medium mb-1">Material Manifest:</div>
+            <div class="max-h-6rem overflow-y-auto pr-1">
+                <div *ngFor="let item of salesOrder.items" class="flex justify-content-between py-1 border-bottom-1 surface-border last:border-none">
+                    <span class="text-700 font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap w-9rem">
+                        {{ item.prodName }}
+                    </span>
+                    <span class="text-800 font-semibold">
+                        x{{ item.quantity }} {{ item.salesUom || 'Units' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</p-overlayPanel>

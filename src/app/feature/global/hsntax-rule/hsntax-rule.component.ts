@@ -211,10 +211,20 @@ visibleDataArray!: any[] ;
   }
 ]
 
+const dataSources = {
+  mobileNumber: [
+    { id: 1, mobileNumber: '+1-555-123-4567', name: 'John Doe' },
+    { id: 2, mobileNumber: '+1-555-987-6543', name: 'Jane Smith' }
+  ],
+  customerName: [
+    { id: 101, customerName: 'Acme Corp' },
+    { id: 102, customerName: 'Globex Inc' }
+  ]
+};
         const hydrated = hydrateFormlyConfig(this.raw);
         this.fields=hydrated; console.log('fields loaded now...............................');
         
-        applyLocalSearchExtension(this.fields);
+        applyLocalSearchExtension(this.fields,dataSources);
 
 
 

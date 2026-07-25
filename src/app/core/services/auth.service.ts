@@ -32,7 +32,7 @@ interface TokenResponse {
     expires_in?: number; // Lifetime in seconds (often from backend, e.g., 3600 for 1 hour)
     exp?: number; // Expiration timestamp (if backend directly provides JWT 'exp' claim, e.g., 1678886400)
     refresh_token?: string;
-    siteId:number,clientId:number;
+    siteId:number,clientId:number;permissions:any[],
     message?: string; // For login/registration failure messages from backend
     userId?:number;
     tenantId?:string;
@@ -442,7 +442,7 @@ getClientId(): number | null {
         localStorage.removeItem('siteId');
         localStorage.removeItem('clientId');
         this._siteId.next(null);               // 👈 ADDED
-    this._clientId.next(null);
+    this._clientId.next(null); localStorage.removeItem('user_permissions'); localStorage.removeItem('tenant_id');
         localStorage.removeItem('tokenExpiry');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem(this.USER_ID_KEY);

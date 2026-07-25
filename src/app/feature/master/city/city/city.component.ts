@@ -252,7 +252,7 @@ private patchForm(record: any) {
         const hydrated = hydrateFormlyConfig(this.raw);
         this.fields=hydrated; console.log('fields loaded now...............................');
         
-        applyLocalSearchExtension(this.fields);
+      //  applyLocalSearchExtension(this.fields);
 
   
    

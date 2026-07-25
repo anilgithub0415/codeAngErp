@@ -7,6 +7,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { LandingPageComponent } from './app/feature/public/landing-page/landing-page.component';
 import { DashboardComponent } from './app/feature/dashboard/dashboard/dashboard.component';
 import { roleGuard } from './app/core/guards/role.guard';
+import { superAdminGuard } from './app/core/guards/super-admin.guard';
 
 
 export const appRoutes: Routes = [
@@ -59,13 +60,7 @@ export const appRoutes: Routes = [
                 data: { roles: ['SuperAdmin'] }     
             },                                                               
             
-            {
-                path: 'global_settings',
-                loadChildren: () => import('./app/feature/settings/settings-routing.module').then(m => m.SettingsRoutingModule)
-                , canActivate: [roleGuard],
-                data: { roles: ['SuperAdmin'] }     
-                
-            },
+          
             {
             path: 'usermgt',
             loadChildren: () => import('./app/feature/usermgt/usermgt-routing.module').then(m => m.UsermgtRoutingModule)
@@ -84,7 +79,7 @@ export const appRoutes: Routes = [
                 , canActivate: [roleGuard],
                 //    data: { roles: ['Salesman'] }                 
             },{
-                path: 'dcmgt',
+                path: 'delichallmgt',
                 loadChildren: () => import('./app/feature/delivery-challan-mgt/delivery-challan-mgt-routing.module').then(m => m.DeliveryChallanMgtRoutingModule)
                 , canActivate: [roleGuard],
                 //    data: { roles: ['Salesman'] }                 
@@ -95,6 +90,16 @@ export const appRoutes: Routes = [
                 , canActivate: [roleGuard],
                 //    data: { roles: ['Purchaser'] }                 
             },
+            
+            
+            
+            {
+                path: 'quotationmgt',
+                loadChildren: () => import('./app/feature/quotation-mgt/quotation-routing.module').then(m => m.QuotationRoutingModule)
+                , canActivate: [roleGuard],
+                //    data: { roles: ['Purchaser'] }                 
+            },
+            
             {
                 path: 'custmgt',
                 loadChildren: () => import('./app/feature/customer-mgt/customer-mgt-routing.module').then(m => m.CustomerMgtRoutingModule)
@@ -102,20 +107,36 @@ export const appRoutes: Routes = [
                 
                 //    data: { roles: ['Salesman'] }                 
             },
-             {
+            
+  
+            {
                 path: 'sitemgt',
                 loadChildren: () => import('./app/feature/site-mgt/site-mgt-routing.module').then(m => m.SiteMgtRoutingModule)
                 , canActivate: [roleGuard],
                 
                 //    data: { roles: ['Salesman'] }                 
             },
+            
            {
-                path: 'globalmgt',
-                loadChildren: () => import('./app/feature/global/global-routing.module').then(m => m.GlobalRoutingModule)
+                path: 'clientportal',
+                loadChildren: () => import('./app/feature/clientportal/clientportal-routing.module').then(m => m.ClientPortalRoutingModule)
                 , canActivate: [roleGuard],
                 
                 //    data: { roles: ['Salesman'] }                 
             },
+            //PromotionMgtRoutingModule
+            {
+                path: 'promotion',
+                loadChildren: () => import('./app/feature/promotion-mgt/promotion-mgt-routing.module').then(m => m.PromotionMgtRoutingModule)
+                , canActivate: [roleGuard],
+                
+                //    data: { roles: ['Salesman'] }                 
+            },
+            {
+    path: 'globalmgt',
+    //canActivate: [superAdminGuard], // 💡 Lock the front gate here before the chunk even loads
+    loadChildren: () => import('./app/feature/global/global-routing.module').then(m => m.GlobalRoutingModule)
+  },
             {
                 path: 'mastermgt',
                 loadChildren: () => import('./app/feature/master/master-routing.module').then(m => m.MasterRoutingModule)
@@ -146,19 +167,4 @@ export const appRoutes: Routes = [
     // Any other unmatched path redirects to notfound
     { path: '**', redirectTo: 'notfound' }
 ];
-//     {
-//         path: '',
-//         component: AppLayout,
-//         children: [
-//             { path: '', component: LandingPageComponent },
-//             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
-//             { path: 'documentation', component: Documentation },
-//             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-          
-//         ]
-//     },
-//     { path: 'landing', component: Landing },
-//     { path: 'notfound', component: Notfound },
-//  { path: 'auth', loadChildren: () => import('./app/feature/auth/auth-routing.module').then(m=>m.AuthRoutingModule) },
-//     { path: '**', redirectTo: '/notfound' }
-// ];
+

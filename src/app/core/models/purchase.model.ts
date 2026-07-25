@@ -1,4 +1,5 @@
 export interface Purchase{
+    id?:number;
     poNumber:number;
     tenantId:number;
     vendorId:number;
@@ -23,6 +24,7 @@ export interface PurchaseOrderItem{
 }
 
 export interface createPurchase{
+    
     poNumber:number;
     tenantId:number;
     vendorId:number;

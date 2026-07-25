@@ -1,0 +1,188 @@
+<p>internal-pos works!</p>
+siteId:{{siteId}}
+clientId:{{clientId}}
+currOpMode:{{currOpMode}}
+
+<div class="purchase-order-container p-4">
+  <p-toast></p-toast>
+
+  <!-- Form Wrapper Area -->
+  <form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
+    <div class="order-header mb-4">
+      <h2 class="text-xl font-bold mb-3">Client Purchase Order</h2>
+      
+      <!-- Vendor Selection Display -->
+      <div class="mb-4" *ngIf="model.vendor">
+        <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-sm text-gray-600">Selected Vendor:</span>
+              <span class="ml-2 font-medium text-green-800">{{ model.vendor.vendorName }}</span>
+            </div>
+            <button 
+              pButton 
+              type="button" 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-danger p-button-sm"
+              (click)="model.vendor = null; model.vendorId = null; form.patchValue({ vendorId: null })"
+              [disabled]="model.status !== 'DRAFT'">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    </div>
+  </form>
+    
+  <!-- View Mode Operations Controls -->
+   <div class="mb-3" *ngIf="currOpMode === 'VIEW'">
+  <p-button 
+  *ngxPermissionsOnly="['ClientQuotation.create']"
+    label="New Client Purchase Order" 
+    icon="pi pi-plus" 
+    (click)="Add()">
+  </p-button>
+</div>
+  <div class="card mt-4" *ngIf="currOpMode === 'VIEW'">
+    <p-table [value]="clientPOs ?? []" dataKey="id" [expandedRowKeys]="expandedRows">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem"></th> 
+          <th style="width: 5rem"></th>
+          <th>PO Number</th>
+          <th>Order Date</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-po let-expanded="expanded">
+        <tr>
+          <td>
+             <p-button 
+              type="button" 
+              pRipple 
+              [pRowToggler]="po" 
+              [text]="true" 
+              [rounded]="true" 
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+            </p-button>         
+          </td>
+          <td>
+             <p-button 
+              type="button" 
+              pRipple 
+              [text]="true" 
+              [rounded]="true" 
+              (click)="onEditClick(po)"
+              [icon]="po.status === 'DRAFT' ? 'pi pi-pencil' : 'pi pi-eye'">
+            </p-button>         
+          </td>
+          <td><strong>{{po.clientPoNumber}}</strong></td>
+          <td>{{po.poDate}}</td>
+          <td>
+            <span class="px-2 py-1 rounded text-sm font-medium"
+              [ngClass]="{
+                'bg-gray-100 text-gray-800': po.status === 'DRAFT',
+                'bg-orange-100 text-orange-800': po.status === 'PENDING_APPROVAL',
+                'bg-green-100 text-green-800': po.status === 'APPROVED'
+              }">
+              {{po.status}}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <!-- Order Items Nested Breakdown Row (No Prices) -->
+      <ng-template pTemplate="expandedrow" let-po>
+        <tr>
+          <td colspan="5">
+            <p-table *ngIf="po && po?.items && po?.items.length" [value]="po?.items" dataKey="id" class="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Product SKU / Name</th>
+                  <th>Quantity</th>
+                  <th>UOM</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                <tr>
+                  <td>{{ item.sku }} - {{ item.prodName }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.purchaseUom }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Command Actions Block Layout Area -->
+  <div class="order-actions mt-4 flex items-center gap-2" *ngIf="currOpMode !== 'NONE'">
+    
+    <!-- State-Driven Operation Path: Editable actions are visible only during Draft phase -->
+    <ng-container *ngIf="model.status === 'DRAFT'">
+      <p-button
+        type="button"
+        label="Save as Draft"
+        icon="pi pi-save"
+        (click)="savePurchaseDraft()"
+        [disabled]="!form.valid">
+      </p-button>
+
+      <p-button
+      *ngxPermissionsOnly="['ClientPO.SubmitToApprove']"
+        type="button"
+        label="Submit for Approval"
+        icon="pi pi-send"
+        styleClass="p-button-success"
+        (click)="submitPurchaseForApproval()"
+        [disabled]="!form.valid">
+      </p-button>
+
+      <button
+        pButton
+        type="button"
+        label="Clear Form"
+        icon="pi pi-trash"
+        (click)="clearPurchase()"
+        class="p-button-secondary">
+      </button>
+    </ng-container>
+
+    <!-- Visual Banner indicating document is frozen in read-only mode -->
+    <div *ngIf="model.status !== 'DRAFT'" class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg flex items-center gap-2 mr-auto font-medium">
+      <i class="pi pi-lock"></i>
+      <span>Document Locked (Status: {{ model.status }}). Fields are read-only.</span>
+    </div>
+
+    <div class="flex justify-content-end gap-2">
+
+  <ng-container *ngxPermissionsOnly="['ClientPO.Approve']">
+    <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 
+      <p-button label="Approve PO" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="approvePO()"></p-button>
+    
+    </span>
+  </ng-container>
+<ng-container *ngxPermissionsOnly="['ClientPO.Reject']">
+    <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 
+           <p-button label="Reject PO" icon="pi pi-times" styleClass="p-button-danger mr-2" (onClick)="rejectPO()"></p-button>
+    </span>
+  </ng-container>
+  
+  <p-button label="Cancel" icon="pi pi-ban" styleClass="p-button-secondary" (onClick)="CancelFormOp()"></p-button>
+</div>
+    
+    <button
+      pButton
+      type="button"
+      label="Back / Cancel"
+      icon="pi pi-arrow-left"
+      (click)="CancelFormOp()"
+      class="p-button-secondary"
+      [disabled]="currOpMode !== 'LOADING' && currOpMode !== 'VIEW'">
+    </button>
+  </div>
+</div>

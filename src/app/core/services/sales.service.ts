@@ -59,6 +59,30 @@ export class SalesService {
     );
   }
 
+
+submitSalesForApproval(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/finalize`, {});
+}
+
+approveSalesOrder(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/approve`, {});
+}
+
+
+    /**
+   * Deletes a draft or cancels an active sales order via DELETE resource id path binding.
+   */
+  deleteSalesOrder(id: number): Observable<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }> {
+    const url = `${this.apiUrl}/${id}`;
+    console.log(`Sending delete/cancel request for sales order at ${url}`);
+    
+    return this.http.delete<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }>(url).pipe(
+      tap(response => console.log('Delete/Cancel sales order response:', response)),
+      catchError(this.handleError)
+    );
+  }
+
+
   getSOs(ptenantId: number): Observable<Sales[]> {
     return this.http.get<Sales[]>(`${this.apiUrl}/${ptenantId}`).pipe(
       catchError(this.handleError)

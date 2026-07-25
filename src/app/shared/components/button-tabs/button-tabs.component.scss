@@ -1,0 +1,42 @@
+/* Force overrides through Aura's internal CSS layers using dynamic theme variables */
+:host ::ng-deep .compact-tabs-group {
+    
+    /* Aura unselected toggle button states */
+    .p-togglebutton {
+        background: var(--p-surface-100) !important; 
+        border-color: var(--p-surface-300) !important;
+        color: var(--p-surface-700) !important;
+
+        &:not(.p-togglebutton-checked):hover {
+            background: var(--p-surface-200) !important;
+            border-color: var(--p-surface-400) !important;
+        }
+    }
+
+    /* Aura selected active toggle button states */
+    .p-togglebutton.p-togglebutton-checked {
+        background: transparent !important;
+        border-color: var(--p-primary-color) !important;
+        color: var(--p-primary-color) !important; 
+
+        /* 💡 FIX: Prevent hover over active tab from re-introducing background styles */
+        &:hover {
+            background: transparent !important;
+            color: var(--p-primary-color) !important;
+            border-color: var(--p-primary-color) !important;
+        }
+
+        /* 1. HIDE THE STUBBORN AURA FOCUS BACKGROUND OVERLAY SQUARE */
+        &::before {
+            display: none !important;
+            content: none !important;
+        }
+
+        /* 2. REMOVE THE DARK FOCUS OUTLINE FROM BOTH CLICK & KEYBOARD SELECTION */
+        &:focus, &:focus-visible, &.p-focus {
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important; /* Keep it transparent on focus */
+        }
+    }
+}

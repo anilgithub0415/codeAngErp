@@ -1,19 +1,18 @@
 
-<div class="field">
-      <label *ngIf="props.label" [attr.for]="id" class="block font-medium mb-1">
-        {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
-      </label>
-      
-      <!-- Native PrimeNG v18 element -->
-      <p-datepicker
-        [id]="id"
-        [formControl]="formControl"
-        [formControlName]="key.toString()"
-        [placeholder]="props.placeholder || ''"
-        [showIcon]="props['showIcon'] !== false"
-        [dateFormat]="props['dateFormat'] || 'mm/dd/yy'"
-        [minDate]="props['minDate']"
-        [maxDate]="props['maxDate']"
-        class="w-full">
-      </p-datepicker>
-    </div>
+    <div class="field">
+  <label *ngIf="props.label" [attr.for]="id" class="block font-medium mb-1">
+    {{ props.label }} <span *ngIf="props.required" class="text-red-500">*</span>
+  </label>
+  
+  <!-- Fix: Removed [formControlName] to resolve directive fighting -->
+  <p-datepicker
+    [id]="id"
+    [formControl]="formControl"
+    [placeholder]="props.placeholder || ''"
+    [showIcon]="props['showIcon'] !== false"
+    [dateFormat]="props['dateFormat'] || 'yy-mm-dd'" 
+    [minDate]="props['minDate']"
+    [maxDate]="props['maxDate']"
+    styleClass="w-full">
+  </p-datepicker>
+</div>

@@ -10,8 +10,11 @@ export interface Customer {
   id: number;
   tenantId: number;
   customerName: string;customer_autocode:string;
-  leadStatus:string;
+  customerCategoryId:any;
+  commercialContactPhone:string;commercialContactPerson:string;
+  clientStatus:string; city:string;cityName:string;
   organisations: Organisation[];
+  creditLimit:number;
   createdByUserId: any;
 
 }
@@ -25,12 +28,12 @@ export interface Organisation {
   customerCategory: string | number;   // adjust the type to match the lookup values
 
   /** Optional contact‑person name */
-  contactPersonName?: string;
+  siteContactPerson?: string;
 
   customerDetailsRequired?:boolean;
 
   /** Optional mobile number */
-  mmobileNumber?: string;
+  commercialContactPhone?: string;
 
   /** Optional e‑mail address */
   EmailId?: string;

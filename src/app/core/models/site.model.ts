@@ -5,7 +5,7 @@
 export interface Site {
  
   siteName:string
-  contactPersonName: string;
+  siteContactPerson: string;
   createdByUserId?: any;
 
 }

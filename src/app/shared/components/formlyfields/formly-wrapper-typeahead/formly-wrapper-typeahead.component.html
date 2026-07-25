@@ -1,36 +1,69 @@
-<!-- <p>formly-wrapper-typeahead works!</p>
- <div class="position-relative">
-     
-      <ng-container #fieldComponent></ng-container>
+<!-- <div class="typeahead-container style-relative">
+  <ng-container #fieldComponent></ng-container>
+ 
+<small 
+  *ngIf="props?.['description'] || props?.description" 
+  class="p-text-secondary" 
+  style="display: block; margin-top: 0.25rem; color: #6c757d;">
+  {{ props?.description }}
+</small>
 
-     
-      <ul class="suggestion-list" *ngIf="props['suggestions']?.length > 0">
-        <li *ngFor="let match of props['suggestions']" (click)="selectOption(match)">
-         
-        </li>
-      </ul>
-    </div> -->
-
-    <!-- formly-wrapper-typeahead.component.html -->
-<div class="typeahead-wrapper">
-  <!-- The actual input field – you can keep any additional classes you need -->
-  <!-- <input
-    type="text"
-    class="p-inputtext p-component w-full"
-    [formControl]="formControl"
-    [formlyAttributes]="field"
-    (input)="field.props?.onInput?.($event)"   
-    placeholder="{{ field.props?.placeholder || '' }}"
-  /> -->
-
-  <!-- Suggestion list – shown only when there are suggestions -->
-  <!-- <ul *ngIf="field.props && field.props?['suggestions'] && field.props?['suggestions']?.length" class="suggestion-list">
+  <ul 
+    *ngIf="props['suggestions'] && props['suggestions'].length > 0" 
+    class="suggestion-list-overlay"
+  >
     <li
-      *ngFor="let match of field.props['suggestions']"
+      *ngFor="let match of props['suggestions']"
       (click)="selectOption(match)"
-      class="suggestion-item"
+      class="suggestion-item-node"
     >
-       match[field.key] 
+     
+      {{ match[getStringKey(field.key)] }}
     </li>
-  </ul> -->
+  </ul>
+</div> -->
+<div class="typeahead-container style-relative">
+  <label *ngIf="props.label" class="formly-field-label" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">
+    {{ props.label }}
+    <span *ngIf="props.required" style="color: #ef4444; margin-left: 0.25rem;">*</span>
+  </label>
+  <!-- Dynamic Formly Field Injection Point -->
+  <ng-container #fieldComponent></ng-container>
+
+  <small 
+    *ngIf="props?.['description'] || props?.description" 
+    class="p-text-secondary" 
+    style="display: block; margin-top: 0.25rem; color: #6c757d;">
+    {{ props?.description }}
+  </small>
+
+  <!-- Suggestion List Overlay Panel -->
+  <ul 
+    *ngIf="props['suggestions'] && props['suggestions'].length > 0" 
+    class="suggestion-list-overlay"
+  >
+    <li
+      *ngFor="let match of props['suggestions']"
+      (click)="selectOption(match)"
+      class="suggestion-item-node flex align-items-center justify-content-between w-full"
+      style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; cursor: pointer;"
+    >
+      <!-- Safe Look-up: Force string type matching via component utility helper -->
+      <span class="product-name-text">{{ match[getStringKey(field.key)] }}</span>
+
+      <!-- 🌟 Dynamic Badges showing active state status maps -->
+      <span 
+        *ngIf="match.isActive" 
+        style="background: #22c55e; color: white; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem;"
+      >
+        Active
+      </span>
+      <span 
+        *ngIf="!match.isActive" 
+        style="background: #ef4444; color: white; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem;"
+      >
+        Archived
+      </span>
+    </li>
+  </ul>
 </div>

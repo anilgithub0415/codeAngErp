@@ -26,44 +26,34 @@ interface AvailableContext {
 // 1. User Interface (for data received from the backend API)
 // This should mirror the backend's User entity, but exclude sensitive fields like raw passwords.
 export interface User {
-    id: number;
-   // tenantId: number;
-    userName: string; // Changed from userName to userName for Angular/JS convention
-    displayName?: string | null; // Changed from displayName to displayName
-    profilePictureUrl?:string;
-    roleNameInContext?: any; // Changed from Role to role, using enum
-    tenantId?: number;
-    isActive?: boolean;
-    isEmailVerified?: boolean | undefined;
-    tenant:any;
-    // verificationToken and verificationTokenExpiresAt are typically internal to backend,
-    // not sent to frontend for standard user listing/editing.
-    googleId?: string | null;
-    createdByUserId?:number;
-    person?:any
-    userTenantContexts?:AvailableContext[]
-    // Add any other fields you expect to receive from the backend for a user.
-    // Example: createdAt?: Date; updatedAt?: Date; if your API sends them.
+  id: number;
+  tenantId: number;
+  userName: string;
+  displayName?: string | null;
+  profilePictureUrl?:string|null;googleId?:string|null;isEmailVerified?:boolean;isActive?:boolean;userTenantContexts?:any;
+  clientId?: number | null;
+  siteId?: number | null;
+  assignedRoles: string[]; // 👈 Changed from string to string[] to hold multiple parallel roles
+  userAbbrevation?: string;
+  firstName?: string;
+  lastName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  deviceInfo?: string;
 }
 
-// 2. CreateUserDto (for data sent to backend when creating a new user)
-// This includes fields necessary for creation. Password is required for non-Google users.
 export interface CreateUserDto {
-  
-    userName: string;
-    password?: string; // Optional if using googleId for social login, otherwise required
-    displayName?: string | null;
-    initialRoleName: string|null|undefined;
-    initialTenantId: number|null; // Crucial: must provide tenantId for new user
-    googleId?: string | null; // Optional, for social logins
-    isEmailVerified?:boolean;
-     isActive?:boolean;
-     createdByUserId?:number;
-     personId?:number;
-     person?:any;
-  
-    //, isEmailVerified would typically be set by backend with defaults
+  id?: number;
+  tenantId: number;
+  userName: string;
+  displayName?: string|null;
+  clientId?: number | null;
+  siteId?: number | null;
+  assignedRoles: string[]; // 👈 Changed to support multi-role arrays in payload packets
+  password?: string;
+  [key: string]: any;
 }
+
 
 // 3. UpdateUserDto (for data sent to backend when updating an existing user)
 // This uses Partial and Omit utility types for flexibility.

@@ -1,0 +1,47 @@
+
+<p-toast></p-toast>
+
+<div class="customer-container p-4" style="display: block; width: 100%;">
+  
+
+  <!-- Global Multi-Field Search Filter Control Hub component -->
+  <app-filter-control 
+    [dataSource]="customers ? customers : []" 
+    [filterFields]="['customerName', 'commercialContactPhone', 'leadSource']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!-- Primary View State Action Control Trigger Button -->
+<p-button 
+  *ngIf="currOpMode === FormOpMode.View"
+  label="New Client" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+  <!-- 1. DECOUPLED INTERACTIVE FORM CONFIGURATION PANEL SECTION -->
+  <app-customer-form 
+    [form]="form"
+    [fields]="fields"
+    [model]="model"
+    [currOpMode]="currOpMode"
+    [isFormHidden]="isFormHidden"
+    (save)="saveCustomer()"
+    (clear)="clearCustomer()"
+    (cancel)="CancelFormOp()">
+  </app-customer-form>
+
+  <!-- 2. DECOUPLED EXTENSIBLE PRESENTATION ARCHITECTURE GRID DATA COMPONENT -->
+  <app-customer-grid *ngIf="currOpMode === FormOpMode.View"
+    [customers]="customers ?? []"
+    [visibleDataArray]="visibleDataArray"
+    [currOpMode]="currOpMode"
+    [expandedRows]="expandedRows"
+    (edit)="onEditClick($event)"
+    (remove)="removeCustomer($event)"
+    (rowToggle)="toggleRow($event)">
+  </app-customer-grid>
+</div>
+
+
+
+

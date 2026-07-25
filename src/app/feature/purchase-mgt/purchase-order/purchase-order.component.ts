@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormlyConfig, FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { ProductService } from '../../../core/services/product.service';
@@ -11,7 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
-import { PurchaseService } from '../../../core/services/purchase.service';
+import { PurchaseService, TenantRulesMatrixResponse } from '../../../core/services/purchase.service';
 import { VendorService } from '../../../core/services/vendor.service';
 import { FormlyFieldProductsearch } from '../../../shared/components/formlyfields/productsearch/productsearch.component';
 import { FormlyFieldPrimengDropdownComponent } from '../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
@@ -28,13 +28,20 @@ import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { FormlyFieldPrimengDatepickerComponent } from '../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
 import { hydrateFormlyConfig, injectPurchaseUomMatrixListeners } from '../../../shared/utils/hydrationOfFormlyJson';
 import { firstValueFrom } from 'rxjs';
+import { SplitterModule } from 'primeng/splitter';
+
+import { SidebarModule } from 'primeng/sidebar';
+import { TabsModule } from 'primeng/tabs';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 
 @Component({
-  selector: 'app-purchase-order',standalone:true,
+  selector: 'app-purchase-order'
+  ,schemas:[CUSTOM_ELEMENTS_SCHEMA] ,standalone:true,
   imports: [ReactiveFormsModule, FormsModule, FormlyModule,CommonModule, 
     TableModule, ButtonModule, InputNumberModule, InputTextModule, ToastModule
-  ,DatePickerModule, FormlyPrimeNGModule,FormlyModule
+  ,DatePickerModule, FormlyPrimeNGModule,FormlyModule,SplitterModule, SelectButtonModule, NgxPermissionsModule
   ],
   templateUrl: './purchase-order.component.html',
   styleUrl: './purchase-order.component.scss',
@@ -71,7 +78,6 @@ aForm!:any;
     private messageService=inject(MessageService);
 
  fields: FormlyFieldConfig[] = [];
-
   constructor(private cd:ChangeDetectorRef
    
   ) {}
@@ -103,6 +109,9 @@ aForm!:any;
   this.getForm_PO(); 
     this.getPOList();
   
+
+  
+
               }
   getForm_PO(){
  //formkey:customer_form
@@ -121,168 +130,168 @@ aForm!:any;
     //  })
    
      //without $index and rowtemplate
-     this.raw=[
-  { "key": "id", "type": "input", "hide": true },
-  { "key": "createdByUserId", "type": "input", "hide": true },
-  { "key": "tenantId", "type": "input", "hide": true },
+//      this.raw=[
+//   { "key": "id", "type": "input", "hide": true },
+//   { "key": "createdByUserId", "type": "input", "hide": true },
+//   { "key": "tenantId", "type": "input", "hide": true },
  
 
-  {
-    "wrappers": ["panel"],
-    "className": "col-span-24 w-full block mb-0",
-    "props": {
-     // "label": "PO Information"
-        },
-    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+//   {
+//     "wrappers": ["panel"],
+//     "className": "col-span-24 w-full block mb-0",
+//     "props": {
+//      // "label": "PO Information"
+//         },
+//     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
    
-    "fieldGroup": [
-       {
-    "type": "input",
+//     "fieldGroup": [
+//        {
+//     "type": "input",
     
-    "key": "poNumber",
-        "className": "col-span-6 md:col-span-4",
-    "props": {
-      "label": "Purchase Order#", "readonly": true,
-      "placeholder": "PO#",
-     // "required": true
-    }
-  },
-    {
-        "type": "primeng-dropdown",
-        "key": "vendorId",
-        "className": "col-span-12 md:col-span-6",
-        "props": {
-          "label": "Vendor:",
-          "optionLabel": "label",
-          "optionValue": "value",
-          "placeholder": "Select Vendor",
-          "lookupKey": "vendorTypes",
-          "filter": true,
-      "required": true
-        }
-      },
+//     "key": "poNumber",
+//         "className": "col-span-6 md:col-span-4",
+//     "props": {
+//       "label": "Purchase Order#", "readonly": true,
+//       "placeholder": "PO#",
+//      // "required": true
+//     }
+//   },
+//     {
+//         "type": "primeng-dropdown",
+//         "key": "vendorId",
+//         "className": "col-span-12 md:col-span-6",
+//         "props": {
+//           "label": "Vendor:",
+//           "optionLabel": "label",
+//           "optionValue": "value",
+//           "placeholder": "Select Vendor",
+//           "lookupKey": "vendorTypes",
+//           "filter": true,
+//       "required": true
+//         }
+//       },
       
-      {
-  "type": "datepicker",
-  "key": "orderDate",
-        "className": "col-span-12 md:col-span-6",
-  "props": {
-    "label": "Order Date",
-     "dateFormat": "dd-mm-yy",
-    "numberOfMonths": 1,
-    "selectionMode": "single"
-  }
-}
-
-
-    ]
-  },
-
-  {
-    "key": "items",
-    "type": "p-repeatsectionformly",
-    "wrappers": ["panel"],
-    "defaultValue": [],
-    "props": {
-      "label": "",
-      "addText": "Add Organisation",
-      "rowDefaults":{"quantity":"1"} 
-        },
-    "fieldArray": {
-      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-      "fieldGroup": [
-        { "key": "id", "type": "input", "hide": true },
-        
-           {
-                    "type": "primeng-dropdown",
-                    "key": "productId",
-                    "className": "col-span-6 md:col-span-11",
-                    "props": {
-                        //"label": "Item",
-                        "optionLabel": "label",
-                        "optionValue": "value",
-                        "placeholder": "Select Item",
-                        "lookupKey": "productTypes", // conditional:productTypesWithVariants
-                        "required": true,
-                        "filter": true,
-                        // Add variant display in dropdown
-                        "optionDisabled": (option: any) => !option.variants?.length
-                    },
-                    "expressions": {
-                      "props.label": "field.parent.index === 0 ? 'Item' : ''"
-                      }
-                },
-        
-        {
-          "type": "input",
-          "key": "quantity",
-          "className": "col-span-3 md:col-span-3",
-          "props": {
-           // "label": "Quantity",
-            "placeholder": "Enter name",
-            "required": true
-          },
-                    "expressions": {
-                      "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
-                      }
-        },
-        
-//         {
-//   "type": "primeng-dropdown",
-//   "key": "purchaseUom",
-//   "className": "col-span-12 md:col-span-6",
+//       {
+//   "type": "datepicker",
+//   "key": "orderDate",
+//         "className": "col-span-12 md:col-span-6",
 //   "props": {
-//     "label": "Purchase UOM:",
-//     "optionLabel": "label",
-//     "optionValue": "value",
-//     "placeholder": "Select UOM",
-//     "filter": true,
-//     "required": true,
-//     "options": [] // 🌟 Starts empty, populated dynamically at runtime
+//     "label": "Order Date",
+//      "dateFormat": "dd-mm-yy",
+//     "numberOfMonths": 1,
+//     "selectionMode": "single"
 //   }
 // }
-,
-        {
-        "type": "primeng-dropdown",
-        "key": "vendorId",
-        "className": "col-span-12 md:col-span-6",
-        "props": {
-          "label": "Vendor:",
-          "optionLabel": "label",
-          "optionValue": "value",
-          "placeholder": "Select Vendor",
-          "lookupKey": "vendorTypes",
-          "filter": true,
-      "required": true
-        }
-      },
-        {
-          "type": "input",
-          "key": "finalPrice",
-          "className": "col-span-3 md:col-span-4",
-          "props": {
-           // "label": "Price",
-            "placeholder": "Enter finalPrice",
-            "required": true
-          },
-            "expressions": {
-                 "props.label": "field.parent.index === 0 ? 'Price' : ''"
-             }
-        },
+
+
+//     ]
+//   },
+
+//   {
+//     "key": "items",
+//     "type": "p-repeatsectionformly",
+//     "wrappers": ["panel"],
+//     "defaultValue": [],
+//     "props": {
+//       "label": "",
+//       "addText": "Add Organisation",
+//       "rowDefaults":{"quantity":"1"} 
+//         },
+//     "fieldArray": {
+//       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+//       "fieldGroup": [
+//         { "key": "id", "type": "input", "hide": true },
         
-      ]
-    }
-  },
-  {
-    "type": "button",
-    "className": "col-span-3 md:col-span-3 mt-4",
-    "props": {
-      "text": "Save PO",
-      "type": "submit",
-      "styleClass": "p-button-success"
-    }
-  }
-]
+//            {
+//                     "type": "primeng-dropdown",
+//                     "key": "productId",
+//                     "className": "col-span-6 md:col-span-11",
+//                     "props": {
+//                         //"label": "Item",
+//                         "optionLabel": "label",
+//                         "optionValue": "value",
+//                         "placeholder": "Select Item",
+//                         "lookupKey": "productTypes", // conditional:productTypesWithVariants
+//                         "required": true,
+//                         "filter": true,
+//                         // Add variant display in dropdown
+//                         "optionDisabled": (option: any) => !option.variants?.length
+//                     },
+//                     "expressions": {
+//                       "props.label": "field.parent.index === 0 ? 'Item' : ''"
+//                       }
+//                 },
+        
+//         {
+//           "type": "input",
+//           "key": "quantity",
+//           "className": "col-span-3 md:col-span-3",
+//           "props": {
+//            // "label": "Quantity",
+//             "placeholder": "Enter name",
+//             "required": true
+//           },
+//                     "expressions": {
+//                       "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
+//                       }
+//         },
+        
+// //         {
+// //   "type": "primeng-dropdown",
+// //   "key": "purchaseUom",
+// //   "className": "col-span-12 md:col-span-6",
+// //   "props": {
+// //     "label": "Purchase UOM:",
+// //     "optionLabel": "label",
+// //     "optionValue": "value",
+// //     "placeholder": "Select UOM",
+// //     "filter": true,
+// //     "required": true,
+// //     "options": [] // 🌟 Starts empty, populated dynamically at runtime
+// //   }
+// // }
+// ,
+//         {
+//         "type": "primeng-dropdown",
+//         "key": "vendorId",
+//         "className": "col-span-12 md:col-span-6",
+//         "props": {
+//           "label": "Vendor:",
+//           "optionLabel": "label",
+//           "optionValue": "value",
+//           "placeholder": "Select Vendor",
+//           "lookupKey": "vendorTypes",
+//           "filter": true,
+//       "required": true
+//         }
+//       },
+//         {
+//           "type": "input",
+//           "key": "finalPrice",
+//           "className": "col-span-3 md:col-span-4",
+//           "props": {
+//            // "label": "Price",
+//             "placeholder": "Enter finalPrice",
+//             "required": true
+//           },
+//             "expressions": {
+//                  "props.label": "field.parent.index === 0 ? 'Price' : ''"
+//              }
+//         },
+        
+//       ]
+//     }
+//   },
+//   {
+//     "type": "button",
+//     "className": "col-span-3 md:col-span-3 mt-4",
+//     "props": {
+//       "text": "Save PO",
+//       "type": "submit",
+//       "styleClass": "p-button-success"
+//     }
+//   }
+// ]
 this.raw=[
   { "key": "id", "type": "input", "hide": true },
   { "key": "createdByUserId", "type": "input", "hide": true },
@@ -396,44 +405,24 @@ this.raw=[
                       }
         },
   
-  //       {
-  // "type": "input",
-  // "key": "purchaseUom",
-  // "className": "col-span-12 md:col-span-4","props": {
-  //   "label": "Purchase Unit:",}
-  // },
+  
         {
   "type": "primeng-dropdown",
   "key": "purchaseUom",
-  "className": "col-span-12 md:col-span-4",
+  "className": "col-span-12 md:col-span-6",
   "props": {
-    "label": "Purchase UOM:",
+    //"label": "Purchase UOM:",
     "optionLabel": "label",
     "optionValue": "value",
     "placeholder": "Select UOM",
     "filter": true,
     "required": true,
     "options": [] // 🌟 Starts empty, populated dynamically at runtime
-  }
-}
-,
-        {
-        "type": "primeng-dropdown",
-        "key": "vendorId",
-        "className": "col-span-12 md:col-span-4",
-        "props": {
-          //"label": "Vendor:",
-          "optionLabel": "label",
-          "optionValue": "value",
-          "placeholder": "Select Vendor",
-          "lookupKey": "vendorTypes",
-          "filter": true,
-      "required": true
-        },
+  },
                     "expressions": {
-                      "props.label": "field.parent.index === 0 ? 'Vendor' : ''"
+                      "props.label": "field.parent.index === 0 ? 'Purchase UOM:' : ''"
                       }
-      },
+},
         {
           "type": "input",
           "key": "finalPrice",
@@ -462,10 +451,83 @@ this.raw=[
   }
 ]
 
-        const hydrated = hydrateFormlyConfig(this.raw);
+      /*  const hydrated = hydrateFormlyConfig(this.raw);
         this.fields=hydrated; console.log('fields loaded now...............................');
         injectPurchaseUomMatrixListeners(this.fields,this.purchaseService,this.tenantId)
         //this.applyLocalSearchExtension(this.fields);
+    */
+   const hydrated = hydrateFormlyConfig(this.raw);
+this.fields = hydrated; 
+console.log('Form configuration blueprint parsed safely.');
+
+// 1. Locate the dynamic repeating array section configuration
+const itemsSection = this.fields.find(f => f.key === 'items');
+
+// 2. Apply a strict type-guard check ensuring fieldArray is a valid object and not a function
+if (itemsSection && itemsSection.fieldArray && typeof itemsSection.fieldArray === 'object') {
+  
+  // TypeScript now safely knows 'fieldArray' is an object and contains 'fieldGroup'
+  const groupFields = itemsSection.fieldArray.fieldGroup || [];
+  const uomField = groupFields.find(f => f.key === 'purchaseUom');
+
+  if (uomField) {
+    uomField.hooks = {
+      onInit: (field: FormlyFieldConfig) => {
+        const parentGroup = field.parent;
+        if (!parentGroup) return;
+
+        const rowProductField = parentGroup.fieldGroup?.find(f => f.key === 'productId');
+        
+        // Context A: AUTOMATED EDIT MODE INITIAL HYDRATION
+        const currentProductId = parentGroup.model?.productId;
+        const currentVariantId = parentGroup.model?.productVariantId || 0;
+
+        if (currentProductId) {
+          this.purchaseService.fetchTenantRulesMatrix(this.tenantId, currentProductId, currentVariantId)
+            .subscribe({
+              next: (matrixResponse: TenantRulesMatrixResponse) => {
+                if (field.props && matrixResponse?.availablePurchaseUnits) {
+                  field.props.options = matrixResponse.availablePurchaseUnits;
+                  this.cd.detectChanges();
+                }
+              },
+              error: (err) => console.error('Failed matrix load on edit initial initialization:', err)
+            });
+        }
+
+        // Context B: RUNTIME INTERACTIVE VALUE SELECTION CHANGED
+        if (rowProductField && rowProductField.formControl) {
+          const sub = rowProductField.formControl.valueChanges.subscribe((productId) => {
+            if (!productId) {
+              if (field.props) field.props.options = [];
+              field.formControl?.setValue(null);
+              return;
+            }
+
+            const activeVariantId = parentGroup.model?.productVariantId || 0;
+            this.purchaseService.fetchTenantRulesMatrix(this.tenantId, productId, activeVariantId)
+              .subscribe({
+                next: (matrixResponse: TenantRulesMatrixResponse) => {
+                  if (field.props && matrixResponse?.availablePurchaseUnits) {
+                    field.props.options = matrixResponse.availablePurchaseUnits;
+                    
+                    const currentUomValue = field.formControl?.value;
+                    const choiceExists = matrixResponse.availablePurchaseUnits.some(u => u.value === currentUomValue);
+                    if (!choiceExists) {
+                      field.formControl?.setValue(null);
+                    }
+                    this.cd.detectChanges();
+                  }
+                }
+              });
+          });
+
+          field.hooks!.onDestroy = () => sub.unsubscribe();
+        }
+      }
+    };
+  }
+}
 
   
 
@@ -521,35 +583,35 @@ this.raw=[
     
     this.totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
     this.cd.detectChanges();
-  }
+  }async onEditClick(selectedRecord: any) {
+  this.isFormHidden = false;
+  this.currOpMode = FormOpMode.Update;
+  localStorage.setItem('currOpMode', this.currOpMode);
 
-  async onEditClick(selectedRecord: any) {
-    this.isFormHidden = false;
-    this.currOpMode = FormOpMode.Update;
-    localStorage.setItem('currOpMode', this.currOpMode);
+  // 1. Fully rebuild the core layout tree container to shed memory remnants
+  this.form = new FormGroup({}); 
 
-    // Deep clone record snapshot securely to break shared frontend component states
-    const clonedRecord = JSON.parse(JSON.stringify(selectedRecord));
-    
-    // Unify sub-collections parameter naming convention structures
-    this.model = {
-      ...clonedRecord,
-      items: clonedRecord.items || []
-    };
+  // 2. Clone database payload securely 
+  const clonedRecord = JSON.parse(JSON.stringify(selectedRecord));
+  this.model = {
+    ...clonedRecord,
+    items: clonedRecord.items || []
+  };
 
-    console.log('Edit record model synchronized safely:', this.model);
+  console.log('Model snapshot assigned cleanly:', this.model);
 
-    setTimeout(() => {
-      try {
-        this.form.patchValue(this.model);
-        this.computeTotals();
-        console.log('Form values mapped to layout grid arrays in Update context window.');
-      } catch (error) {
-        console.error('An error occurred during transaction patch initialization:', error);
-      }
-      this.cd.detectChanges();
-    }, 50);
-  }
+  // 3. Extend interval window to 100ms so Angular finishes rendering repeat nodes
+  setTimeout(() => {
+    try {
+      this.form.patchValue(this.model);
+      this.computeTotals();
+      console.log('Form values synchronized across dynamic array matrices.');
+    } catch (error) {
+      console.error('Patch application tracking error:', error);
+    }
+    this.cd.detectChanges();
+  }, 100);
+}
 
   async addProductToOrder(product: any) {
     if (!product) return;

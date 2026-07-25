@@ -1,0 +1,44 @@
+
+
+<div class="sales-order-container p-4">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Filter component Layer --> 
+  <app-filter-control 
+    [dataSource]="modifiedDataArray ? modifiedDataArray : []" 
+    [filterFields]="['prodName','sku','hsnCode','categoryName']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <!-- Control HUD -->
+  <p-button *ngIf="currOpMode === 'VIEW'"
+    label="New Item" 
+    icon="pi pi-plus" 
+    (click)="onAddModeRequested()">
+  </p-button>
+
+  <!-- DYNAMIC FORM CONTAINER ENGINE -->
+  <app-product-master-form
+    *ngIf="currOpMode !== 'VIEW'"
+    [tenantId]="tenantId"
+    [opMode]="currOpMode"
+    [isFormHidden]="isFormHidden"
+    [productData]="selectedProduct"
+    [categoryOptions]="categoryOptions"
+    [hsnOptions]="hsnOptions"
+    (onCancel)="onCancelRequested()"
+    (onSaveSuccess)="onFormOperationSaved()"
+    (onSaveFailure)="onFormStateFallback($event)"
+    (onPromptReactivation)="onPromptReactivationRequested($event)">
+  </app-product-master-form>
+
+  <!-- MASTER DISPLAY MATRIX DATA GRID -->
+  <app-product-master-grid
+    *ngIf="currOpMode === 'VIEW'"
+    [products]="products"
+    [visibleDataArray]="visibleDataArray"
+    (onEditClick)="onEditRequested($event)"
+    (onDeleteClick)="onDeleteRequested($event)">
+  </app-product-master-grid>
+</div>

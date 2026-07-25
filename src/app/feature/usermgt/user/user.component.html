@@ -1,0 +1,127 @@
+user from feature/usermgt
+
+
+
+
+
+notinuse
+
+
+<p>user works!</p>
+
+<div *ngIf="authServ.getTenantId()">
+   tid exists
+</div>
+<div *ngIf="!authServ.getTenantId()">
+   tid:<input [(ngModel)]="tenantId">
+</div>
+<p-toast></p-toast>
+<div class="customer-container p-4" style="display: block; width: 100%;">
+
+  <app-filter-control 
+    [dataSource]="users ? users : []" 
+    [filterFields]="['userName', 'displayName','assignedRoles']" 
+    (filteredData)="onDataFiltered($event)">
+  </app-filter-control>
+
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden" class="mb-4">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    
+    <div class="customer-actions mt-3" *ngIf="currOpMode !== FormOpMode.View">
+      <!-- <button
+        pButton
+        type="button"
+        label="Save User"
+        icon="pi pi-save"
+        (click)="saveUser()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button> -->
+
+       <p-button
+        
+        type="button"
+        label="Save User"
+        icon="pi pi-save"
+        (click)="saveUser()"
+            
+        [disabled]="!form.valid">
+      </p-button>
+
+      <button
+        pButton
+        type="button"
+        label="Clear User"
+        icon="pi pi-times"
+        (click)="clearUser()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem"
+        [disabled]="currOpMode !== FormOpMode.Add && currOpMode !== FormOpMode.Update">
+      </button>
+    </div>
+  </form>
+</div> 
+
+<p-button *ngIf="currOpMode === FormOpMode.View"
+  label="New User" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<div class="site-section mt-4 mb-0" *ngIf="visibleDataArray?.length">
+  <h3 class="text-lg font-semibold mb-2">System Users</h3>
+  <p-table [value]="visibleDataArray" class="users-table shadow-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="60px">Action</th>
+        <th>User Name</th>
+        <th>Display Name</th>
+        <th>Assigned Roles</th>
+        <th>Client ID</th>
+        <th>Site ID</th>
+        <th width="60px">Delete</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-auser let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning p-button-sm"
+            (click)="onEditClick(auser)">
+          </button>
+        </td>
+        <td>{{ auser.userName }}</td>
+        <td>{{ auser.displayName }}</td>
+        <td>
+          <!-- Joins multiple assigned roles dynamically with a clean badge visualization syntax fallback -->
+          <span class="font-semibold text-primary">
+            {{ auser.assignedRoles && auser.assignedRoles.length ? auser.assignedRoles.join(', ') : 'No Roles Assigned' }}
+          </span>
+        </td>
+        <td>{{ auser.customerName || '-' }}</td>
+        <td>{{ auser.siteId || '-' }}</td>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="deleteUser(auser.id, rowIndex)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,0 +1,103 @@
+<p>sales-order-form works!</p>
+<form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
+  <div class="order-header mb-4">
+    <h2 class="text-xl font-bold mb-3">Sales Order</h2>
+    <h1>we need to take care for stock increase decrease while delete also</h1>
+    <!-- Vendor Selection Display -->
+    <div class="mb-4" *ngIf="model.vendor">
+      <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-sm text-gray-600">Selected Vendor:</span>
+            <span class="ml-2 font-medium text-green-800">{{ model.vendor.vendorName }}</span>
+          </div>
+          <button 
+            pButton 
+            type="button" 
+            icon="pi pi-times" 
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="model.vendor = null; model.customerId = null; form.patchValue({ vendorId: null })">
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </div>
+</form>
+
+<!-- Order Totals display -->
+<div class="order-totals mb-4" *ngIf="model.items?.length">
+  <div class="totals-row flex justify-between py-1">
+    <span>Subtotal:</span>
+    <span class="amount font-medium">₹{{ totals.subTotal | number:'1.2-2' }}</span>
+  </div>
+  <div class="totals-row flex justify-between py-1">
+    <span>Tax (0%):</span>
+    <span class="amount font-medium">₹{{ totals.taxTotal | number:'1.2-2' }}</span>
+  </div>
+  <div class="totals-row grand-total flex justify-between py-2 border-t pt-2">
+    <span class="font-bold">Grand Total:</span>
+    <span class="amount font-bold text-lg">₹{{ totals.grandTotal | number:'1.2-2' }}</span>
+  </div>
+</div>
+
+<!-- Form Control Action Buttons -->
+<div class="order-actions">
+  <button
+    pButton
+    type="button"
+    label="Save Sales"
+    icon="pi pi-save"
+    (click)="save.emit()"
+    class="p-button-success"
+    [disabled]="!form.valid || (model?.status && model?.status !== 'DRAFT')">
+  </button>
+
+<ng-container *ngxPermissionsOnly="['SO.SubmitToApprove']">
+  <p-button
+    *ngIf="!model?.id || model?.status?.toUpperCase() === 'DRAFT'"
+    type="button"
+    label="Submit for Approval"
+    icon="pi pi-send"
+    styleClass="p-button-warning"
+    (click)="submitToApprovalPipeline()"
+    [disabled]="!form.valid">
+  </p-button>
+</ng-container>
+
+
+<!-- Approve Button for Managers -->
+<ng-container *ngxPermissionsOnly="['SO.Approve']">
+  <p-button
+    *ngIf="model?.status === 'PENDING_APPROVAL'"
+    type="button"
+    label="Approve Sales Order"
+    icon="pi pi-check"
+    styleClass="p-button-success"
+    (click)="executeManagerApproval()">
+  </p-button>
+</ng-container>
+
+<!-- Lock down standard Save Button if processed -->
+
+
+  <button
+    pButton
+    type="button"
+    label="Clear Sales"
+    icon="pi pi-times"
+    (click)="clear.emit()"
+    class="p-button-secondary"
+    style="margin-left: 0.5rem">
+  </button>
+  <button
+    pButton
+    type="button"
+    label="Cancel"
+    icon="pi pi-times"
+    (click)="cancel.emit()"
+    class="p-button-secondary"
+    style="margin-left: 0.5rem">
+  </button>
+</div>

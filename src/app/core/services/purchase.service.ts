@@ -74,6 +74,54 @@ export class PurchaseService {
     }
 
     /**
+ * PATCH: Submits a draft purchase order to the approval workflow.
+ * @param id The database tracking ID of the purchase order.
+ */
+submitToApprovalWorkflow(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/finalize`, {}).pipe(
+        tap(response => console.log('Purchase order submitted for approval:', response)),
+        catchError(this.handleError)
+    );
+}
+
+    /** for 
+ * PATCH: Finalizes a draft purchase order and increments inventory stock.
+ * @param id The database tracking ID of the purchase order.
+ * @returns An Observable of the finalization status payload.
+ */
+finalizePurchaseOrder(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/finalize`, {}).pipe(
+        tap(response => console.log('Purchase order finalized:', response)),
+        catchError(this.handleError)
+    );
+}
+
+/**
+ * PATCH: Approves a pending purchase order, updates status to APPROVED, and increments product stock counts.
+ * @param id The database tracking ID of the purchase order.
+ */
+approvePurchaseOrder(id: number): Observable<any> {
+    return this.http.patch<any>(`${`${this.apiUrl}/${id}/approve`}`, {}).pipe(
+        tap(response => console.log('Purchase order successfully approved:', response)),
+        catchError(this.handleError)
+    );
+}
+
+
+    /**
+   * Deletes a draft or cancels an active purchase order via DELETE resource id path binding.
+   */
+  deletePurchaseOrder(id: number): Observable<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }> {
+    const url = `${this.apiUrl}/${id}`;
+    console.log(`Sending delete/cancel request for purchase order at ${url}`);
+    
+    return this.http.delete<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }>(url).pipe(
+      tap(response => console.log('Delete/Cancel purchase order response:', response)),
+      catchError(this.handleError)
+    );
+  }
+
+    /**
      * GET: Retrieves all purchase orders assigned to a specific tenant ID.
      */
     getPOs(ptenantId: number): Observable<Purchase[]> {
