@@ -24,12 +24,13 @@ export class PurchaseMgrComponent implements OnInit {
   tenantId!: number;
   POs: any[] = [];
   expandedRows: { [id: number]: boolean } = {};
-  currOpMode: FormOpMode = FormOpMode.View;
+ 
   activeModel: any = null;
 
   // Make enum accessible in the template
   FormOpMode = FormOpMode;
 
+  currOpMode: FormOpMode = FormOpMode.View;
   private purchaseService = inject(PurchaseService);
   private authServ = inject(AuthService);
   private messageService = inject(MessageService);
@@ -53,7 +54,8 @@ export class PurchaseMgrComponent implements OnInit {
 
   handleAdd(): void {
     this.currOpMode = FormOpMode.Add;
-    localStorage.setItem('currOpMode', this.currOpMode);
+   // localStorage.setItem('currOpMode', this.currOpMode);
+localStorage.setItem('currOpMode', String(FormOpMode.Add));
 
     this.activeModel = {
       id: 0,

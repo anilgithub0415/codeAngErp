@@ -17,6 +17,7 @@ import { User } from '../../core/models/user.model';
 import { UserService } from '../../core/services/user.service';
 import { EventBusService, Events } from '../../core/services/event-bus.service';
 
+
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
     tenantId: number;
@@ -28,7 +29,7 @@ interface AvailableContext {
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu, MenuModule, ButtonModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu, MenuModule, ButtonModule, ],
     providers:[MessageService],
     
     template: ` <div class="layout-topbar">
@@ -85,6 +86,8 @@ interface AvailableContext {
 
 
 <div *ngIf='loadingContext'>loadingContext...</div>  <div *ngIf='!loadingContext'>loaded Context...</div>
+
+         
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">

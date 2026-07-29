@@ -1,0 +1,44 @@
+<!-- BAND 6: ALERTS & BROADCASTS METRIC CARD -->
+<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem' }">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+        
+        <!-- Left Node: Bell Icon & Unread Counter badge -->
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 350px;">
+            <!-- Icon Background switched to an opacity tint to adapt cleanly to dark theme layout -->
+            <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(245, 158, 11, 0.15); border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem; position: relative;">
+                <i class="pi pi-bell" style="color: #f59e0b; font-size: 1.35rem;"></i>
+                <!-- Micro Notification Badge Indicator: Border dynamically adapts to the current theme card canvas -->
+                <span *ngIf="unreadCount > 0" style="position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; border-radius: 50%; width: 1.25rem; height: 1.25rem; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface-card);">
+                    {{ unreadCount }}
+                </span>
+            </div>
+            <div>
+                <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Alerts & Broadcasts</span>
+                <div style="color: var(--text-color); font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">
+                    System Activity Updates
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Node: Micro ticker carousel showing the latest message inline -->
+        <!-- Background and border changed from light slate to theme variables -->
+        <div style="flex: 2 1 350px; min-width: 280px; display: flex; align-items: center; background: var(--surface-ground); padding: 0.5rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 6px;">
+            <div style="font-size: 0.85rem; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                    <i [class]="latestNotification.icon" [style]="{ 'color': latestNotification.color }"></i>
+                    <span style="color: var(--text-color);">
+                        <strong>{{ latestNotification.category }}</strong>: {{ latestNotification.message }}
+                    </span>
+                </div>
+                <span style="color: var(--text-color-secondary); font-size: 0.75rem; white-space: nowrap;">{{ latestNotification.timeAgo }}</span>
+            </div>
+        </div>
+
+        <!-- Right Node: Multi-Action Button Dropdown -->
+        <div style="flex: 0 1 auto; text-align: right;">
+            <!-- PrimeNG warning styling handles base dark adjustments natively; custom bounds kept inline -->
+            <button pButton type="button" label="View All History" icon="pi pi-bell" class="p-button-warning p-button-sm" style="border-radius: 6px; font-size: 0.85rem; background-color: #f59e0b; border-color: #f59e0b;" (click)="openNotificationCenter()"></button>
+        </div>
+
+    </div>
+</p-card>

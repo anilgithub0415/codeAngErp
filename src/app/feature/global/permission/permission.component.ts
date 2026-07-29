@@ -2,7 +2,7 @@
 
 
 // src/app/pages/permission/permission.component.ts
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormlyConfig, FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
@@ -44,7 +44,7 @@ import { firstValueFrom, tap } from 'rxjs';
 })
 export class PermissionComponent implements OnInit {
   visibleDataArray!: any[];
-  tenantId!: number;          
+  @Input() tenantId!: number;          
   isFormHidden: boolean = true;
   readonly FormOpMode = FormOpMode; 
   currOpMode: FormOpMode = FormOpMode.View; 
@@ -67,7 +67,7 @@ export class PermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetModel();
-    this.tenantId = this.authServ.getTenantId()!;   
+     
 
     this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
     this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
@@ -200,6 +200,8 @@ export class PermissionComponent implements OnInit {
         await firstValueFrom(this.permissionService.updatePermission(this.model.id, payload));
         this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Permission updated successfully' });
       } else {
+        console.log('creating permission with payload:',payload);
+        
         await firstValueFrom(this.permissionService.createPermission(payload));
         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Permission created successfully' });
       }

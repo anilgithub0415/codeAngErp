@@ -33,7 +33,7 @@ const routes: Routes = [
                  path:'tenantProfile/:id',
                  component:TenantProfileTabsComponent
                },
-      {path:'card',component:TenantKanbanBoardComponent},
+      {path:'KanbanBoard',component:TenantKanbanBoardComponent},
       
       
       {path:'TenantStrategies',component:TenantStrategiesComponent},
@@ -42,6 +42,10 @@ const routes: Routes = [
       
       { path: 'SucuritySettings', component: SecuritySettingsComponent },
 
+      {
+              path:'tenantProfile/:id',
+              component:TenantProfileTabsComponent
+            },
     ]
   }
 ];

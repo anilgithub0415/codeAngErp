@@ -1,0 +1,37 @@
+:host ::ng-deep .quote-items-table {
+    font-size: 12px;
+}
+
+:host ::ng-deep .quote-items-table table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+:host ::ng-deep .quote-items-table .p-datatable-thead > tr > th {
+    padding: 2px 8px !important;
+    font-size: 12px;
+    line-height: 1.1;
+    font-weight: 600;
+}
+
+:host ::ng-deep .quote-items-table .p-datatable-tbody > tr > td {
+    padding: 2px 8px !important;
+    font-size: 12px;
+    line-height: 1.1;
+    vertical-align: middle;
+}
+
+:host ::ng-deep .quote-items-table .unit-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface-c);
+}
+
+.compact-btn {
+    width: 1.5rem;
+    height: 0.5rem;
+    padding: 0;
+}

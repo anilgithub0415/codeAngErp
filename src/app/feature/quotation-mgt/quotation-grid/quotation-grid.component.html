@@ -10,7 +10,7 @@
     <!-- Top Controller Toolbar Deck Header Area -->
     <ng-template #header>
       <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-3 w-full">
-         <h3 class="m-0 text-lg font-semibold text-900 flex align-items-center gap-2">
+         <h3 class="m-0 text-lg font-semibold flex align-items-center gap-2" style="color: var(--text-color);">
             <i class="pi pi-file text-primary"></i> Quotation Management Catalog
          </h3>
          
@@ -31,115 +31,29 @@
       </div>
     </ng-template>
 
-    <!-- FIXED VIEW PATTERN A: HIGH-DENSITY LIST LAYOUT WITH EXPANDABLE ROW MATRIX -->
+    <!-- LIST LAYOUT: Re-engineered to exactly mirror Sales Order template patterns -->
     <ng-template #list let-items>
       <div class="grid grid-nogutter col-12 px-0 flex flex-column w-full mt-2">
-        <p-table [value]="items" dataKey="id" [expandedRowKeys]="expandedRows" class="p-datatable-sm w-full">
-          <ng-template pTemplate="header">
-            <tr class="surface-100 text-600 font-semibold border-bottom-1 surface-border">
-              <th style="width: 4rem"></th>
-              <th style="width: 4rem"></th>
-              <th>Quotation Ref</th>
-              <th>Customer Name</th>
-              <th>Contact Person</th>
-              <th>Gross Aggregate Total</th>
-              <th>Profile Created</th>
-              <th>Status</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-quote let-expanded="expanded">
-            <tr class="border-bottom-1 surface-border">
-              <td>
-                <p-button 
-                  type="button" 
-                  pRipple 
-                  [pRowToggler]="quote" 
-                  [text]="true" 
-                  [rounded]="true" 
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-                </p-button>
-              </td>
-              <td>
-                <p-button 
-                  type="button" 
-                  pRipple 
-                  [text]="true" 
-                  [rounded]="true" 
-                  (click)="triggerEditWorkflow(quote)"
-                  icon="pi pi-pencil">
-                </p-button>
-              </td>
-              <td><strong>QT-{{quote.id}}</strong></td>
-              <td>{{ quote.clientName }} <span *ngIf="quote.clientCategory" class="text-xs text-slate-400">({{ quote.clientCategory }})</span></td>
-              <td>{{ quote.contactPerson || 'N/A' }}</td>
-              <td><strong class="text-emerald-700">₹{{ (quote.totalAmount ?? 0) | number:'1.2-2' }}</strong></td>
-              <td>{{ quote.createdAt | date:'dd-MM-yyyy HH:mm' }}</td>
-              <td>{{ quote.status || 'N/A' }}</td>
-            </tr>
-          </ng-template>
-          
-          <!-- NESTED DETAIL LINE COLLECTION EXTRUDER MATRIX -->
-          <ng-template pTemplate="expandedrow" let-quote>
-            <tr>
-              <td colspan="8">
-                <div class="p-4 bg-gray-50 border border-slate-200 rounded-lg shadow-inner">
-                  <h4 class="font-bold mb-3 text-sm text-slate-700"><i class="pi pi-tags mr-1"></i> Itemized Material Line Estimates:</h4>
-                  
-                  <p-table *ngIf="quote?.items?.length" [value]="quote.items" class="p-datatable-sm w-full">
-                    <ng-template pTemplate="header">
-                      <tr class="surface-50 text-500 font-semibold">
-                        <th>Product Detail Spec / SKU</th>
-                        <th>Material Line Description</th>
-                        <th>Unit Measure</th>
-                        <th>Quantity</th>
-                        <th>Base Price</th>
-                        <th>Line Discount</th>
-                        <th>GST %</th>
-                        <th>Total Item Amount</th>
-                      </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-item>
-                      <tr>
-                        <td><strong>{{ item.productName }}</strong></td>
-                        <td><span class="text-xs text-slate-600">{{ item.description || 'No item details supplied' }}</span></td>
-                        <td><span class="p-tag p-tag-info">{{ item.unit }}</span></td>
-                        <td>{{ item.quantity | number:'1.2-2' }}</td>
-                        <td>₹{{ item.price | number:'1.2-2' }}</td>
-                        <td class="text-red-600">₹{{ item.discount | number:'1.2-2' }}</td>
-                        <td>{{ item.gstPercentage | number:'1.1-2' }}%</td>
-                        <td><strong>₹{{ item.totalItemAmount | number:'1.2-2' }}</strong></td>
-                      </tr>
-                    </ng-template>
-                  </p-table>
-                  
-                  <div *ngIf="!quote?.items?.length" class="text-xs text-gray-400 p-2 italic">
-                    Zero product items are allocated to this configuration profile.
-                  </div>
-                  
-                  <!-- ANCILLARY SPECIFICATION LABELS FOOTER MATRIX -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
-                    <div><strong><i class="pi pi-truck mr-1"></i> Logistics / Delivery Location:</strong> {{ quote.deliveryLocation || 'Standard Wholesaler Distribution Depot' }}</div>
-                    <div><strong><i class="pi pi-info-circle mr-1"></i> Aggregate Value summary:</strong> Document calculation includes applied line deductions and tax margins.</div>
-                  </div>
-                  <div class="text-xs text-slate-500 mt-2 italic" *ngIf="quote.remarksNotes">
-                    <strong>Internal Auditor Remarks:</strong> {{ quote.remarksNotes }}
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+        
+        <tr style="height:2rem; font-size:16px; background-color:var(--surface-b); color:var(--text-color-secondary); border-bottom:1px solid var(--surface-border);">
+    <th style="width:50px; padding:2px 4px !important;" class="text-center"></th>
+    <th style="width:50px; padding:2px 4px !important;"></th>
+    <th style="padding:2px 4px !important;">Quotation Ref</th>
+    <th style="padding:2px 4px !important;">Customer Name</th>
+    <th style="padding:2px 4px !important;">Contact Person</th>
+    <th style="padding:2px 4px !important;">Gross Aggregate Total</th>
+    <th style="padding:2px 4px !important;">Profile Created</th>
+    <th style="padding:2px 4px !important;">Status</th>
+</tr>
       </div>
     </ng-template>
-
-        <!-- FIXED VIEW PATTERN B: DECORATIVE CARDS GRID LAYOUT WITH INTERNALLY LISTED ITEMS -->
+    <!-- FIXED VIEW PATTERN B: DECORATIVE CARDS GRID LAYOUT WITH INTERNALLY LISTED ITEMS -->
     <ng-template #grid let-items>
       <div class="grid grid-nogutter col-12 pt-3 w-full flex-wrap">
         <div class="col-12 sm:col-6 lg:col-4 xl:col-3 p-3 flex" *ngFor="let quote of items">
             
-            <div class="p-3 border-1 surface-border surface-card border-round-xl shadow-1 transition-all transition-duration-200 hover:shadow-4 flex flex-column h-full w-full"
-                 style="min-height: 300px;"
+            <div class="p-3 border-1 border-round-xl shadow-1 transition-all flex flex-column h-full w-full"
+                 style="min-height: 300px; background-color: var(--surface-card); border-color: var(--surface-border);"
                  (mouseenter)="setCardHover($event, true)"
                  (mouseleave)="setCardHover($event, false)">
                  
@@ -147,9 +61,11 @@
                  <div class="flex justify-content-between align-items-start mb-3 gap-2 w-full">
                    <div class="flex flex-column gap-1">
                       <span class="font-mono text-500 block" style="font-size: 10px;">REF: QT-{{ quote.id }}</span>
-                      <span class="text-xs text-400 block">{{ quote.createdAt | date:'dd-MM-yyyy HH:mm' }}</span>
+                      <span class="text-xs text-500 block">{{ quote.createdAt | date:'dd-MM-yyyy HH:mm' }}</span>
                    </div>
-                   <span class="text-xs font-bold px-2 py-1 border-round-md flex align-items-center gap-1 bg-teal-50 text-teal-700"
+                   <span class="text-xs font-bold px-2 py-1 border-round-md flex align-items-center gap-1"
+                         [style.background-color]="quote.status === 'draft' || !quote.status ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'"
+                         [style.color]="quote.status === 'draft' || !quote.status ? '#ff5b5b' : '#1cdb94'"
                          style="font-size: 11px;">
                       <i class="pi pi-circle-fill" style="font-size: 6px;"></i>
                       {{ quote.status || 'Pending' }}
@@ -158,21 +74,25 @@
 
                  <!-- Middle Card Body Content -->
                  <div class="flex-grow-1 mb-3 w-full">
-                    <h4 class="m-0 text-900 font-bold text-base mb-1 text-overflow-ellipsis overflow-hidden line-height-3">
+                    <h4 class="m-0 font-bold text-base mb-1 text-overflow-ellipsis overflow-hidden line-height-3" style="color: var(--text-color);">
                         {{ quote.clientName }}
                     </h4>
-                    <span *ngIf="quote.clientCategory" class="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-600 border-round mb-2 inline-block">
+                    <span *ngIf="quote.clientCategory" 
+                          class="text-xs font-semibold px-2 py-0.5 border-round mb-2 inline-block"
+                          style="background-color: var(--surface-b); color: var(--text-color-secondary);">
                         {{ quote.clientCategory }}
                     </span>
-                    <div class="text-xs text-600 mb-2"><strong>Contact:</strong> {{ quote.contactPerson || 'N/A' }}</div>
+                    <div class="text-xs text-500 mb-2"><strong>Contact:</strong> {{ quote.contactPerson || 'N/A' }}</div>
                     
                     <!-- Embedded Quotation Items Mini Preview Panel -->
                     <div class="items-preview-box mt-2" *ngIf="quote.items?.length; else noItems">
                       <span class="text-500 font-medium block mb-1" style="font-size: 10px; text-transform: uppercase;">Materials Summary ({{quote.items.length}})</span>
                       <div class="flex flex-column gap-1 max-h-6rem overflow-y-auto">
                         <ng-container *ngFor="let item of quote.items; let i = index">
-                          <div *ngIf="i < 3" class="bg-gray-50 p-1 border-round text-xs text-700 flex justify-content-between align-items-center">
-                            <span class="font-semibold text-800 text-overflow-ellipsis overflow-hidden white-space-nowrap pr-2" style="max-width: 65%;">{{ item.productName }}</span>
+                          <div *ngIf="i < 3" 
+                               class="p-1 border-round text-xs flex justify-content-between align-items-center"
+                               style="background-color: var(--surface-b); color: var(--text-color);">
+                            <span class="font-semibold text-overflow-ellipsis overflow-hidden white-space-nowrap pr-2" style="max-width: 65%;">{{ item.productName }}</span>
                             <span class="text-500 font-mono text-xs" style="font-size: 10px;">x{{ item.quantity }} {{ item.unit }}</span>
                           </div>
                         </ng-container>
@@ -187,11 +107,13 @@
                     </ng-template>
                  </div>
 
+                 <hr class="w-full m-0 mb-3 border-0 border-top-1" style="border-top-color: var(--surface-border);" />
+
                  <!-- Bottom Card Footer Action Buttons -->
                  <div class="flex justify-content-between align-items-center mt-auto w-full">
                     <div class="flex flex-column">
                         <span class="text-500 font-medium" style="font-size: 10px;">Gross Aggregate</span>
-                        <span class="text-base font-bold text-emerald-700">₹{{ (quote.totalAmount ?? 0) | number:'1.2-2' }}</span>
+                        <span class="text-base font-bold" style="color: var(--text-color);">₹{{ (quote.totalAmount ?? 0) | number:'1.2-2' }}</span>
                     </div>
                     
                     <div class="flex gap-1">

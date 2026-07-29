@@ -1,0 +1,46 @@
+<!-- BAND 1: PRODUCTS & EXPRESS QUICK LOOKUP -->
+<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem' }">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+        
+        <!-- Left Section: Icon & Active Master Contract Readout -->
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 350px;">
+            <!-- Icon Background switched to an opacity tint to adapt cleanly to dark theme -->
+            <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(59, 130, 246, 0.15); border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                <i class="pi pi-box" style="color: #3b82f6; font-size: 1.35rem;"></i>
+            </div>
+            <div>
+                <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Catalog & Products</span>
+                <div style="color: var(--text-color); font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">3 Active Master Contract SKUs</div>
+            </div>
+        </div>
+        
+        <!-- Interactive AutoComplete Search Node Embedded in the Row -->
+        <div style="flex: 2 1 350px; min-width: 280px;">
+            <p-autoComplete 
+                [(ngModel)]="selectedProduct" 
+                [suggestions]="filteredProducts" 
+                (completeMethod)="searchProducts($event)" 
+                field="description"
+                optionLabel="description"
+                [forceSelection]="true"
+                appendTo="body"
+                placeholder="Quick Price Check: Type SKU or name ('mop', 'brush')..."
+                [style]="{'width':'100%'}"
+                [inputStyle]="{'width':'100%', 'padding':'0.5rem 0.75rem', 'background':'var(--repository-background, var(--surface-ground))', 'color':'var(--text-color)', 'border':'1px solid var(--surface-border)', 'border-radius':'6px', 'font-size':'0.85rem'}">
+                <ng-template let-product pTemplate="item">
+                    <!-- Dropdown item row uses text-color variables for dark view visibility -->
+                    <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.85rem; color: var(--text-color);">
+                        <span><strong>{{product.sku}}</strong> - {{product.prodName}}</span>
+                        <span style="color: #3b82f6; font-weight: 700; margin-left: 1rem;">{{product.contractPrice | currency}}</span>
+                    </div>
+                </ng-template>
+            </p-autoComplete>
+        </div>
+        
+        <!-- Right Action Button Node -->
+        <div style="flex: 0 1 auto; text-align: right;">
+            <!-- PrimeNG outline style switches color automatically, but inline border-radius remains preserved -->
+            <button pButton type="button" label="View Full Catalog" icon="pi pi-list" class="p-button-outlined p-button-sm" style="border-radius: 6px; font-size: 0.85rem;"></button>
+        </div>
+    </div>
+</p-card>

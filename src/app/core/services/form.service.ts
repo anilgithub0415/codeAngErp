@@ -12,7 +12,7 @@ import { form } from '../models/form.model';
 export class FormService {
     // Base URL for your Product API endpoints on the backend
     // Assuming your backend serves product APIs under /api/products
-    private apiUrl = '/form';
+    private apiUrl = '/tenantform';
 
     constructor(private http: HttpClient) { }
 

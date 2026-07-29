@@ -1,7 +1,7 @@
 
 // src/app/feature/settings/tenant-strategies/tenant-strategies.component.ts (Part 1)
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, inject, Input, OnInit } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { FormlyConfig, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { FormlyInputModule } from "@ngx-formly/primeng/input";
@@ -34,7 +34,7 @@ import { firstValueFrom, tap } from "rxjs";
 })
 export class TenantStrategiesComponent implements OnInit {
   visibleDataArray: TenantStrategy[] = [];
-  tenantId!: number;
+  @Input() tenantId!: number;
   isFormHidden: boolean = true;
   readonly FormOpMode = FormOpMode; 
   currOpMode: FormOpMode = FormOpMode.View; 
@@ -54,7 +54,7 @@ export class TenantStrategiesComponent implements OnInit {
   private cd = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.tenantId = this.authServ.getTenantId()!;
+    
     this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
 
     this.getForm_TenantStrategies();
@@ -102,12 +102,12 @@ export class TenantStrategiesComponent implements OnInit {
 
     try {
       if (this.currOpMode === FormOpMode.Update && submissionPayload.id) {
-        console.log('Routing PUT modification pipeline details matching target key:', submissionPayload.id);
-        await firstValueFrom(this.strategyService.updateStrategy(submissionPayload.id, submissionPayload));
+        console.log('Routing PUT modification pipeline details matching target key:', submissionPayload);
+        await firstValueFrom(this.strategyService.updateStrategy(this.tenantId,submissionPayload.id, submissionPayload));
         this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Strategy details updated successfully' });
       } else {
         console.log('Routing generic configuration creation POST pipeline...');
-        await firstValueFrom(this.strategyService.createStrategy(submissionPayload));
+        await firstValueFrom(this.strategyService.createStrategy(this.tenantId,submissionPayload));
         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Strategy registered successfully' });
       }
 

@@ -17,7 +17,8 @@ import { FormlyCardWrapperComponent } from '../../../../shared/components/formly
 import { FormlyFieldPrimengDropdownComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
 import { FormlyWrapperTypeaheadComponent } from '../../../../shared/components/formlyfields/formly-wrapper-typeahead/formly-wrapper-typeahead.component';
 import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { hydrateFormlyConfig } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { bindDatabaseHooks, hydrateFormlyConfig } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { FormService } from '../../../../core/services/form.service';
 
 @Component({
   selector: 'app-product-master-form',
@@ -31,7 +32,7 @@ export class ProductMasterFormComponent implements OnInit, OnChanges {
   @Input() opMode!: FormOpMode;
   @Input() isFormHidden: boolean = true;
   @Input() productData: any = null;
-  @Input() categoryOptions: any[] = [];
+  
   @Input() hsnOptions: any[] = [];
 
   @Output() onCancel = new EventEmitter<void>();
@@ -39,11 +40,14 @@ export class ProductMasterFormComponent implements OnInit, OnChanges {
   @Output() onSaveFailure = new EventEmitter<FormOpMode>();
   @Output() onPromptReactivation = new EventEmitter<{ productId: number, productName: string }>();
 
+  raw!:any;
   form = new FormGroup({});
   model: any = {};
   fields: FormlyFieldConfig[] = [];
+  aForm!: any;
   rawJSON!: any;
 
+    private formService = inject(FormService);
   private productService = inject(ProductService);
   private purchaseService = inject(PurchaseService);
   private salesService = inject(SalesService);
@@ -149,239 +153,252 @@ export class ProductMasterFormComponent implements OnInit, OnChanges {
 
 
   getFormlyJSON_processed() {
-    this.rawJSON = [
-      { "key": "id", "type": "input", "hide": true },
-      { "key": "createdByUserId", "type": "input", "hide": true },
-      { "key": "tenantId", "type": "input", "hide": true },
-      {
-        "wrappers": ["panel"],
-        "className": "col-span-12 w-full block mb-0",
-        "fieldGroupClassName": "grid grid-cols-12 gap-4 w-full p-fluid items-end mb-4",
-        "fieldGroup": [
-          {
-            "type": "primeng-dropdown",
-            "key": "categoryId",
-            "className": "col-span-6 md:col-span-4",
-            "props": { 
-              "label": "Product Category", 
-              "placeholder": "Select Category", 
-              "options": this.categoryOptions, 
-              "required": true, 
-              "filter": true 
-            },
-            "expressions": {
-              "model.hsnId": (field: FormlyFieldConfig) => {
-                const activeCatId = field.model?.categoryId;
-                if (activeCatId && field.formControl?.dirty) {
-                  const match = this.categoryOptions.find(o => o.value === activeCatId);
-                  if (match && match.defaultHsnId) return match.defaultHsnId;
-                }
-                return field.model?.hsnId;
-              }
-            }
-          },
-          {
-            "type": "primeng-dropdown",
-            "key": "hsnId",
-            "className": "col-span-6 md:col-span-4",
-            "props": { 
-              "label": "HSN Code", 
-              "valueProp": "value", 
-              "labelProp": "label", 
-              "optionLabel": "label", 
-              "optionValue": "value", 
-              "placeholder": "Select HSN", 
-              "lookupKey": "hsnTypes", 
-              "required": true, 
-              "filter": true, 
-              "options": this.hsnOptions 
-            }
-          },
-          { 
-            "key": "prodName", 
-            "type": "input", 
-            "className": "col-span-12 md:col-span-4", 
-            "wrappers": ["typeahead-wrapper"], 
-            "props": { 
-              "label": "Product Name", 
-              "placeholder": "Enter product name", 
-              "required": true 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "description", 
-            "className": "col-span-12 md:col-span-4", 
-            "props": { 
-              "label": "Description", 
-              "placeholder": "Enter description" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "sku", 
-            "className": "col-span-12 md:col-span-2", 
-            "props": { 
-              "label": "SKU", 
-              "placeholder": "Enter sku", 
-              "pattern": "^(.{6,}|.*-base)$" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "basePrice", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "Base Price", 
-              "placeholder": "Enter baseprice", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "customAttributes.tier_prices.B2C_price", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "B2C Price", 
-              "placeholder": "0.00", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "customAttributes.tier_prices.B2B_price", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "B2B Price", 
-              "placeholder": "0.00", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "customAttributes.tier_prices.B2BC_price", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "B2BC Price", 
-              "placeholder": "0.00", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "customAttributes.tier_prices.Dealer_price", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "Dealer Price", 
-              "placeholder": "0.00", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "customAttributes.tier_prices.Wholesaler_price", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "Wholesaler Price", 
-              "placeholder": "0.00", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "currentstock", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "Stock", 
-              "placeholder": "Enter currentstock", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "input", 
-            "key": "reorderLevel", 
-            "className": "col-span-6 md:col-span-2", 
-            "props": { 
-              "label": "Reorder Level", 
-              "placeholder": "Enter reorderLevel", 
-              "type": "number" 
-            } 
-          },
-          { 
-            "type": "checkbox", 
-            "key": "isOEMProduct", 
-            "defaultValue": false, 
-            "className": "col-span-3 md:col-span-1", 
-            "props": { "label": "Is OEM" } 
-          },
-          { 
-            "type": "checkbox", 
-            "key": "isVariablePrice", 
-            "defaultValue": false, 
-            "className": "col-span-3 md:col-span-2", 
-            "props": { "label": "Variable Price" } 
-          },
-          { 
-            "type": "checkbox", 
-            "key": "isBulkPacking", 
-            "defaultValue": false, 
-            "className": "col-span-3 md:col-span-2", 
-            "props": { "label": "Is BulkPack" } 
-          },
-          { 
-            "type": "checkbox", 
-            "key": "isActive", 
-            "defaultValue": true, 
-            "className": "col-span-3 md:col-span-1", 
-            "props": { "label": "isActive" } 
-          },
-          { 
-            "type": "primeng-dropdown", 
-            "key": "defaultPurchaseUom", 
-            "className": "col-span-12 md:col-span-4", 
-            "props": { 
-              "label": "Purchase Unit:", 
-              "optionLabel": "label", 
-              "optionValue": "value", 
-              "placeholder": "Select UOM", 
-              "filter": true, 
-              "options": [] 
-            }, 
-            "expressions": { "hide": () => this.opMode !== FormOpMode.Update } 
-          },
-          { 
-            "type": "primeng-dropdown", 
-            "key": "defaultSalesUom", 
-            "className": "col-span-12 md:col-span-4", 
-            "props": { 
-              "label": "Sales Unit:", 
-              "optionLabel": "label", 
-              "optionValue": "value", 
-              "placeholder": "Select UOM", 
-              "filter": true, 
-              "options": [] 
-            }, 
-            "expressions": { "hide": () => this.opMode !== FormOpMode.Update } 
-          },
-          { 
-            "type": "primeng-dropdown", 
-            "key": "baseUom", 
-            "className": "col-span-12 md:col-span-4", 
-            "props": { 
-              "label": "Base Unit:", 
-              "optionLabel": "label", 
-              "optionValue": "value", 
-              "placeholder": "Select UOM", 
-              "filter": true, 
-              "options": [] 
-            }, 
-            "expressions": { "hide": () => this.opMode !== FormOpMode.Update } 
-          }
-        ]
-      }
-    ];
+    // this.rawJSON = [
+    //   { "key": "id", "type": "input", "hide": true },
+    //   { "key": "createdByUserId", "type": "input", "hide": true },
+    //   { "key": "tenantId", "type": "input", "hide": true },
+    //   {
+    //     "wrappers": ["panel"],
+    //     "className": "col-span-12 w-full block mb-0",
+    //     "fieldGroupClassName": "grid grid-cols-12 gap-4 w-full p-fluid items-end mb-4",
+    //     "fieldGroup": [
+    //       {
+    //         "type": "primeng-dropdown",
+    //         "key": "categoryId",
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": { 
+    //           "label": "Product Category", 
+    //           "placeholder": "Select Category", 
+    //           "options": this.categoryOptions, 
+    //           "required": true, 
+    //           "filter": true 
+    //         },
+    //         "expressions": {
+    //           "model.hsnId": (field: FormlyFieldConfig) => {
+    //             const activeCatId = field.model?.categoryId;
+    //             if (activeCatId && field.formControl?.dirty) {
+    //               const match = this.categoryOptions.find(o => o.value === activeCatId);
+    //               if (match && match.defaultHsnId) return match.defaultHsnId;
+    //             }
+    //             return field.model?.hsnId;
+    //           }
+    //         }
+    //       },
+    //       {
+    //         "type": "primeng-dropdown",
+    //         "key": "hsnId",
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": { 
+    //           "label": "HSN Code", 
+    //           "valueProp": "value", 
+    //           "labelProp": "label", 
+    //           "optionLabel": "label", 
+    //           "optionValue": "value", 
+    //           "placeholder": "Select HSN", 
+    //           "lookupKey": "hsnTypes", 
+    //           "required": true, 
+    //           "filter": true, 
+    //           "options": this.hsnOptions 
+    //         }
+    //       },
+    //       { 
+    //         "key": "prodName", 
+    //         "type": "input", 
+    //         "className": "col-span-12 md:col-span-4", 
+    //         "wrappers": ["typeahead-wrapper"], 
+    //         "props": { 
+    //           "label": "Product Name", 
+    //           "placeholder": "Enter product name", 
+    //           "required": true 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "description", 
+    //         "className": "col-span-12 md:col-span-4", 
+    //         "props": { 
+    //           "label": "Description", 
+    //           "placeholder": "Enter description" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "sku", 
+    //         "className": "col-span-12 md:col-span-2", 
+    //         "props": { 
+    //           "label": "SKU", 
+    //           "placeholder": "Enter sku", 
+    //           "pattern": "^(.{6,}|.*-base)$" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "basePrice", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "Base Price", 
+    //           "placeholder": "Enter baseprice", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "customAttributes.tier_prices.B2C_price", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "B2C Price", 
+    //           "placeholder": "0.00", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "customAttributes.tier_prices.B2B_price", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "B2B Price", 
+    //           "placeholder": "0.00", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "customAttributes.tier_prices.B2BC_price", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "B2BC Price", 
+    //           "placeholder": "0.00", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "customAttributes.tier_prices.Dealer_price", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "Dealer Price", 
+    //           "placeholder": "0.00", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "customAttributes.tier_prices.Wholesaler_price", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "Wholesaler Price", 
+    //           "placeholder": "0.00", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "currentstock", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "Stock", 
+    //           "placeholder": "Enter currentstock", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "input", 
+    //         "key": "reorderLevel", 
+    //         "className": "col-span-6 md:col-span-2", 
+    //         "props": { 
+    //           "label": "Reorder Level", 
+    //           "placeholder": "Enter reorderLevel", 
+    //           "type": "number" 
+    //         } 
+    //       },
+    //       { 
+    //         "type": "checkbox", 
+    //         "key": "isOEMProduct", 
+    //         "defaultValue": false, 
+    //         "className": "col-span-3 md:col-span-1", 
+    //         "props": { "label": "Is OEM" } 
+    //       },
+    //       { 
+    //         "type": "checkbox", 
+    //         "key": "isVariablePrice", 
+    //         "defaultValue": false, 
+    //         "className": "col-span-3 md:col-span-2", 
+    //         "props": { "label": "Variable Price" } 
+    //       },
+    //       { 
+    //         "type": "checkbox", 
+    //         "key": "isBulkPacking", 
+    //         "defaultValue": false, 
+    //         "className": "col-span-3 md:col-span-2", 
+    //         "props": { "label": "Is BulkPack" } 
+    //       },
+    //       { 
+    //         "type": "checkbox", 
+    //         "key": "isActive", 
+    //         "defaultValue": true, 
+    //         "className": "col-span-3 md:col-span-1", 
+    //         "props": { "label": "isActive" } 
+    //       },
+    //       { 
+    //         "type": "primeng-dropdown", 
+    //         "key": "defaultPurchaseUom", 
+    //         "className": "col-span-12 md:col-span-4", 
+    //         "props": { 
+    //           "label": "Purchase Unit:", 
+    //           "optionLabel": "label", 
+    //           "optionValue": "value", 
+    //           "placeholder": "Select UOM", 
+    //           "filter": true, 
+    //           "options": [] 
+    //         }, 
+    //         "expressions": { "hide": () => this.opMode !== FormOpMode.Update } 
+    //       },
+    //       { 
+    //         "type": "primeng-dropdown", 
+    //         "key": "defaultSalesUom", 
+    //         "className": "col-span-12 md:col-span-4", 
+    //         "props": { 
+    //           "label": "Sales Unit:", 
+    //           "optionLabel": "label", 
+    //           "optionValue": "value", 
+    //           "placeholder": "Select UOM", 
+    //           "filter": true, 
+    //           "options": [] 
+    //         }, 
+    //         "expressions": { "hide": () => this.opMode !== FormOpMode.Update } 
+    //       },
+    //       { 
+    //         "type": "primeng-dropdown", 
+    //         "key": "baseUom", 
+    //         "className": "col-span-12 md:col-span-4", 
+    //         "props": { 
+    //           "label": "Base Unit:", 
+    //           "optionLabel": "label", 
+    //           "optionValue": "value", 
+    //           "placeholder": "Select UOM", 
+    //           "filter": true, 
+    //           "options": [] 
+    //         }, 
+    //         "expressions": { "hide": () => this.opMode !== FormOpMode.Update } 
+    //       }
+    //     ]
+    //   }
+    // ];
 
-    this.fields = hydrateFormlyConfig(this.rawJSON); 
+
+    console.log('.........processing form.........');
+    
+     this.formService.getForm(this.tenantId!, 'product_form').subscribe(aform => {
+        this.aForm = aform;
+        this.raw = JSON.parse(this.aForm.FormlyConfig); console.log('.................raw:',this.raw);
+        
+      // 🔥 This must happen INSIDE the subscribe block
+      console.log('hydrating now................................');
+    
+      const hydrated = hydrateFormlyConfig(this.raw); this.compileAndHydrateFields();
+      this.fields = hydrated;
+     })
+
     const prodNameField = this.findFieldByKey(this.fields, 'prodName');
 
     if (prodNameField) {
@@ -434,6 +451,14 @@ export class ProductMasterFormComponent implements OnInit, OnChanges {
       };
     }
   }
+
+
+    private compileAndHydrateFields(): void {
+      this.fields = hydrateFormlyConfig(this.raw);
+    //  bindDatabasePricingHook(this.fields);
+    bindDatabaseHooks(this.productService,this.tenantId,this.fields)
+    }
+  
   async pullAllPurchaseUnits(forProductId: number | null, forvariantId: number | null) {
     try {
       const resultMatrix = await firstValueFrom(

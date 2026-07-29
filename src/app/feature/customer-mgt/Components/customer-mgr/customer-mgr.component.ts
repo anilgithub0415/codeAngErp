@@ -95,100 +95,100 @@ export class CustomerMgrComponent implements OnInit {
       this.raw = JSON.parse(this.aForm.FormlyConfig);
     });
 
-    this.raw = [
-      { "key": "id", "type": "input", "hide": true },
-      { "key": "createdByUserId", "type": "input", "hide": true },
-      { "key": "tenantId", "type": "input", "hide": true },
-      {
-        "type": "input",
-        "hide": true,
-        "key": "clientStatus",
-        "props": { "label": "clientStatus", "placeholder": "Enter clientStatus", "required": true }
-      },
-      {
-        "wrappers": ["panel"],
-        "className": "col-span-24 w-full block mb-0",
-        "props": {},
-        "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
-        "fieldGroup": [
-          {
-            "key": "customerName",
-            "type": "input",
-            "className": "col-span-7 md:col-span-6",
-            "props": { "label": "Client Name", "placeholder": "Enter client name", "required": true }
-          },
-          {
-            "type": "primeng-dropdown",
-            "key": "customerCategoryId",
-            "className": "col-span-6 md:col-span-4",
-            "props": {
-              "label": "Client Type", "valueProp": "value", "labelProp": "label",
-              "optionLabel": "label", "optionValue": "value", "placeholder": "Select Category",
-              "lookupKey": "customerCategoryTypes", "required": true, "filter": true
-            }
-          },
-          {
-            "type": "input",
-            "key": "commercialContactPerson",
-            "resetOnHide": true,
-            "className": "col-span-6 md:col-span-4",
-            "props": { "label": "commercialContactPerson", "description": "aaaa", "placeholder": "Enter commercialContactPerson", "searchable": true },
-            "validation": { "messages": { "required": "This field cannot be left blank." } },
-            "modelOptions": { "updateOn": "blur" }
-          },
+    // this.raw = [
+    //   { "key": "id", "type": "input", "hide": true },
+    //   { "key": "createdByUserId", "type": "input", "hide": true },
+    //   { "key": "tenantId", "type": "input", "hide": true },
+    //   {
+    //     "type": "input",
+    //     "hide": true,
+    //     "key": "clientStatus",
+    //     "props": { "label": "clientStatus", "placeholder": "Enter clientStatus", "required": true }
+    //   },
+    //   {
+    //     "wrappers": ["panel"],
+    //     "className": "col-span-24 w-full block mb-0",
+    //     "props": {},
+    //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+    //     "fieldGroup": [
+    //       {
+    //         "key": "customerName",
+    //         "type": "input",
+    //         "className": "col-span-7 md:col-span-6",
+    //         "props": { "label": "Client Name", "placeholder": "Enter client name", "required": true }
+    //       },
+    //       {
+    //         "type": "primeng-dropdown",
+    //         "key": "customerCategoryId",
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": {
+    //           "label": "Client Type", "valueProp": "value", "labelProp": "label",
+    //           "optionLabel": "label", "optionValue": "value", "placeholder": "Select Category",
+    //           "lookupKey": "customerCategoryTypes", "required": true, "filter": true
+    //         }
+    //       },
+    //       {
+    //         "type": "input",
+    //         "key": "commercialContactPerson",
+    //         "resetOnHide": true,
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": { "label": "commercialContactPerson", "description": "aaaa", "placeholder": "Enter commercialContactPerson", "searchable": true },
+    //         "validation": { "messages": { "required": "This field cannot be left blank." } },
+    //         "modelOptions": { "updateOn": "blur" }
+    //       },
           
           
 
-          {
-            "type": "input",
-            "key": "commercialContactPhone",
-            "resetOnHide": true,
-            "className": "col-span-6 md:col-span-4",
-            "props": { "label": "commercialContactPhone", "description": "aaaa", "placeholder": "e.g. +1-555-123-4567", "searchable": true },
-            "validation": { "messages": { "required": "This field cannot be left blank." } },
-            "modelOptions": { "updateOn": "blur" }
-          },
-          {
-            "type": "primeng-dropdown",
-            "key": "leadSource",
-            "className": "col-span-5 md:col-span-6",
-            "props": { "label": "Source", "optionLabel": "label", "optionValue": "value", "placeholder": "Select LeadSource", "lookupKey": "leadSourceTypes", "filter": true }
-          },
-          {
-            "type": "input",
-            "key": "EmailId",
-            "className": "col-span-6 md:col-span-4",
-            "props": { "label": "Email", "placeholder": "example@domain.com", "type": "email", "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", "searchable": true }
-          },
-          {
-            "type": "primeng-dropdown",
-            "key": "city",
-            "className": "col-span-6 md:col-span-4",
-            "props": { "label": "City", "valueProp": "value", "labelProp": "label", "optionLabel": "label", "optionValue": "value", "placeholder": "Select City", "lookupKey": "cityTypes", "filter": true }
-          },
-          { "key": "creditDays", "type": "input", "className": "col-span-6 md:col-span-2", "props": { "label": "CreditDays" } },
-          { "key": "creditLimit", "type": "input", "className": "col-span-6 md:col-span-2", "props": { "label": "CreditLimit" } }
-        ]
-      },
-      {
-        "key": "sites",
-        "type": "p-repeatsectionformly",
-        "wrappers": ["panel"],
-        "defaultValue": [],
-        "props": { "label": "", "addText": "Add site" },
-        "fieldArray": {
-          "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-          "fieldGroup": [
-            { "key": "id", "type": "input", "hide": true },
-            { "key": "tenantId", "type": "input", "hide": true },
-            { "key": "clientId", "type": "input", "hide": true },
-            { "type": "input", "key": "siteName", "className": "col-span-12 md:col-span-10", "props": { "placeholder": "Enter name" }, "expressions": { "props.label": "field.parent.index === 0 ? 'Site name' : ''" } },
-            { "type": "input", "key": "siteContactPerson", "className": "col-span-12 md:col-span-10", "props": { "placeholder": "Enter Contact Person" }, "expressions": { "props.label": "field.parent.index === 0 ? 'Site Contact Person' : ''" } }
-          ]
-        }
-      },
-      { "type": "button", "className": "col-span-12 md:col-span-3 mt-4", "props": { "text": "Save Customer", "type": "submit", "styleClass": "p-button-success" } }
-    ];
+    //       {
+    //         "type": "input",
+    //         "key": "commercialContactPhone",
+    //         "resetOnHide": true,
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": { "label": "commercialContactPhone", "description": "aaaa", "placeholder": "e.g. +1-555-123-4567", "searchable": true },
+    //         "validation": { "messages": { "required": "This field cannot be left blank." } },
+    //         "modelOptions": { "updateOn": "blur" }
+    //       },
+    //       {
+    //         "type": "primeng-dropdown",
+    //         "key": "leadSource",
+    //         "className": "col-span-5 md:col-span-6",
+    //         "props": { "label": "Source", "optionLabel": "label", "optionValue": "value", "placeholder": "Select LeadSource", "lookupKey": "leadSourceTypes", "filter": true }
+    //       },
+    //       {
+    //         "type": "input",
+    //         "key": "EmailId",
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": { "label": "Email", "placeholder": "example@domain.com", "type": "email", "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", "searchable": true }
+    //       },
+    //       {
+    //         "type": "primeng-dropdown",
+    //         "key": "city",
+    //         "className": "col-span-6 md:col-span-4",
+    //         "props": { "label": "City", "valueProp": "value", "labelProp": "label", "optionLabel": "label", "optionValue": "value", "placeholder": "Select City", "lookupKey": "cityTypes", "filter": true }
+    //       },
+    //       { "key": "creditDays", "type": "input", "className": "col-span-6 md:col-span-2", "props": { "label": "CreditDays" } },
+    //       { "key": "creditLimit", "type": "input", "className": "col-span-6 md:col-span-2", "props": { "label": "CreditLimit" } }
+    //     ]
+    //   },
+    //   {
+    //     "key": "sites",
+    //     "type": "p-repeatsectionformly",
+    //     "wrappers": ["panel"],
+    //     "defaultValue": [],
+    //     "props": { "label": "", "addText": "Add site" },
+    //     "fieldArray": {
+    //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+    //       "fieldGroup": [
+    //         { "key": "id", "type": "input", "hide": true },
+    //         { "key": "tenantId", "type": "input", "hide": true },
+    //         { "key": "clientId", "type": "input", "hide": true },
+    //         { "type": "input", "key": "siteName", "className": "col-span-12 md:col-span-10", "props": { "placeholder": "Enter name" }, "expressions": { "props.label": "field.parent.index === 0 ? 'Site name' : ''" } },
+    //         { "type": "input", "key": "siteContactPerson", "className": "col-span-12 md:col-span-10", "props": { "placeholder": "Enter Contact Person" }, "expressions": { "props.label": "field.parent.index === 0 ? 'Site Contact Person' : ''" } }
+    //       ]
+    //     }
+    //   },
+    //   { "type": "button", "className": "col-span-12 md:col-span-3 mt-4", "props": { "text": "Save Customer", "type": "submit", "styleClass": "p-button-success" } }
+    // ];
 
     forkJoin({
       mobileData: this.customerService.getMobileNumbersLookup(this.tenantId),

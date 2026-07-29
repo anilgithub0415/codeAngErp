@@ -4,10 +4,10 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
-import { FormOpMode } from '../../../shared/enums/FormOpMode.enum';
-import { clientPurchase } from '../../../core/models/clientPurchase.model';
-import { AuthService } from '../../../core/services/auth.service';
-import { clientPurchaseService } from '../../../core/services/clientPurchaseService';
+import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
+import { clientPurchase } from '../../../../core/models/clientPurchase.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { clientPurchaseService } from '../../../../core/services/clientPurchaseService';
 
 import { ClientPurchaseFormComponent } from '../client-purchase-form/client-purchase-form.component';
 import { ClientPurchaseGridComponent } from '../client-purchase-grid/client-purchase-grid.component';

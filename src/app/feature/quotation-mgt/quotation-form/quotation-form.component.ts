@@ -17,7 +17,11 @@ import { FormlyFieldPrimengDropdownComponent } from '../../../shared/components/
 import { FormlyFieldPrimengDatepickerComponent } from '../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
 import { RepeatsectionformlyComponent } from '../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
 import { FormlyCustomRowBridgeComponent } from '../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { hydrateFormlyConfig, chainOnInitHook } from '../../../shared/utils/hydrationOfFormlyJson';
+import { hydrateFormlyConfig, chainOnInitHook, bindDatabaseHooks } from '../../../shared/utils/hydrationOfFormlyJson';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { FormService } from '../../../core/services/form.service';
+import { FormlyWrapperTypeaheadComponent } from '../../../shared/components/formlyfields/formly-wrapper-typeahead/formly-wrapper-typeahead.component';
+import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfields/formly-field-button/formly-field-button.component';
 
 @Component({
   selector: 'app-quotation-form',
@@ -28,7 +32,8 @@ import { hydrateFormlyConfig, chainOnInitHook } from '../../../shared/utils/hydr
     FormlyModule, 
     CommonModule, 
     ButtonModule, 
-    FormlyPrimeNGModule
+    FormlyPrimeNGModule,
+    NgxPermissionsModule
   ],
   templateUrl: './quotation-form.component.html',
   styleUrl: './quotation-form.component.scss'
@@ -41,15 +46,21 @@ export class QuotationFormComponent implements OnInit {
 
   @Output() onCancel = new EventEmitter<void>();
   @Output() onSaveSuccess = new EventEmitter<string>();
+
+  @Output() onFinalize = new EventEmitter<any>();
+  @Output() onApprove = new EventEmitter<number>();
   @Output() onErrorToast = new EventEmitter<{ severity: string, summary: string, detail: string }>();
 
+  raw!:any;
   form = new FormGroup({});
   model: any = {};
   fields: FormlyFieldConfig[] = [];
+  aForm!: any;
   rawBlueprint: any[] = [];
   
   activeDiscounts: LineDiscount[] = [];
 
+  private formService = inject(FormService);
   private formlyConfig = inject(FormlyConfig);
   private quotationService = inject(QuotationService);
   private productService = inject(ProductService); 
@@ -57,10 +68,12 @@ export class QuotationFormComponent implements OnInit {
   private cd = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.registerCustomFormlyEngineExtensions();
-    this.preloadTenantPromotions();
-    this.generateFormlyJSONBlueprint();
-    this.compileAndHydrateFields();
+    //this.registerCustomFormlyEngineExtensions();
+    //this.preloadTenantPromotions();
+    this.generateFormlyJSONBlueprint();//quotation_form
+    this.registerFormlyExtensions()
+    
+   
 
     if ((this.opMode === FormOpMode.Update || this.opMode === FormOpMode.PortalNegotiation) && this.quotationData) {
       this.initiateUpdateWorkflow(this.quotationData);
@@ -70,7 +83,14 @@ export class QuotationFormComponent implements OnInit {
       this.cd.detectChanges();
     }
   }
-
+  private registerFormlyExtensions(): void {
+    this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
+    this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
+    this.formlyConfig.setWrapper({ name: 'typeahead-wrapper', component: FormlyWrapperTypeaheadComponent });
+    this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
+    this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
+    this.formlyConfig.setType({ name: 'button', component: FormlyFieldButtonComponent});
+  }
   private registerCustomFormlyEngineExtensions(): void {
     this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
     this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
@@ -90,192 +110,364 @@ export class QuotationFormComponent implements OnInit {
       error: (err) => console.error('Failed loading discount matrices context:', err)
     });
   }
-  private generateFormlyJSONBlueprint(): void {
-    this.rawBlueprint = [
-      { key: 'id', type: 'input', hide: true },
-      { key: 'tenantId', type: 'input', hide: true },
-      { key: 'createdByUserId', type: 'input', hide: true },
-      { key: 'quoteNumber', type: 'input', hide: true },
-      { key: 'version', type: 'input', hide: true },
-      {
-        wrappers: ['panel'],
-        className: 'col-span-24 w-full block mb-2',
-        fieldGroupClassName: 'grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4',
-        fieldGroup: [
-          {
-            type: 'primeng-dropdown',
-            key: 'clientId', 
-            className: 'col-span-24 md:col-span-6',
-            props: {
-              label: 'Wholesale Client / Customer', 
-              valueProp: 'value', 
-              styleClass: 'w-full', 
-              labelProp: 'label', 
-              optionLabel: 'label',
-              optionValue: 'value', 
-              placeholder: 'Select Customer',
-              lookupKey: 'customerTypes',  
-              required: true, 
-              filter: true 
-            }
-          },
-          {
-            type: 'input',
-            key: 'clientName',
-            className: 'col-span-24 md:col-span-6',
-            props: { label: 'Client / Trade Name', placeholder: 'e.g., Ceramic Enterprises', required: true }
-          },
-          {
-            type: 'input',
-            key: 'clientCategory',
-            className: 'col-span-12 md:col-span-6',
-            props: { label: 'Client Category', placeholder: 'e.g., Distributor, Retailer' }
-          },
-          {
-            type: 'input',
-            key: 'status',
-            className: 'col-span-12 md:col-span-6',
-            props: { label: 'Quotation Status', disabled: true }
-          },
-          {
-            type: 'input',
-            key: 'contactPerson',
-            className: 'col-span-12 md:col-span-6',
-            props: { label: 'Contact Person Name', placeholder: 'e.g., John Doe' }
-          },
-          {
-            type: 'input',
-            key: 'deliveryLocation',
-            className: 'col-span-24 md:col-span-12',
-            props: { label: 'Site Delivery / Logistics Location', placeholder: 'Enter complete logistics delivery path destination...' }
-          },
-          {
-            type: 'input',
-            key: 'remarksNotes',
-            className: 'col-span-24 md:col-span-12',
-            props: { label: 'Internal Notes', placeholder: 'Add quote structural tracking notes...' }
-          }
-        ]
-      },
-      {
-        key: 'items',
-        type: 'p-repeatsectionformly',
-        wrappers: ['panel'],
-        defaultValue: [],
-        props: {
-          label: 'Itemized Material Estimate Lines',
-          addText: 'Add Material Estimate Line',
-          rowDefaults: { quantity: 1, unit: 'PCS', price: 0, targetPrice: 0, discount: 0, gstPercentage: 18, totalItemAmount: 0 }
-        },
-        fieldArray: {
-          fieldGroupClassName: 'grid grid-cols-24 gap-4 w-full p-fluid items-end',
-          fieldGroup: [
-            { key: 'id', type: 'input', hide: true },
-            { key: 'productVariantId', type: 'input', hide: true },
-            { key: 'prodName', type: 'input', hide: true },
-            { key: 'sku', type: 'input', hide: true },
-            { key: 'appliedLineDiscountId', type: 'input', hide: true }, 
-            {
-              type: 'primeng-dropdown',
-              key: 'productId',
-              className: 'col-span-24 md:col-span-5',
-              props: {
-                optionLabel: 'label',
-                optionValue: 'value',
-                placeholder: 'Select Product Item',
-                lookupKey: 'productTypes',
-                required: true,
-                filter: true
-              },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Product Detail Spec / SKU' : ''" },
-              hooks: { onInit: 'onProductDropdownChange' }
-            },
-            {
-              type: 'input',
-              key: 'description',
-              className: 'col-span-24 md:col-span-4',
-              props: { placeholder: 'Item Description / Notes' },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Description' : ''" }
-            },
-            {
-              type: 'input',
-              key: 'unit',
-              className: 'col-span-12 md:col-span-2',
-              props: { placeholder: 'UOM', required: true },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'UOM' : ''" }
-            },
-            {
-              type: 'input',
-              key: 'quantity',
-              className: 'col-span-12 md:col-span-2',
-              props: { type: 'number', placeholder: 'Qty', required: true, min: 0 },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Quantity' : ''" },
-              hooks: {
-                onInit: (field: any) => {
-                  field.formControl?.valueChanges.subscribe(() => this.calculateSingleLineAmount(field.parent?.model));
-                }
-              }
-            },
-            {
-              type: 'input',
-              key: 'price',
-              className: 'col-span-12 md:col-span-2',
-              props: { type: 'number', placeholder: 'Rate', required: true, min: 0 },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Base Price' : ''" },
-              hooks: {
-                onInit: (field: any) => {
-                  field.formControl?.valueChanges.subscribe(() => this.calculateSingleLineAmount(field.parent?.model));
-                }
-              }
-            },
-            {
-              type: 'input',
-              key: 'targetPrice',
-              className: 'col-span-12 md:col-span-2',
-              props: { type: 'number', placeholder: 'Target', min: 0 },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Target Price (₹)' : ''" },
-              hooks: {
-                onInit: (field: any) => {
-                  field.formControl?.valueChanges.subscribe(() => this.calculateSingleLineAmount(field.parent?.model));
-                }
-              }
-            },
-            {
-              type: 'input',
-              key: 'discount',
-              className: 'col-span-12 md:col-span-2',
-              props: { type: 'number', placeholder: 'Dsc', required: true, min: 0, readonly: true }, 
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Discount (₹)' : ''" }
-            },
-            {
-              type: 'input',
-              key: 'gstPercentage',
-              className: 'col-span-12 md:col-span-2',
-              props: { type: 'number', placeholder: 'GST', required: true, min: 0 },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'GST %' : ''" },
-              hooks: {
-                onInit: (field: any) => {
-                  field.formControl?.valueChanges.subscribe(() => this.calculateSingleLineAmount(field.parent?.model));
-                }
-              }
-            },
-            {
-              type: 'input',
-              key: 'totalItemAmount',
-              className: 'col-span-12 md:col-span-3',
-              props: { type: 'number', placeholder: 'Total', readonly: true },
-              expressions: { 'props.label': "field.parent.index === 0 ? 'Line Net' : ''" }
-            }
-          ]
-        }
-      }
-    ];
-  }
+    
+
+  private generateFormlyJSONBlueprint(): void { console.log('calling form...........');
+  
+    this.formService.getForm(this.tenantId!, 'quotation_form').subscribe(aform => {
+      this.aForm = aform;
+      this.raw = JSON.parse(this.aForm.FormlyConfig); console.log('.................raw:',this.raw);
+      
+    // 🔥 This must happen INSIDE the subscribe block
+    console.log('hydrating now................................');
+  
+    const hydrated = hydrateFormlyConfig(this.raw); this.compileAndHydrateFields();
+    this.fields = hydrated;
+     
+    //bindDatabasePricingHook(this.fields);
+    bindDatabaseHooks(this.productService,this.tenantId,this.fields)
+    });
+    
+                //       this.raw = [
+                //   {
+                //     "key": "id",
+                //     "type": "input",
+                //     "hide": true
+                //   },
+                //   {
+                //     "key": "tenantId",
+                //     "type": "input",
+                //     "hide": true
+                //   },
+                //   {
+                //     "key": "createdByUserId",
+                //     "type": "input",
+                //     "hide": true
+                //   },
+                //   {
+                //     "key": "quoteNumber",
+                //     "type": "input",
+                //     "hide": true
+                //   },
+                //   {
+                //     "key": "version",
+                //     "type": "input",
+                //     "hide": true
+                //   },
+                //   {
+                //     "wrappers": [
+                //       "panel"
+                //     ],
+                //     "className": "col-span-24 w-full block mb-2",
+                //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+                //     "fieldGroup": [
+                //       {
+                //         "type": "primeng-dropdown",
+                //         "key": "clientId",
+                //         "className": "col-span-24 md:col-span-6",
+                //         "props": {
+                //           "label": "Wholesale Client / Customer from static json",
+                //           "valueProp": "value",
+                //           "styleClass": "w-full",
+                //           "labelProp": "label",
+                //           "optionLabel": "label",
+                //           "optionValue": "value",
+                //           "placeholder": "Select Customer",
+                //           "lookupKey": "customerTypes",
+                //           "required": true,
+                //           "filter": true
+                //         }
+                //       },
+                //       {
+                //         "type": "input",
+                //         "key": "clientName",
+                //         "className": "col-span-24 md:col-span-6",
+                //         "props": {
+                //           "label": "Client / Trade Name",
+                //           "placeholder": "e.g., Ceramic Enterprises",
+                //           "required": true
+                //         }
+                //       },
+                //       {
+                //         "type": "input",
+                //         "key": "clientCategory",
+                //         "className": "col-span-12 md:col-span-6",
+                //         "props": {
+                //           "label": "Client Category",
+                //           "placeholder": "e.g., Distributor, Retailer"
+                //         }
+                //       },
+                //       {
+                //         "type": "input",
+                //         "key": "status",
+                //         "className": "col-span-12 md:col-span-6",
+                //         "props": {
+                //           "label": "Quotation Status",
+                //           "disabled": true
+                //         }
+                //       },
+                //       {
+                //         "type": "input",
+                //         "key": "contactPerson",
+                //         "className": "col-span-12 md:col-span-6",
+                //         "props": {
+                //           "label": "Contact Person Name",
+                //           "placeholder": "e.g., John Doe"
+                //         }
+                //       },
+                //       {
+                //         "type": "input",
+                //         "key": "deliveryLocation",
+                //         "className": "col-span-24 md:col-span-12",
+                //         "props": {
+                //           "label": "Site Delivery / Logistics Location",
+                //           "placeholder": "Enter complete logistics delivery path destination..."
+                //         }
+                //       },
+                //       {
+                //         "type": "input",
+                //         "key": "remarksNotes",
+                //         "className": "col-span-24 md:col-span-12",
+                //         "props": {
+                //           "label": "Internal Notes",
+                //           "placeholder": "Add quote structural tracking notes..."
+                //         }
+                //       }
+                //     ]
+                //   },
+                //   {
+                //     "key": "items",
+                //     "type": "p-repeatsectionformly",
+                //     "wrappers": [
+                //       "panel"
+                //     ],
+                //     "defaultValue": [],
+                //     "props": {
+                //       "label": "Itemized Material Estimate Lines",
+                //       "addText": "Add Material Estimate Line",
+                //       "rowDefaults": {
+                //         "quantity": 1,
+                //         "unit": "PCS",
+                //         "price": 0,
+                //         "targetPrice": 0,
+                //         "discount": 0,
+                //         "gstPercentage": 18,
+                //         "totalItemAmount": 0
+                //       }
+                //     },
+                //     "fieldArray": {
+                //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+                //       "fieldGroup": [
+                //         {
+                //           "key": "id",
+                //           "type": "input",
+                //           "hide": true
+                //         },
+                //         {
+                //           "key": "productVariantId",
+                //           "type": "input",
+                //           "hide": true
+                //         },
+                //         {
+                //           "key": "prodName",
+                //           "type": "input",
+                //           "hide": true
+                //         },
+                //         {
+                //           "key": "sku",
+                //           "type": "input",
+                //           "hide": true
+                //         },
+                //         {
+                //           "key": "appliedLineDiscountId",
+                //           "type": "input",
+                //           "hide": true
+                //         },
+                //         {
+                //           "type": "primeng-dropdown",
+                //           "key": "productId",
+                //           "className": "col-span-24 md:col-span-5",
+                //           "props": {
+                //             "optionLabel": "label",
+                //             "optionValue": "value",
+                //             "placeholder": "Select Product Item",
+                //             "lookupKey": "productTypes",
+                //             "required": true,
+                //             "filter": true
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Product Detail Spec / SKU' : ''"
+                //           },
+                //           "hooks": {
+                //             "onInit": "onProductDropdownChange"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "description",
+                //           "className": "col-span-24 md:col-span-4",
+                //           "props": {
+                //             "placeholder": "Item Description / Notes"
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Description' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "unit",
+                //           "className": "col-span-12 md:col-span-2",
+                //           "props": {
+                //             "placeholder": "UOM",
+                //             "required": true
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'UOM' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "quantity",
+                //           "className": "col-span-12 md:col-span-2",
+                //           "props": {
+                //             "type": "number",
+                //             "placeholder": "Qty",
+                //             "required": true,
+                //             "min": 0
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "finalPrice",
+                //           "className": "col-span-12 md:col-span-2",
+                //           "props": {
+                //             "type": "number",
+                //             "placeholder": "Rate",
+                //             "required": true,
+                //             "min": 0
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Base Price' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "targetPrice",
+                //           "className": "col-span-12 md:col-span-2",
+                //           "props": {
+                //             "type": "number",
+                //             "placeholder": "Target",
+                //             "min": 0
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Target Price (₹)' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "discount",
+                //           "className": "col-span-12 md:col-span-2",
+                //           "props": {
+                //             "type": "number",
+                //             "placeholder": "Dsc",
+                //             "required": true,
+                //             "min": 0,
+                //             "readonly": true
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Discount (₹)' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "gstPercentage",
+                //           "className": "col-span-12 md:col-span-2",
+                //           "props": {
+                //             "type": "number",
+                //             "placeholder": "GST",
+                //             "required": true,
+                //             "min": 0
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'GST %' : ''"
+                //           }
+                //         },
+                //         {
+                //           "type": "input",
+                //           "key": "totalItemAmount",
+                //           "className": "col-span-12 md:col-span-3",
+                //           "props": {
+                //             "type": "number",
+                //             "placeholder": "Total",
+                //             "readonly": true
+                //           },
+                //           "expressions": {
+                //             "props.label": "field.parent.index === 0 ? 'Line Net' : ''"
+                //           }
+                //         }
+                //       ]
+                //     }
+                //   }
+                // ];
+
+    
+  } //end of generateFormlyJSONBlueprint
+
+
   private compileAndHydrateFields(): void {
     this.fields = hydrateFormlyConfig(this.rawBlueprint);
-    this.bindDatabasePricingHooks(this.fields);
+  //  bindDatabasePricingHook(this.fields);
+  bindDatabaseHooks(this.productService,this.tenantId,this.fields)
   }
 
+  // bindDatabaseHooks(fields: FormlyFieldConfig[]) {
+  //   if (!fields) return;
+  //   fields.forEach((field) => {
+  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+  //       this.bindDatabaseHooks(field.fieldGroup);
+  //     }
+  //     if (field.key === 'items' && field.fieldArray) {
+  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
+  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+  //               if (!targetField || !targetField.formControl) return;
+  //               const rootForm = targetField.form?.root;
+  //               const clientIdControl = rootForm?.get('clientId');
+  //               if (!clientIdControl) return;
+
+  //               combineLatest([
+  //                 targetField.formControl.valueChanges.pipe(startWith(targetField.formControl.value)),
+  //                 clientIdControl.valueChanges.pipe(startWith(clientIdControl.value))
+  //               ]).pipe(
+  //                 distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1])
+  //               ).subscribe(async ([prodId, clientId]) => {
+  //                 if (!prodId || !clientId) return;
+  //                 try {
+  //                   const finalPriceData = await this.getProductFinalPrice(prodId, clientId);
+  //                   const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
+  //                   if (finalPriceControl) {
+  //                     finalPriceControl.setValue(
+  //                       finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
+  //                       { emitEvent: true, onlySelf: true }
+  //                     );
+  //                   }
+  //                 } catch (error) {
+  //                   console.error(error);
+  //                 }
+  //               });
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
   private resetModelToDefault(): void {
     this.model = {
       id: 0,
@@ -326,15 +518,15 @@ export class QuotationFormComponent implements OnInit {
     this.cd.detectChanges();
   }
 
-  async getProductFinalPrice(prodId: number, clientId: number): Promise<any> {
-    const p = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
-    return new Promise((resolve) => {
-      this.productService.getProductFinalPrice(prodId, this.tenantId, p, clientId).subscribe(afinalPrice => {
-        console.log('got price for resolve:', afinalPrice);
-        resolve(afinalPrice);
-      });
-    });
-  }
+  // async getProductFinalPrice(prodId: number, clientId: number): Promise<any> {
+  //   const p = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
+  //   return new Promise((resolve) => {
+  //     this.productService.getProductFinalPrice(prodId, this.tenantId, p, clientId).subscribe(afinalPrice => {
+  //       console.log('got price for resolve:', afinalPrice);
+  //       resolve(afinalPrice);
+  //     });
+  //   });
+  // }
 
   public calculateSingleLineAmount(rowModel: any): void {
     if (!rowModel) return;
@@ -390,87 +582,87 @@ export class QuotationFormComponent implements OnInit {
     this.model.totalAmount = Number(grandSum.toFixed(2));
     this.cd.detectChanges();
   }
-    private bindDatabasePricingHooks(fields: FormlyFieldConfig[]) {
-    if (!fields) return;
-    fields.forEach((field) => {
-      if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
-        this.bindDatabasePricingHooks(field.fieldGroup);
-      }
-      if (field.key === 'items' && field.fieldArray) {
-        const arrayConfig = field.fieldArray as FormlyFieldConfig;
-        if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
-          const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
-          if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
-            if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
-              chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
-                if (!targetField || !targetField.formControl) return;
+  //   private bindDatabasePricingHooks(fields: FormlyFieldConfig[]) {
+  //   if (!fields) return;
+  //   fields.forEach((field) => {
+  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+  //       this.bindDatabasePricingHooks(field.fieldGroup);
+  //     }
+  //     if (field.key === 'items' && field.fieldArray) {
+  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
+  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+  //               if (!targetField || !targetField.formControl) return;
 
-                const clientControl = this.form.get('clientId');
-                if (!clientControl) return;
+  //               const clientControl = this.form.get('clientId');
+  //               if (!clientControl) return;
 
-                // 🌟 FIX: Combine both value change streams so changing EITHER the client OR the product updates the price
-                combineLatest([
-                  targetField.formControl.valueChanges.pipe(
-                    startWith(targetField.formControl.value),
-                    distinctUntilChanged()
-                  ),
-                  clientControl.valueChanges.pipe(
-                    startWith(clientControl.value),
-                    distinctUntilChanged()
-                  )
-                ]).subscribe(async ([prodId, activeClientId]) => {
-                  console.log('Pricing hook triggered! -> prodId:', prodId, ' and activeClientId:', activeClientId);
+  //               // 🌟 FIX: Combine both value change streams so changing EITHER the client OR the product updates the price
+  //               combineLatest([
+  //                 targetField.formControl.valueChanges.pipe(
+  //                   startWith(targetField.formControl.value),
+  //                   distinctUntilChanged()
+  //                 ),
+  //                 clientControl.valueChanges.pipe(
+  //                   startWith(clientControl.value),
+  //                   distinctUntilChanged()
+  //                 )
+  //               ]).subscribe(async ([prodId, activeClientId]) => {
+  //                 console.log('Pricing hook triggered! -> prodId:', prodId, ' and activeClientId:', activeClientId);
                   
-                  if (!prodId || !activeClientId) return;
+  //                 if (!prodId || !activeClientId) return;
                   
-                  const parentField = targetField.parent; 
-                  const rowGroup = parentField?.formControl as FormGroup;
+  //                 const parentField = targetField.parent; 
+  //                 const rowGroup = parentField?.formControl as FormGroup;
 
-                  // Skip lookup only if we are initializing a completely untouched loaded record
-                  if (this.opMode === FormOpMode.Update && rowGroup && rowGroup.get('price')?.value > 0 && parentField!.model && parentField!.model.prodName && !targetField.formControl?.dirty && !clientControl.dirty) {
-                    this.calculateSingleLineAmount(parentField!.model);
-                    return;
-                  }
+  //                 // Skip lookup only if we are initializing a completely untouched loaded record
+  //                 if (this.opMode === FormOpMode.Update && rowGroup && rowGroup.get('price')?.value > 0 && parentField!.model && parentField!.model.prodName && !targetField.formControl?.dirty && !clientControl.dirty) {
+  //                   this.calculateSingleLineAmount(parentField!.model);
+  //                   return;
+  //                 }
                   
-                  try {
-                    const productMaster = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
-                    const finalPriceData = await this.getProductFinalPrice(prodId, Number(activeClientId));
-                    console.log('finalPriceData matched from selection:', finalPriceData);
+  //                 try {
+  //                   const productMaster = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
+  //                   const finalPriceData = await this.getProductFinalPrice(prodId, Number(activeClientId));
+  //                   console.log('finalPriceData matched from selection:', finalPriceData);
                     
-                    const extractedName = productMaster?.prodName || 'Product #' + prodId;
-                    const extractedSku = productMaster?.sku || '';
-                    const resolvedRate = finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData;
+  //                   const extractedName = productMaster?.prodName || 'Product #' + prodId;
+  //                   const extractedSku = productMaster?.sku || '';
+  //                   const resolvedRate = finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData;
 
-                    if (parentField && parentField.model && rowGroup) {
-                      parentField.model.productId = prodId;
-                      parentField.model.prodName = extractedName;
-                      parentField.model.sku = extractedSku;
-                      parentField.model.price = Number(resolvedRate);
+  //                   if (parentField && parentField.model && rowGroup) {
+  //                     parentField.model.productId = prodId;
+  //                     parentField.model.prodName = extractedName;
+  //                     parentField.model.sku = extractedSku;
+  //                     parentField.model.price = Number(resolvedRate);
 
-                      rowGroup.patchValue({
-                        productId: prodId,
-                        prodName: extractedName,
-                        sku: extractedSku,
-                        price: Number(resolvedRate)
-                      }, { emitEvent: false });
+  //                     rowGroup.patchValue({
+  //                       productId: prodId,
+  //                       prodName: extractedName,
+  //                       sku: extractedSku,
+  //                       price: Number(resolvedRate)
+  //                     }, { emitEvent: false });
 
-                      this.calculateSingleLineAmount(parentField.model);
+  //                     this.calculateSingleLineAmount(parentField.model);
                       
-                      if (targetField.options && targetField.options.detectChanges) {
-                        targetField.options.detectChanges(targetField);
-                      }
-                    }
-                  } catch (error) {
-                    console.error('Pricing lookup pipeline error:', error);
-                  }
-                });
-              });
-            }
-          }
-        }
-      }
-    });
-  }
+  //                     if (targetField.options && targetField.options.detectChanges) {
+  //                       targetField.options.detectChanges(targetField);
+  //                     }
+  //                   }
+  //                 } catch (error) {
+  //                   console.error('Pricing lookup pipeline error:', error);
+  //                 }
+  //               });
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
 
   async saveQuotation(): Promise<void> {
     if (!this.form.valid) {
@@ -519,6 +711,47 @@ export class QuotationFormComponent implements OnInit {
       });
     }
   }
+
+
+// Add this getter inside your PurchaseFormComponent class
+get isFinalized(): boolean {
+  // If there's no model data yet, or if it is explicitly a fresh creation, it's not finalized
+  if (!this.model || !this.model.status) {
+    return false;
+  }
+  
+  // The backend defaults new items to "DRAFT". 
+  // If the status is anything else (e.g., "APPROVED", "FINALIZED"), it should be disabled.
+  return this.model.status !== 'DRAFT';
+}
+
+
+  
+
+// 2. Implement the requested method
+submitQuotationForApproval(): void {
+  // Prevent execution if form is invalid or already finalized
+  if (this.form.invalid || this.isFinalized) {
+    return;
+  }
+
+  const consolidatedPayload = {
+    ...this.model,
+    ...this.form.value,
+    //totalAmount: this.t.grandTotal
+  };
+  
+  this.onFinalize.emit(consolidatedPayload);
+}
+
+// 2. Execute the trigger function
+onApproveClicked(): void {
+  if (this.model && this.model.id) {
+    this.onApprove.emit(this.model.id);
+  } else {
+   // this.showToast('error', 'Error', 'Cannot approve an unsaved or missing record identifier.');
+  }
+}
 
   async submitPortalCounterOffer(): Promise<void> {
     if (!this.form.valid) {

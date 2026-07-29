@@ -1,5 +1,6 @@
+form
+currOpMode:{{currOpMode}}<!-- purchase-form.component.html -->
 
-<!-- purchase-form.component.html -->
 <div class="order-form border-round surface-card p-4 shadow-1 border-1 surface-border">
   <div class="order-header mb-4 border-bottom-1 surface-border pb-3 flex justify-content-between align-items-center">
     <h2 class="text-xl font-bold text-900 m-0">Purchase Order Definition</h2>
@@ -7,7 +8,6 @@
     <span class="text-xs uppercase font-mono px-2 py-1 bg-primary-100 text-primary-700 border-round font-bold">{{ currOpMode }}</span>
   </div>
   
-  <!-- Active Vendor Header Context Block -->
   <div class="mb-4" *ngIf="model.vendor">
     <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg flex align-items-center justify-content-between">
       <div>
@@ -24,11 +24,9 @@
     </div>
   </div>
 
-  <!-- Formly Core Configuration Deck Element -->
   <form [formGroup]="form" (ngSubmit)="submitPurchase()">
     <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
     
-    <!-- Calculation totals aggregation row matrices box -->
     <div class="order-totals my-4 surface-100 p-3 border-round border-1 surface-border max-w-20rem ml-auto text-xs" *ngIf="model.items?.length">
       <div class="totals-row flex justify-content-between py-1 text-700">
         <span>Raw Subtotal:</span>
@@ -44,14 +42,14 @@
       </div>
     </div>
 
-    <!-- Interface Operational Submission Buttons Layout Row -->
     <div class="order-actions flex gap-2 border-top-1 surface-border pt-3 mt-3">
       <p-button
         type="submit"
         label="Save Purchase"
         icon="pi pi-save"
-        severity="success"
+      
         [disabled]="!form.valid || (model?.status && model?.status !== 'DRAFT')">
+          <p-badge value={{model?.status}} severity="warn" class="ml-2" ></p-badge>
       </p-button>
 
       <p-button

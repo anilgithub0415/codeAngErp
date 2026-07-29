@@ -1,16 +1,22 @@
-<p>tenant-profile-tabs works!</p>
 
 
+<app-tenant-kanban-card [tenant]="tenant"></app-tenant-kanban-card>
   <app-button-tabs [options]="myTabConfig">
   
     <ng-template appTab="TenantStrategy">
-          TenantStrategy
+          <app-tenant-strategies [tenantId]='tenantId'></app-tenant-strategies>
     </ng-template> 
     
-    <ng-template appTab="Type">
-        Type
+    <ng-template appTab="Junction">
+      <app-permission-junction [tenantId]='tenantId'></app-permission-junction>
     </ng-template>
     
       
+  <ng-template appTab="FormJSONs">
+      <app-form-jsons [tenantId]='tenantId'></app-form-jsons>
+    </ng-template>
 
+     <ng-template appTab="TenantCard">
+          
+    </ng-template> 
 </app-button-tabs>

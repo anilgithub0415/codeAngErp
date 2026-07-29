@@ -1,0 +1,58 @@
+<!-- Main Dashboard Grid Container using standard flexbox -->
+<div style="display: flex; flex-wrap: wrap; gap: 1.5rem; padding: 1rem; font-family: sans-serif;">
+    
+    <!-- Decorative Widget 1: Pending Quotes (Warm Orange Gradient) -->
+    <div style="flex: 1 1 300px;">
+        <p-card [style]="{ 'background': 'linear-gradient(135deg, #ffedd5 0%, #fee2e2 100%)', 'border': 'none', 'box-shadow': '0 4px 6px -1px rgba(0,0,0,0.1)' }">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="color: #c2410c; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Action Required</span>
+                    <div style="color: #7c2d12; font-size: 1.75rem; font-weight: 800; line-height: 1.2;">3 Received<br>Quotations</div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.6); border-radius: 50%; width: 3.5rem; height: 3.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <i class="pi pi-file" style="color: #ea580c; font-size: 1.5rem;"></i>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.25rem; color: #9a3412; font-size: 0.875rem; font-weight: 500;">
+                <i class="pi pi-clock" style="font-size: 0.875rem;"></i> Awaiting your final review
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Decorative Widget 2: Financial Balance (Corporate Blue Gradient) -->
+    <div style="flex: 1 1 300px;">
+        <p-card [style]="{ 'background': 'linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%)', 'border': 'none', 'box-shadow': '0 4px 6px -1px rgba(0,0,0,0.1)' }">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="color: #0369a1; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Credit & Account</span>
+                    <div style="color: #1e3a8a; font-size: 1.75rem; font-weight: 800; line-height: 1.2;">$14,500.00<br><span style="font-size: 1rem; font-weight: 500; color: #1d4ed8;">Available Limit</span></div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.6); border-radius: 50%; width: 3.5rem; height: 3.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <i class="pi pi-credit-card" style="color: #0284c7; font-size: 1.5rem;"></i>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.25rem; color: #15803d; font-size: 0.875rem; font-weight: 500;">
+                <i class="pi pi-check-circle" style="font-size: 0.875rem;"></i> Good Standing Status
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Decorative Widget 3: Standing Orders Track (Fresh Green Gradient) -->
+    <div style="flex: 1 1 300px;">
+        <p-card [style]="{ 'background': 'linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%)', 'border': 'none', 'box-shadow': '0 4px 6px -1px rgba(0,0,0,0.1)' }">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="color: #15803d; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Standing Orders</span>
+                    <div style="color: #14532d; font-size: 1.75rem; font-weight: 800; line-height: 1.2;">Next Ship:<br>In 4 Days</div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.6); border-radius: 50%; width: 3.5rem; height: 3.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <i class="pi pi-refresh" style="color: #16a34a; font-size: 1.5rem;"></i>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.25rem; color: #4b5563; font-size: 0.875rem;">
+                <i class="pi pi-truck" style="font-size: 0.875rem;"></i> Mops & cleaners dispatching
+            </div>
+        </p-card>
+    </div>
+
+</div>

@@ -1,0 +1,15 @@
+<p>context-switcher works!</p>
+<div *ngIf="isSuperAdmin && contexts.length > 1" class="context-dropdown-container">
+    <span class="p-input-icon-left">
+        <i class="pi pi-globe icon-style"></i>
+        <p-dropdown 
+            [options]="contexts" 
+            [(ngModel)]="selectedContext" 
+            optionLabel="displayName" 
+            (onChange)="onContextChange($event.value)"
+            [style]="{'min-width': '220px'}"
+            styleClass="p-dropdown-sm context-dropdown"
+            placeholder="Switch Tenant Context">
+        </p-dropdown>
+    </span>
+</div>

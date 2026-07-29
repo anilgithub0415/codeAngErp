@@ -20,7 +20,7 @@ import { RepeatsectionformlyComponent } from '../../../../shared/components/form
 import { FormlyCardWrapperComponent } from '../../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
 import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
 
-import { chainOnInitHook, hydrateFormlyConfig, injectSalesUomMatrixListeners } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { bindDatabaseHooks, chainOnInitHook, hydrateFormlyConfig, injectSalesUomMatrixListeners } from '../../../../shared/utils/hydrationOfFormlyJson';
 import { typeaheadSearchExtension } from '../../../../shared/components/formlyfields/typeaheadSearchExtension';
 import { FilterControlComponent } from '../../../../shared/components/filter-control/filter-control.component';
 import { ButtonTabsComponent, TabDirective } from '../../../../shared/components/button-tabs/button-tabs.component';
@@ -104,49 +104,50 @@ export class SalesOrderMgrComponent implements OnInit {
   }
 
   gerForm_SO() {
-    this.raw = [
-      { "key": "id", "type": "input", "hide": true },
-      { "key": "createdByUserId", "type": "input", "hide": true },
-      { "key": "tenantId", "type": "input", "hide": true },
-      {
-        "wrappers": ["panel"],
-        "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
-        "fieldGroup": [
-          { "type": "input", "key": "soNumber", "className": "col-span-12 md:col-span-4", "props": { "label": "Sales Order#", "readonly": true, "placeholder": "SO#" } },
-          { "type": "primeng-dropdown", "key": "clientId", "className": "col-span-12 md:col-span-10", "props": { "label": "Lead / Customer", "valueProp": "value", "styleClass": "w-full", "labelProp": "label", "optionLabel": "label", "optionValue": "value", "placeholder": "Select Customer", "lookupKey": "customerTypes", "required": true, "filter": true } },
-          { "type": "input", "key": "status", "className": "col-span-12 md:col-span-4", "props": { "label": "Status", "placeholder": "Status", "required": true } }
-        ]
-      },
-      {
-        "key": "items",
-        "type": "p-repeatsectionformly",
-        "wrappers": ["panel"],
-        "defaultValue": [],
-        "props": { "label": "", "addText": "Add Line Item", "rowDefaults": { "quantity": "1" } },
-        "fieldArray": {
-          "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-          "fieldGroup": [
-            { "key": "id", "type": "input", "hide": true },
-            { "type": "primeng-dropdown", "key": "productId", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select Item", "lookupKey": "productTypes", "required": true, "filter": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Item' : ''" }, "hooks": { "onInit": "onProductDropdownChange" } },
-            { "type": "input", "key": "quantity", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Qty", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Quantity' : ''" } },
-            { "type": "primeng-dropdown", "key": "salesUom", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select UOM", "filter": true, "required": true, "options": [] }, "expressions": { "props.label": "field.parent.index === 0 ? 'Sales Unit' : ''" } },
-            { "type": "input", "key": "finalPrice", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Price", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Final Price' : ''" } }
-          ]
-        }
-      },
-      { "type": "button", "className": "col-span-24 md:col-span-4 mt-4", "props": { "text": "Save Sales Order", "type": "submit", "styleClass": "p-button-success" } }
-    ];
+    // this.raw = [
+    //   { "key": "id", "type": "input", "hide": true },
+    //   { "key": "createdByUserId", "type": "input", "hide": true },
+    //   { "key": "tenantId", "type": "input", "hide": true },
+    //   {
+    //     "wrappers": ["panel"],
+    //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+    //     "fieldGroup": [
+    //       { "type": "input", "key": "soNumber", "className": "col-span-12 md:col-span-4", "props": { "label": "Sales Order#", "readonly": true, "placeholder": "SO#" } },
+    //       { "type": "primeng-dropdown", "key": "clientId", "className": "col-span-12 md:col-span-10", "props": { "label": "Lead / Customer", "valueProp": "value", "styleClass": "w-full", "labelProp": "label", "optionLabel": "label", "optionValue": "value", "placeholder": "Select Customer", "lookupKey": "customerTypes", "required": true, "filter": true } },
+    //       { "type": "input", "key": "status", "className": "col-span-12 md:col-span-4", "props": { "label": "Status", "placeholder": "Status", "required": true } }
+    //     ]
+    //   },
+    //   {
+    //     "key": "items",
+    //     "type": "p-repeatsectionformly",
+    //     "wrappers": ["panel"],
+    //     "defaultValue": [],
+    //     "props": { "label": "", "addText": "Add Line Item", "rowDefaults": { "quantity": "1" } },
+    //     "fieldArray": {
+    //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+    //       "fieldGroup": [
+    //         { "key": "id", "type": "input", "hide": true },
+    //         { "type": "primeng-dropdown", "key": "productId", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select Item", "lookupKey": "productTypes", "required": true, "filter": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Item' : ''" }, "hooks": { "onInit": "onProductDropdownChange" } },
+    //         { "type": "input", "key": "quantity", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Qty", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Quantity' : ''" } },
+    //         { "type": "primeng-dropdown", "key": "salesUom", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select UOM", "filter": true, "required": true, "options": [] }, "expressions": { "props.label": "field.parent.index === 0 ? 'Sales Unit' : ''" } },
+    //         { "type": "input", "key": "finalPrice", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Price", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Final Price' : ''" } }
+    //       ]
+    //     }
+    //   },
+    //   { "type": "button", "className": "col-span-24 md:col-span-4 mt-4", "props": { "text": "Save Sales Order", "type": "submit", "styleClass": "p-button-success" } }
+    // ];
+
+
+    this.formService.getForm(this.tenantId!, 'sales_form').subscribe(aform => {
+      this.aForm = aform; 
+      this.raw = JSON.parse(this.aForm.FormlyConfig);
 
     const hydrated = hydrateFormlyConfig(this.raw);
     this.fields = hydrated; 
 
-    this.bindDatabaseHooks(this.fields);
+    bindDatabaseHooks(this.productService,this.tenantId,this.fields);
     injectSalesUomMatrixListeners(this.fields, this.salesService, this.tenantId);
     this.applyLocalSearchExtension(this.fields);
-
-    this.formService.getForm(this.tenantId!, 'customer_form').subscribe(aform => {
-      this.aForm = aform; 
-      this.raw = JSON.parse(this.aForm.FormlyConfig);
     });
 
     this.refreshSOList();
@@ -308,51 +309,51 @@ async handleApprove(soId: number): Promise<void> {
     });
   } 
     
-  bindDatabaseHooks(fields: FormlyFieldConfig[]) {
-    if (!fields) return;
-    fields.forEach((field) => {
-      if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
-        this.bindDatabaseHooks(field.fieldGroup);
-      }
-      if (field.key === 'items' && field.fieldArray) {
-        const arrayConfig = field.fieldArray as FormlyFieldConfig;
-        if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
-          const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
-          if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
-            if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
-              chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
-                if (!targetField || !targetField.formControl) return;
-                const rootForm = targetField.form?.root;
-                const clientIdControl = rootForm?.get('clientId');
-                if (!clientIdControl) return;
+  // bindDatabaseHooks(fields: FormlyFieldConfig[]) {
+  //   if (!fields) return;
+  //   fields.forEach((field) => {
+  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+  //       this.bindDatabaseHooks(field.fieldGroup);
+  //     }
+  //     if (field.key === 'items' && field.fieldArray) {
+  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
+  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+  //               if (!targetField || !targetField.formControl) return;
+  //               const rootForm = targetField.form?.root;
+  //               const clientIdControl = rootForm?.get('clientId');
+  //               if (!clientIdControl) return;
 
-                combineLatest([
-                  targetField.formControl.valueChanges.pipe(startWith(targetField.formControl.value)),
-                  clientIdControl.valueChanges.pipe(startWith(clientIdControl.value))
-                ]).pipe(
-                  distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1])
-                ).subscribe(async ([prodId, clientId]) => {
-                  if (!prodId || !clientId) return;
-                  try {
-                    const finalPriceData = await this.getProductFinalPrice(prodId, clientId);
-                    const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
-                    if (finalPriceControl) {
-                      finalPriceControl.setValue(
-                        finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
-                        { emitEvent: true, onlySelf: true }
-                      );
-                    }
-                  } catch (error) {
-                    console.error(error);
-                  }
-                });
-              });
-            }
-          }
-        }
-      }
-    });
-  }
+  //               combineLatest([
+  //                 targetField.formControl.valueChanges.pipe(startWith(targetField.formControl.value)),
+  //                 clientIdControl.valueChanges.pipe(startWith(clientIdControl.value))
+  //               ]).pipe(
+  //                 distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1])
+  //               ).subscribe(async ([prodId, clientId]) => {
+  //                 if (!prodId || !clientId) return;
+  //                 try {
+  //                   const finalPriceData = await this.getProductFinalPrice(prodId, clientId);
+  //                   const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
+  //                   if (finalPriceControl) {
+  //                     finalPriceControl.setValue(
+  //                       finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
+  //                       { emitEvent: true, onlySelf: true }
+  //                     );
+  //                   }
+  //                 } catch (error) {
+  //                   console.error(error);
+  //                 }
+  //               });
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
 
 
 

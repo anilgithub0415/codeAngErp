@@ -149,7 +149,11 @@ export class AppMenu {
                                 icon: 'pi pi-fw pi-sign-in',
                                 routerLink: ['/app/clientportal']
                             },
-                          
+                           {
+                                label: 'dashboard',
+                                icon: 'pi pi-fw pi-users',
+                                routerLink: ['/app/clientportal/dashboard']
+                            },
                         {
                                 label: 'siteusers',
                                 icon: 'pi pi-fw pi-users',
@@ -199,9 +203,9 @@ export class AppMenu {
                                 icon: 'pi pi-fw pi-shield',
                                 routerLink: ['/app/globalmgt/TenantTypes']
                             }, {
-                                label: 'Card',
+                                label: 'KanbanBoard',
                                 icon: 'pi pi-fw pi-shield',
-                                routerLink: ['/app/globalmgt/card']
+                                routerLink: ['/app/globalmgt/KanbanBoard']
                             },{
                                 label: 'TenantStrategy',
                                 icon: 'pi pi-fw pi-shield',

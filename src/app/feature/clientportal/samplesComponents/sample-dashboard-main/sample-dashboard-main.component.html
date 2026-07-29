@@ -1,0 +1,127 @@
+<div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1.5rem; font-family: sans-serif; background-color: #f8fafc; border-radius: 12px;">
+    
+    <!-- DASHBOARD TOP EXECUTIVE BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+        <div>
+            <h1 style="margin: 0; color: #0f172a; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;">SampleDashboardMain</h1>
+            <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.875rem;">Wholesale sanitary command center hub.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 0.5rem 1rem; border-radius: 20px;">
+            <div style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%;"></div>
+            <span style="color: #14532d; font-size: 0.85rem; font-weight: 600;">ERP Data Stream: Active & Connected</span>
+        </div>
+    </div>
+
+    <!-- BAND 1: PRODUCTS & EXPRESS QUICK LOOKUP -->
+    <p-card [style]="{ 'background': '#ffffff', 'border': '1px solid #e2e8f0', 'border-radius': '10px' }">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 350px;">
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #eff6ff; border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                    <i class="pi pi-box" style="color: #3b82f6; font-size: 1.35rem;"></i>
+                </div>
+                <div>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Catalog & Products</span>
+                    <div style="color: #1e293b; font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">3 Active Master Contract SKUs</div>
+                </div>
+            </div>
+            <!-- Interactive AutoComplete Search Node Embedded in the Row -->
+            <div style="flex: 2 1 350px; min-width: 280px;">
+                <p-autoComplete 
+                    [(ngModel)]="selectedProduct" 
+                    [suggestions]="filteredProducts" 
+                    (completeMethod)="searchProducts($event)" 
+                    field="displayName"
+                    optionLabel="displayName"
+                    [forceSelection]="true"
+                    appendTo="body"
+                    placeholder="Quick Price Check: Type SKU or name ('mop', 'brush')..."
+                    [style]="{'width':'100%'}"
+                    [inputStyle]="{'width':'100%', 'padding':'0.5rem 0.75rem', 'border':'1px solid #cbd5e1', 'border-radius':'6px', 'font-size':'0.85rem'}">
+                    <ng-template let-product pTemplate="item">
+                        <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.85rem;">
+                            <span><strong>{{product.sku}}</strong> - {{product.name}}</span>
+                            <span style="color: #2563eb; font-weight: 700; margin-left: 1rem;">{{product.contractPrice | currency}}</span>
+                        </div>
+                    </ng-template>
+                </p-autoComplete>
+            </div>
+            <div style="flex: 0 1 auto; text-align: right;">
+                <button pButton type="button" label="View Full Catalog" icon="pi pi-list" class="p-button-outlined p-button-sm" style="border-radius: 6px; font-size: 0.85rem;"></button>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- BAND 2: PROMOTIONS & BRACKET PROGRESS REBATES -->
+    <p-card [style]="{ 'background': '#ffffff', 'border': '1px solid #e2e8f0', 'border-radius': '10px' }">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 300px;">
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #fae8ff; border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                    <i class="pi pi-percentage" style="color: #d946ef; font-size: 1.35rem;"></i>
+                </div>
+                <div>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Promotions & Volume Brackets</span>
+                    <div style="color: #1e293b; font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">{{promoMetrics.currentTier}}</div>
+                </div>
+            </div>
+            <!-- Linear Progress Track Visualization -->
+            <div style="flex: 2 1 350px; min-width: 280px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; margin-bottom: 0.4rem; font-weight: 500;">
+                    <span>Progress to {{promoMetrics.nextTier}}</span>
+                    <strong>{{promoMetrics.progressPercent}}% Completed</strong>
+                </div>
+                <div style="width: 100%; height: 8px; background-color: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                    <div [style.width.%]="promoMetrics.progressPercent" style="height: 100%; background: linear-gradient(90deg, #d946ef, #a855f7); border-radius: 4px;"></div>
+                </div>
+                <span style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 0.4rem;">Spend ${{promoMetrics.spendToNextTier | number:'1.2-2'}} more to drop catalog rates across chemical lines.</span>
+            </div>
+            <div style="flex: 0 1 auto; text-align: right; min-width: 160px; border-left: 1px dashed #cbd5e1; padding-left: 1rem;">
+                <div style="font-size: 0.75rem; color: #64748b;">Accrued Rebates</div>
+                <div style="font-size: 1.35rem; font-weight: 800; color: #d946ef; margin-top: 0.15rem;">{{promoMetrics.activeRebate | currency}}</div>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- BAND 3: COMBINED PROCUREMENT & SALES FULFILLMENT MATRIX -->
+    <p-card [style]="{ 'background': '#ffffff', 'border': '1px solid #e2e8f0', 'border-radius': '10px' }">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 300px;">
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #f1f5f9; border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                    <i class="pi pi-sliders-h" style="color: #475569; font-size: 1.35rem;"></i>
+                </div>
+                <div>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Procurement & Order Pipelines</span>
+                    <div style="color: #1e293b; font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">Order Workflow Status</div>
+                </div>
+            </div>
+            <!-- Double Status Micro Counters -->
+            <div style="flex: 2 1 300px; display: flex; gap: 2rem; align-items: center;">
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; flex: 1;">
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Purchase Backorders</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #475569; margin-top: 0.25rem;">{{purchaseCount}} Batches Pending</div>
+                </div>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; flex: 1;">
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Active Sales Orders</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{activeSalesOrders}} in Picking Queue</div>
+                </div>
+            </div>
+            <div style="flex: 0 1 auto; text-align: right;">
+                <button pButton type="button" label="Manage All Orders" icon="pi pi-arrow-right" class="p-button-secondary p-button-text p-button-sm" style="font-weight:600;"></button>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- BAND 4: QUOTATIONS & RFQ SIGN-OFF -->
+    <p-card [style]="{ 'background': '#ffffff', 'border': '1px solid #e2e8f0', 'border-radius': '10px' }">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 300px;">
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #fff7ed; border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                    <i class="pi pi-file-edit" style="color: #ea580c; font-size: 1.35rem;"></i>
+                </div>
+                <div>
+                    <span style="color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Quotations & Negotiations</span>
+                    <div style="color: #9a3412; font-size: 0.8rem; font-weight: 700; background-color: #ffedd5; padding: 0.15rem 0.4rem; border-radius: 4px; display: inline-block; margin-top: 0.25rem;">
+                        {{pendingQuote.status}}
+                    </div>
+                </div>
+            </div>
+            <!-- Step Indicators -->

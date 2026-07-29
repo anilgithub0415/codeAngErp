@@ -23,7 +23,7 @@
 <div class="tabs-container">
   
   <!-- 1. Top row containing the buttons -->
-  <div class="flex justify-content-center mb-3">
+  <div class="flex justify-content-center mb-0">
     <p-selectButton
       [options]="options"
       [(ngModel)]="activeTab"
@@ -35,7 +35,7 @@
   </div>
 
   <!-- 2. Bottom portion where content lazy-loads dynamically -->
-  <div class="p-4 border-1 surface-border border-round bg-card mt-1">
+  <div class="p-0 border-1 surface-border border-round bg-card mt-0">
     <!-- 💡 LAZY LOADING ENFORCED VIA *ngIf AT TEMPLATE LOOP LAYER -->
     <div *ngFor="let tab of tabTemplates">
       <ng-container *ngIf="tab.tabId === activeTab">

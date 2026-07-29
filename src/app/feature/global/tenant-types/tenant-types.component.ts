@@ -1,7 +1,7 @@
 
 // src/app/feature/settings/tenant-types/tenant-types.component.ts (Part 1)
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, inject, Input, OnInit } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { FormlyConfig, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { FormlyInputModule } from "@ngx-formly/primeng/input";
@@ -34,7 +34,7 @@ import { firstValueFrom, tap } from "rxjs";
 })
 export class TenantTypesComponent implements OnInit {
   visibleDataArray: TenantType[] = [];
-  tenantId!: number;
+  @Input()  tenantId!: number;
   isFormHidden: boolean = true;
   readonly FormOpMode = FormOpMode; 
   currOpMode: FormOpMode = FormOpMode.View; 
@@ -54,7 +54,7 @@ export class TenantTypesComponent implements OnInit {
   private cd = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.tenantId = this.authServ.getTenantId()!;
+  
     this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
 
     this.getForm_TenantTypes();

@@ -41,7 +41,7 @@ export class ProductMasterMgrComponent implements OnInit {
   visibleDataArray!: any[];
   modifiedDataArray!: any[];
 
-  categoryOptions: any[] = []; 
+  // categoryOptions: any[] = []; 
   hsnOptions: any[] = [];      
   selectedProduct: any = null;
 
@@ -66,11 +66,11 @@ export class ProductMasterMgrComponent implements OnInit {
         firstValueFrom(this.hsnService.getHSNTaxRules())
       ]);
 
-      this.categoryOptions = cats.map((c: any) => ({
-        label: c.categoryName,
-        value: c.id,
-        defaultHsnId: c.defaultHsnId
-      }));
+      // this.categoryOptions = cats.map((c: any) => ({
+      //   label: c.categoryName,
+      //   value: c.id,
+      //   defaultHsnId: c.defaultHsnId
+      // }));
 
       this.hsnOptions = hsns.map((h: any) => ({
         label: `${h.hsnCode} - ${h.description}`,

@@ -15,16 +15,22 @@ import { FormlyFieldPrimengDropdownComponent } from '../../../../shared/componen
 import { FormlyFieldPrimengDatepickerComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
 import { RepeatsectionformlyComponent } from '../../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
 import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { hydrateFormlyConfig } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { bindDatabaseHooks, hydrateFormlyConfig } from '../../../../shared/utils/hydrationOfFormlyJson';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { BadgeModule } from 'primeng/badge';
+import { FormlyWrapperTypeaheadComponent } from '../../../../shared/components/formlyfields/formly-wrapper-typeahead/formly-wrapper-typeahead.component';
+import { FormlyFieldButtonComponent } from '../../../../shared/components/formlyfields/formly-field-button/formly-field-button.component';
+import { FormService } from '../../../../core/services/form.service';
+import { ProductService } from '../../../../core/services/product.service';
+
 
 @Component({
   selector: 'app-purchase-form',
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
-    CommonModule, ReactiveFormsModule, FormsModule, FormlyModule, FormlyPrimeNGModule,
-    ButtonModule, DropdownModule, NgxPermissionsModule
+    CommonModule, ReactiveFormsModule, FormsModule, FormlyModule, FormlyPrimeNGModule,BadgeModule,
+    ButtonModule, DropdownModule, NgxPermissionsModule,FormlyPrimeNGModule
   ],
   templateUrl: './purchase-form.component.html'
 })
@@ -38,94 +44,101 @@ export class PurchaseFormComponent implements OnInit {
   @Output() onApprove = new EventEmitter<number>();
   @Output() onCancel = new EventEmitter<void>();
 
+  raw!:any;
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [];
+  aForm!: any;
   totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
 
+    private formService = inject(FormService);
   private formlyConfig = inject(FormlyConfig);
   private purchaseService = inject(PurchaseService);
+    private productService = inject(ProductService); 
   private cd = inject(ChangeDetectorRef);
 
-  private rawFormConfigBlueprint = [
-    { "key": "id", "type": "input", "hide": true },
-    { "key": "createdByUserId", "type": "input", "hide": true },
-    { "key": "tenantId", "type": "input", "hide": true },
-    {
-      "wrappers": ["panel"],
-      "className": "col-span-24 w-full block mb-0",
-      "props": {},
-      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
-      "fieldGroup": [
-        {
-          "type": "input",
-          "key": "poNumber",
-          "className": "col-span-6 md:col-span-4",
-          "props": { "label": "Purchase Order#", "readonly": true, "placeholder": "PO#" }
-        },
-        {
-          "type": "primeng-dropdown",
-          "key": "vendorId",
-          "className": "col-span-12 md:col-span-9",
-          "props": {
-            "label": "Vendor:", "optionLabel": "label", "optionValue": "value",
-            "placeholder": "Select Vendor", "lookupKey": "vendorTypes", "filter": true, "required": true
-          }
-        },
-        {
-          "type": "datepicker",
-          "key": "orderDate",
-          "className": "col-span-12 md:col-span-6",
-          "props": { "label": "Order Date", "dateFormat": "dd-mm-yy", "numberOfMonths": 1, "selectionMode": "single" }
-        }
-      ]
-    },
-    {
-      "key": "items",
-      "type": "p-repeatsectionformly",
-      "wrappers": ["panel"],
-      "defaultValue": [],
-      "props": { "label": "", "addText": "Add Item Line", "rowDefaults": { "quantity": "1" } },
-      "fieldArray": {
-        "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-        "fieldGroup": [
-          { "key": "id", "type": "input", "hide": true },
-          {
-            "type": "primeng-dropdown",
-            "key": "productId",
-            "className": "col-span-6 md:col-span-7",
-            "props": {
-              "label": "Item", "optionLabel": "label", "optionValue": "value",
-              "placeholder": "Select Item", "lookupKey": "productTypes", "required": true, "filter": true
-            },
-            "expressions": { "props.label": "field.parent.index === 0 ? 'Item' : ''" }
-          },
-          {
-            "type": "input",
-            "key": "quantity",
-            "className": "col-span-3 md:col-span-2",
-            "props": { "placeholder": "Qty", "required": true },
-            "expressions": { "props.label": "field.parent.index === 0 ? 'Quantity' : ''" }
-          },
-          {
-            "type": "primeng-dropdown",
-            "key": "purchaseUom",
-            "className": "col-span-12 md:col-span-6",
-            "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select UOM", "filter": true, "required": true, "options": [] },
-            "expressions": { "props.label": "field.parent.index === 0 ? 'Purchase UOM:' : ''" }
-          },
-          {
-            "type": "input",
-            "key": "finalPrice",
-            "className": "col-span-3 md:col-span-3",
-            "props": { "placeholder": "Price", "required": true },
-            "expressions": { "props.label": "field.parent.index === 0 ? 'Price' : ''" }
-          }
-        ]
-      }
-    }
-  ];
+  // private rawFormConfigBlueprint = [
+  //   { "key": "id", "type": "input", "hide": true },
+  //   { "key": "createdByUserId", "type": "input", "hide": true },
+  //   { "key": "tenantId", "type": "input", "hide": true },
+  //   {
+  //     "wrappers": ["panel"],
+  //     "className": "col-span-24 w-full block mb-0",
+  //     "props": {},
+  //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+  //     "fieldGroup": [
+  //       {
+  //         "type": "input",
+  //         "key": "poNumber",
+  //         "className": "col-span-6 md:col-span-4",
+  //         "props": { "label": "Purchase Order#", "readonly": true, "placeholder": "PO#" }
+  //       },
+  //       {
+  //         "type": "primeng-dropdown",
+  //         "key": "vendorId",
+  //         "className": "col-span-12 md:col-span-9",
+  //         "props": {
+  //           "label": "Vendor:", "optionLabel": "label", "optionValue": "value",
+  //           "placeholder": "Select Vendor", "lookupKey": "vendorTypes", "filter": true, "required": true
+  //         }
+  //       },
+  //       {
+  //         "type": "datepicker",
+  //         "key": "orderDate",
+  //         "className": "col-span-12 md:col-span-6",
+  //         "props": { "label": "Order Date", "dateFormat": "dd-mm-yy", "numberOfMonths": 1, "selectionMode": "single" }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     "key": "items",
+  //     "type": "p-repeatsectionformly",
+  //     "wrappers": ["panel"],
+  //     "defaultValue": [],
+  //     "props": { "label": "", "addText": "Add Item Line", "rowDefaults": { "quantity": "1" } },
+  //     "fieldArray": {
+  //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+  //       "fieldGroup": [
+  //         { "key": "id", "type": "input", "hide": true },
+  //         {
+  //           "type": "primeng-dropdown",
+  //           "key": "productId",
+  //           "className": "col-span-6 md:col-span-7",
+  //           "props": {
+  //             "label": "Item", "optionLabel": "label", "optionValue": "value",
+  //             "placeholder": "Select Item", "lookupKey": "productTypes", "required": true, "filter": true
+  //           },
+  //           "expressions": { "props.label": "field.parent.index === 0 ? 'Item' : ''" }
+  //         },
+  //         {
+  //           "type": "input",
+  //           "key": "quantity",
+  //           "className": "col-span-3 md:col-span-2",
+  //           "props": { "placeholder": "Qty", "required": true },
+  //           "expressions": { "props.label": "field.parent.index === 0 ? 'Quantity' : ''" }
+  //         },
+  //         {
+  //           "type": "primeng-dropdown",
+  //           "key": "purchaseUom",
+  //           "className": "col-span-12 md:col-span-6",
+  //           "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select UOM", "filter": true, "required": true, "options": [] },
+  //           "expressions": { "props.label": "field.parent.index === 0 ? 'Purchase UOM:' : ''" }
+  //         },
+  //         {
+  //           "type": "input",
+  //           "key": "finalPrice",
+  //           "className": "col-span-3 md:col-span-3",
+  //           "props": { "placeholder": "Price", "required": true },
+  //           "expressions": { "props.label": "field.parent.index === 0 ? 'Price' : ''" }
+  //         }
+  //       ]
+  //     }
+  //   }
+  // ];
 
   ngOnInit(): void {
+    console.log('ngOnInit of p form............');
+    
+    this.generateFormlyJSONBlueprint();
     this.configureFormlyTypes();
     this.initializeFormBlueprint();
 
@@ -149,9 +162,41 @@ export class PurchaseFormComponent implements OnInit {
     this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
     this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
   }
+ private registerFormlyExtensions(): void {
+    this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
+    this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
+    this.formlyConfig.setWrapper({ name: 'typeahead-wrapper', component: FormlyWrapperTypeaheadComponent });
+    this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
+    this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
+    this.formlyConfig.setType({ name: 'button', component: FormlyFieldButtonComponent});
+  }
+
+    private generateFormlyJSONBlueprint(): void { console.log('calling form...........');
+    
+      this.formService.getForm(this.tenantId!, 'purchase_form').subscribe(aform => {
+        this.aForm = aform;
+        this.raw = JSON.parse(this.aForm.FormlyConfig); console.log('.................raw:',this.raw);
+        
+      // 🔥 This must happen INSIDE the subscribe block
+      console.log('hydrating now................................');
+    
+      const hydrated = hydrateFormlyConfig(this.raw); this.compileAndHydrateFields();
+      this.fields = hydrated;
+       
+      //bindDatabasePricingHook(this.fields);
+      bindDatabaseHooks(this.productService,this.tenantId,this.fields)
+      });
+    }
+
+
+  private compileAndHydrateFields(): void {
+    this.fields = hydrateFormlyConfig(this.raw);
+  //  bindDatabasePricingHook(this.fields);
+  bindDatabaseHooks(this.productService,this.tenantId,this.fields)
+  }
 
   private initializeFormBlueprint(): void {
-    this.fields = hydrateFormlyConfig(this.rawFormConfigBlueprint);
+    this.fields = hydrateFormlyConfig(this.raw);
     const itemsSection = this.fields.find(f => f.key === 'items');
 
     if (itemsSection && itemsSection.fieldArray && typeof itemsSection.fieldArray === 'object') {

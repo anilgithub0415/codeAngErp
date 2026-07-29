@@ -2,14 +2,15 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 
 import { InternalPOsComponent } from '../components/internal-pos/internal-pos.component';
 import { QuotationMgrComponent } from '../../quotation-mgt/quotation-mgr/quotation-mgr.component';
-import { ClientPurchaseMgrComponent } from '../client-purchase-mgr/client-purchase-mgr.component';
+import { ClientPurchaseMgrComponent } from '../CRUD/client-purchase-mgr/client-purchase-mgr.component';
 
 import { ButtonTabsComponent,TabDirective } from '../../../shared/components/button-tabs/button-tabs.component';
 import { ToastModule } from 'primeng/toast';
+import { TableModule } from 'primeng/table';
 @Component({
   selector: 'app-received-quotes-noffers',schemas:[CUSTOM_ELEMENTS_SCHEMA],
   imports: [ButtonTabsComponent,TabDirective, 
-      ToastModule,
+      ToastModule, TableModule,
       QuotationMgrComponent,      InternalPOsComponent],
   templateUrl: './received-quotes-noffers.component.html',
   styleUrl: './received-quotes-noffers.component.scss'

@@ -7,6 +7,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-sales-order-grid',
@@ -16,7 +17,7 @@ import { RippleModule } from 'primeng/ripple';
     FormsModule,
     DataViewModule, 
     SelectButtonModule, 
-    ButtonModule, 
+    ButtonModule, TableModule,
     RippleModule
   ],
   templateUrl: './sales-order-grid.component.html'

@@ -1,3 +1,4 @@
+
 <form [formGroup]="form" class="order-form">
   <!-- INTERACTIVE FORM MATRIX ENGINE CONTAINER -->
   <div class="order-header mb-4">
@@ -33,6 +34,30 @@
       (click)="submitPortalCounterOffer()"
       [disabled]="!form.valid">
     </p-button>
+
+
+      <p-button
+        type="button"
+        *ngxPermissionsOnly="['Quotation.SubmitToApprove']"
+        label="Submit for Approval"
+        icon="pi pi-send"
+        styleClass="p-button-success"
+        (click)="submitQuotationForApproval()"
+         [disabled]="!form.valid || model?.status !== 'DRAFT'">
+      </p-button>
+
+       
+<ng-container *ngxPermissionsOnly="['Quotation.Approve']">
+  <p-button
+    *ngIf="model?.status === 'PENDING_APPROVAL'"
+    type="button"
+    label="Approve Quotation"
+    icon="pi pi-check"
+    styleClass="p-button-success"
+    (click)="onApproveClicked()">
+  </p-button>
+</ng-container>
+
 
     <button
       pButton

@@ -1,0 +1,58 @@
+<!-- Main Dashboard Grid Container using standard flexbox -->
+<div style="display: flex; flex-wrap: wrap; gap: 1rem; padding: 1rem;">
+    
+    <!-- Widget 1: Pending Quotes -->
+    <div style="flex: 1 1 300px;">
+        <p-card [style]="{ 'border-left': '4px solid #f97316', 'box-shadow': '0 2px 4px rgba(0,0,0,0.1)' }">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="color: #6b7280; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Action Required</span>
+                    <div style="color: #1f2937; font-size: 1.5rem; font-weight: 700;">3 Received Quotations</div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #ffedd5; border-radius: 4px; width: 2.5rem; height: 2.5rem;">
+                    <i class="pi pi-file" style="color: #f97316; font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="color: #f97316; font-weight: 500; margin-top: 1rem; font-size: 0.875rem;">
+                Awaiting your approval
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Widget 2: Financial Balance -->
+    <div style="flex: 1 1 300px;">
+        <p-card [style]="{ 'border-left': '4px solid #3b82f6', 'box-shadow': '0 2px 4px rgba(0,0,0,0.1)' }">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="color: #6b7280; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Credit & Account</span>
+                    <div style="color: #1f2937; font-size: 1.5rem; font-weight: 700;">$14,500.00</div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #dbeafe; border-radius: 4px; width: 2.5rem; height: 2.5rem;">
+                    <i class="pi pi-credit-card" style="color: #3b82f6; font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="color: #22c55e; font-weight: 500; margin-top: 1rem; font-size: 0.875rem;">
+                Account Good Standing
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Widget 3: Standing Orders Track -->
+    <div style="flex: 1 1 300px;">
+        <p-card [style]="{ 'border-left': '4px solid #22c55e', 'box-shadow': '0 2px 4px rgba(0,0,0,0.1)' }">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="color: #6b7280; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Standing Orders</span>
+                    <div style="color: #1f2937; font-size: 1.5rem; font-weight: 700;">Next Ship: 4 Days</div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #dcfce7; border-radius: 4px; width: 2.5rem; height: 2.5rem;">
+                    <i class="pi pi-refresh" style="color: #22c55e; font-size: 1.25rem;"></i>
+                </div>
+            </div>
+            <div style="color: #6b7280; margin-top: 1rem; font-size: 0.875rem;">
+                Mops & Cleaners auto-replenish
+            </div>
+        </p-card>
+    </div>
+
+</div>

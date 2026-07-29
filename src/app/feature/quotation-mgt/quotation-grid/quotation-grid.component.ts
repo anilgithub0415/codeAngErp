@@ -10,6 +10,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { SelectButtonModule } from 'primeng/selectbutton';
 
 import { IQuotation } from '../../../core/models/quotation.model';
+import { FormOpMode } from '../../../shared/enums/FormOpMode.enum';
 
 @Component({
   selector: 'app-quotation-grid',
@@ -27,6 +28,8 @@ import { IQuotation } from '../../../core/models/quotation.model';
   styleUrl: './quotation-grid.component.scss'
 })
 export class QuotationGridComponent {
+
+    @Input() opMode!: FormOpMode;
   @Input() quotations: IQuotation[] = [];
   @Output() onEditClick = new EventEmitter<any>();
 

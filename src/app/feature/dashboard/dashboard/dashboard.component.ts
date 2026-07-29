@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { UserContextService } from '../../../core/services/user-context.service';
 import { distinctUntilChanged, filter } from 'rxjs';
 import { User } from '../../../core/models/user.model';
+import { ClientProductCatalogComponent } from '../../clientportal/product-catalog/client-product-catalog/client-product-catalog.component';
 
 @Component({
   selector: 'app-dashboard',

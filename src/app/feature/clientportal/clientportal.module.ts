@@ -5,7 +5,7 @@ import { ClientPortalRoutingModule } from './clientportal-routing.module';
 import { ClientPortalLayoutComponent } from './components/client-portal-layout/client-portal-layout.component';
 import { SiteComponent } from './site/site.component';
 import { UserMgrComponent } from '../usermgt/user-mgr/user-mgr.component';
-import { ClientPurchaseMgrComponent } from './client-purchase-mgr/client-purchase-mgr.component';
+import { ClientPurchaseMgrComponent } from './CRUD/client-purchase-mgr/client-purchase-mgr.component';
 
 
 @NgModule({
