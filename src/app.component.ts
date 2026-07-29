@@ -18,6 +18,8 @@ import { FORMLY_CONFIG, provideFormlyCore } from '@ngx-formly/core';
 
 import { withFormlyPrimeNG } from '@ngx-formly/primeng'; 
 import { SpinnerComponent } from './app/shared/components/spinner/spinner.component';
+import { ContextUiService } from './app/core/services/context-ui.service';
+import { LayoutService } from './app/layout/service/layout.service';
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
     tenantId: number;displayName:string;
@@ -80,12 +82,13 @@ providers:[
     template: `<span *ngIf='loadingContext'>Wait...</span>
     <app-spinner></app-spinner>
     <router-outlet *ngIf='!loadingContext'></router-outlet>
-    <app-context-selection-dialog
-    [visible]="showContextSelectionDialog"
+    <app-context-selection-dialog 
+    [(visible)]="showContextSelectionDialog" 
     [contexts]="availableContextsForSelection"
     (contextSelected)="handleContextSelection($event)"
-    (logoutInitiated)="authService.logout(this.authService.getRefreshToken())"
-></app-context-selection-dialog> <!-- This component listens for messages from the MessageService -->
+    (logoutInitiated)="handleLogout()">
+</app-context-selection-dialog>
+ <!-- This component listens for messages from the MessageService -->
 <p-toast></p-toast>`
 })
 export class AppComponent implements OnInit {
@@ -96,6 +99,7 @@ export class AppComponent implements OnInit {
 public authService=inject(AuthService)
     constructor( private router: Router, private eventbusService:EventBusService
         ,  private usercontextService:UserContextService,
+        private contextUiService: ContextUiService,private layoutService:LayoutService
         ) {
          
            
@@ -170,78 +174,63 @@ public authService=inject(AuthService)
     // }
 
 
-ngOnInit(): void {
-    // First, check if a context is already active and saved in the service.
-    // This prevents the dialog/auto-selection logic from running on every page refresh if a context is already set.
-    if (this.authService.loadActiveContext()) {
-        console.log('Active context already exists. Skipping selection logic.');
-        this.loadingContext = false;
-        return; // Exit the ngOnInit logic early
-    }
-  
-    //alert('app component not found activecontext ')
 
-    // If no active context is found, proceed with the subscription to isLoggedIn$.
-    this.sub = this.authService.isLoggedIn$.pipe(
-      distinctUntilChanged(),
-      filter(isAuthenticated => isAuthenticated === true),
-      take(1)
-    ).subscribe(isAuthenticated => {
-      if (isAuthenticated) {
-        this.loadingContext = true;
-        const contexts = this.authService.getAvailableContexts();
-        
-        if (contexts && contexts.length == 1) { console.log('.......................................yes context found .......with length 1',contexts[0]); } 
-        
-        if (contexts && contexts.length > 1) {
-          this.availableContextsForSelection = contexts;
-          this.showContextSelectionDialog = true;
-          this.loadingContext = false;
-        } else if (contexts && contexts.length === 1) {
-          this.authService.setActiveContext(contexts[0]).subscribe({
-            next: () => {
-              console.log('Auto-selected single context.');
-              this.loadingContext = false;
-            },
-            error: (err) => {
-              console.error('Auto-selection failed:', err);
-              this.authService.logout(this.authService.getRefreshToken());
-            }
-          });
-        } else {
-          console.warn('No contexts found after login or contexts array is empty.');
-          this.authService.logout(this.authService.getRefreshToken());
-        }
-      } else {
-        this.showContextSelectionDialog = false;
-        this.availableContextsForSelection = null;
+
+ngOnInit() {
+  this.contextUiService.dialogState$.subscribe(state => {
+    this.showContextSelectionDialog = state.visible;
+    this.availableContextsForSelection = state.contexts;
+  });
+}
+handleContextSelection(event: any) {
+  console.log('Assigning context to AuthService:', event);
+
+  this.authService.setActiveContext(event).subscribe({
+    next: () => {
+      console.log('Active context assigned. Completing application state setup...');
+
+      // 1. Fetch user data for the specific chosen context
+      const userId = this.authService.getUserId(); 
+      const tenantId = event.tenantId || localStorage.getItem('tenant_id');
+      
+      if (tenantId && userId) {
+        this.layoutService.loadUserPreferences(parseInt(tenantId), userId);
       }
 
-     
-    });
-  
-    // Your initial check on load block is no longer needed with the new logic at the start of ngOnInit
-  }
+      // 2. Build permissions and roles for this context
+      this.authService.updateCurrentUserRoleAndPermissions();
+
+      // 3. Mark the user as fully logged in AFTER state is ready
+      // This triggers header components and layouts to safely render
+      this.authService.setLoginStatus(true); 
+
+      // 4. Close the dialog UI
+      this.contextUiService.closeSelectionDialog();
+      
+      // 5. Navigate to the page now that all states are initialized
+      this.router.navigate(['/app']); 
+    },
+    error: (err) => {
+      console.error('Failed to set active context:', err);
+      this.authService.logout(this.authService.getRefreshToken());
+      this.contextUiService.closeSelectionDialog();
+      this.router.navigate(['/auth/login']);
+    }
+  });
+}
+
+
+
     ngOnDestroy() {
         this.sub.unsubscribe(); this.subHandleContSelect.unsubscribe();
       } 
-    handleContextSelection(selectedContext: AvailableContext): void {
-        console.log('...object passing to setActveContext thru handleselection:',selectedContext);
-        
-        this.subHandleContSelect= this.authService.setActiveContext(selectedContext).subscribe({
-            next: () => {
-                
-                this.showContextSelectionDialog = false; this.loadingContext=false; this.eventbusService.emit(new EmitEvent(Events.contextSelected,selectedContext))
-                //this.router.navigate(['/app']); // Navigate to a default route after selection
-                window.location.href="http://localhost:4200/app/usrmgt";
-            },
-            error: (err) => {
-                console.error('Failed to set active context:', err);
-                // Handle error, maybe show a message and logout
-                var rt=this.authService.getRefreshToken();
-                this.authService.logout(rt);
-            }
-        });
-    }
+    
+
+handleLogout(): void {
+    this.showContextSelectionDialog = false;
+    this.authService.logout(this.authService.getRefreshToken());
+}
+
+
 }
 

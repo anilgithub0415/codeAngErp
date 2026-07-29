@@ -3,7 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { AuthService , AvailableContext} from '../../../core/services/auth.service';
+import { AuthService , } from '../../../core/services/auth.service';
+interface AvailableContext {
+    tenantId: number;displayName:string;
+    tenantName: string;tenantType: string;
+    roleName: string;
+    permissions: string[];
+}
 @Component({
   selector: 'app-context-switcher',
   standalone: true,
@@ -58,8 +64,9 @@ export class ContextSwitcherComponent implements OnInit {
   }
 
   onContextChange(chosenContext: AvailableContext): void {
-    if (chosenContext) {
-      this.authService.switchContext(chosenContext);
+    if (chosenContext) { console.log('chosenContext:',chosenContext);
+    
+      this.authService.setActiveContext(chosenContext);//.switchContext
     }
   }
 }
