@@ -1,0 +1,106 @@
+<!-- Entry Form Field Controls Area Mapping -->
+JSON rule: Always use 'finalPrice' as calculating price field, as Utils.bindDatabaseHooks assumes that for getting finalprice
+  <form [formGroup]="form" pFluid [class.hidden-form]="isFormHidden">
+    
+    <!-- Forced Vertical Stack Wrapper Layout Box -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%; margin-bottom: 1.5rem;">
+      
+      <!-- Input Field 1: Form Key Identifier Name -->
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+        <label for="formKeyInput" style="font-weight: 600; font-size: 0.875rem;">Form Schema Identification Key</label>
+        <input 
+          id="formKeyInput"
+          type="text" 
+          pInputText 
+          formControlName="FormKey" 
+          placeholder="Enter descriptive Form Key (e.g. user_form)" />
+      </div>
+
+      <!-- Input Field 2: Multiline Textarea Value Payload Layout Box -->
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+        <label for="formlyConfigInput" style="font-weight: 600; font-size: 0.875rem;">Formly JSON Layout Configuration Schema</label>
+     
+    
+        <textarea 
+          id="formlyConfigInput"
+          [rows]="18" 
+          pInputTextarea 
+          formControlName="FormlyConfig" 
+          placeholder="Enter valid raw or escaped Formly JSON array text metadata"
+          style="width: 100%; font-family: monospace; resize: vertical; min-height: 150px;"></textarea>
+
+
+
+
+      </div>
+
+    </div>
+      
+    <div class="customer-actions" *ngIf="currOpMode !== FormOpMode.View">
+      <button
+        pButton
+        type="button"
+        label="Save Configuration"
+        icon="pi pi-save"
+        (click)="saveFormConfig()"
+        class="p-button-success"
+        [disabled]="!form.valid">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Clear Inputs"
+        icon="pi pi-times"
+        (click)="clearFormConfig()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        (click)="CancelFormOp()"
+        class="p-button-secondary"
+        style="margin-left: 0.5rem">
+      </button>
+    </div>
+  </form>
+
+
+<!-- Generation Command Anchor Action Button -->
+<p-button 
+  *ngIf="currOpMode === FormOpMode.View"
+  label="New Form Configuration" 
+  icon="pi pi-plus" 
+  (click)="Add()">
+</p-button>
+
+<!-- Summary Datagrid Mapping Section -->
+<div class="site-section mb-0 mt-4" *ngIf="configs?.length">
+  <h3 class="text-lg font-semibold mb-2">Tracked Form Layout Schemas</h3>
+  <p-table [value]="visibleDataArray ? visibleDataArray : []" class="districts-table">
+    <ng-template pTemplate="header">
+      <tr>
+        <th width="60px">Edit</th>
+        <th>Form Key Identifier</th>
+        <th>Formly JSON Layout Configuration Expression</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-config>
+      <tr>
+        <td>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning p-button-sm"
+            (click)="onEditClick(config)">
+          </button>
+        </td>
+        <td>{{ config.FormKey }}</td>
+        <td> config.FormlyConfig</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

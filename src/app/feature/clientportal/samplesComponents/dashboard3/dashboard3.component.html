@@ -1,0 +1,91 @@
+aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+<!-- Interactive Dashboard Container -->
+<div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem; font-family: sans-serif;">
+    
+    <!-- Title Section -->
+    <div style="padding-left: 0.5rem;">
+        <h2 style="margin: 0; color: #1f2937; font-size: 1.5rem; font-weight: 700;">Operations Control Center</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.875rem;">Real-time dispatch status and pending approvals.</p>
+    </div>
+
+    <!-- Split Widget 1: Urgent Quotation Approval Tracker -->
+    <p-card [style]="{ 'background': '#ffffff', 'border': '1px solid #e5e7eb', 'border-radius': '12px', 'box-shadow': '0 4px 20px rgba(0,0,0,0.05)', 'overflow': 'hidden' }">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            
+            <!-- Left Side: Status Context & Mini Timeline -->
+            <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1 1 500px;">
+                <!-- Icon Highlight -->
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #ffedd5; border-radius: 10px; width: 3.5rem; height: 3.5rem; min-width: 3.5rem;">
+                    <i class="pi pi-file-edit" style="color: #ea580c; font-size: 1.5rem;"></i>
+                </div>
+                
+                <!-- Live Pipeline Steps -->
+                <div style="width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="background-color: #fed7aa; color: #9a3412; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 4px; text-transform: uppercase;">RFQ Pending Signature</span>
+                        <span style="color: #9ca3af; font-size: 0.875rem;">ID: #RFQ-2026-89</span>
+                    </div>
+                    
+                    <!-- Micro Tracker Steps -->
+                    <div style="display: flex; align-items: center; width: 100%; max-width: 450px; font-size: 0.85rem; position: relative; margin-top: 0.75rem;">
+                        <span style="color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;"><i class="pi pi-check-circle"></i> Created</span>
+                        <div style="flex-grow: 1; height: 2px; background: #16a34a; margin: 0 0.5rem;"></div>
+                        <span style="color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;"><i class="pi pi-check-circle"></i> Price Quoted</span>
+                        <div style="flex-grow: 1; height: 2px; background: #d1d5db; margin: 0 0.5rem;"></div>
+                        <span style="color: #ea580c; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;"><i class="pi pi-clock"></i> Your Review</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Fast-Action Call To Action -->
+            <div style="flex: 0 1 auto; min-width: 200px; text-align: right; border-left: 1px dashed #e5e7eb; padding-left: 1.5rem;">
+                <div style="color: #4b5563; font-size: 0.85rem; margin-bottom: 0.25rem;">Contract Value</div>
+                <div style="color: #111827; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem;">$4,850.00</div>
+                <!-- PrimeNG Native Button Trigger Placeholder -->
+                <button pButton type="button" label="Review & Sign PO" icon="pi pi-arrow-right" iconPos="right" class="p-button-warning p-button-sm" style="border-radius: 6px; font-weight: 600; padding: 0.5rem 1rem; cursor: pointer;"></button>
+            </div>
+
+        </div>
+    </p-card>
+
+    <!-- Split Widget 2: Active Dispatch & Delivery Tracker -->
+    <p-card [style]="{ 'background': '#ffffff', 'border': '1px solid #e5e7eb', 'border-radius': '12px', 'box-shadow': '0 4px 20px rgba(0,0,0,0.05)', 'overflow': 'hidden' }">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            
+            <!-- Left Side: Status Context & Mini Delivery Timeline -->
+            <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1 1 500px;">
+                <!-- Icon Highlight -->
+                <div style="display: flex; align-items: center; justify-content: center; background-color: #dcfce7; border-radius: 10px; width: 3.5rem; height: 3.5rem; min-width: 3.5rem;">
+                    <i class="pi pi-truck" style="color: #16a34a; font-size: 1.5rem;"></i>
+                </div>
+                
+                <!-- Live Pipeline Steps -->
+                <div style="width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="background-color: #bbf7d0; color: #14532d; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 4px; text-transform: uppercase;">Out For Delivery</span>
+                        <span style="color: #9ca3af; font-size: 0.875rem;">Mops & Floor Cleaner Consignment</span>
+                    </div>
+                    
+                    <!-- Micro Tracker Steps -->
+                    <div style="display: flex; align-items: center; width: 100%; max-width: 450px; font-size: 0.85rem; position: relative; margin-top: 0.75rem;">
+                        <span style="color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;"><i class="pi pi-check-circle"></i> Packed</span>
+                        <div style="flex-grow: 1; height: 2px; background: #16a34a; margin: 0 0.5rem;"></div>
+                        <span style="color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;"><i class="pi pi-check-circle"></i> Dispatched</span>
+                        <div style="flex-grow: 1; height: 2px; background: #3b82f6; margin: 0 0.5rem;"></div>
+                        <span style="color: #3b82f6; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;"><i class="pi pi-map-marker"></i> In Transit</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Fast-Action Track Details Button -->
+            <div style="flex: 0 1 auto; min-width: 200px; text-align: right; border-left: 1px dashed #e5e7eb; padding-left: 1.5rem;">
+                <div style="color: #4b5563; font-size: 0.85rem; margin-bottom: 0.25rem;">Estimated Arrival</div>
+                <div style="color: #111827; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem;">Today, 4:00 PM</div>
+                <!-- PrimeNG Native Button Trigger Placeholder -->
+                <button pButton type="button" label="Live Track & ePOD" icon="pi pi-map" iconPos="right" class="p-button-outlined p-button-sm" style="border-radius: 6px; font-weight: 600; padding: 0.5rem 1rem; cursor: pointer;"></button>
+            </div>
+
+        </div>
+    </p-card>
+
+</div>

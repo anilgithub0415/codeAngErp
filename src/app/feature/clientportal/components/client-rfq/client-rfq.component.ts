@@ -1,0 +1,538 @@
+
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormlyModule, FormlyFieldConfig, FormlyConfig } from '@ngx-formly/core';
+import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
+
+// PrimeNG Imports
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { DatePickerModule } from 'primeng/datepicker';
+import { MessageService } from 'primeng/api';
+
+import { clientPurchase } from '../../../../core/models/clientPurchase.model';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { AuthService } from '../../../../core/services/auth.service';
+
+import { PurchaseService, TenantRulesMatrixResponse } from '../../../../core/services/purchase.service';
+import { FormlyCardWrapperComponent } from '../../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
+import { FormlyFieldPrimengDropdownComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
+
+import { FormlyFieldPrimengDatepickerComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
+import { RepeatsectionformlyComponent } from '../../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
+import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
+import { bindDatabaseHooks, chainOnInitHook, hydrateFormlyConfig, injectPurchaseUomMatrixListeners } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
+import { FormService } from '../../../../core/services/form.service';
+import { ProductService } from '../../../../core/services/product.service';
+import { combineLatest, distinctUntilChanged, firstValueFrom, startWith } from 'rxjs';
+import { LineDiscount } from '../../../../core/models/line-discount.model';
+import { clientRFQ } from '../../../../core/models/clientRFQ.model';
+import { ClientRFQService } from '../../../../core/services/client-rfq.service';
+@Component({
+  selector: 'app-client-rfq',
+  imports: [
+    ReactiveFormsModule, FormsModule, FormlyModule, CommonModule,
+    TableModule, ButtonModule, InputNumberModule, InputTextModule, ToastModule,
+    DatePickerModule, FormlyPrimeNGModule, NgxPermissionsModule
+  ],
+  providers: [MessageService],
+  templateUrl: './client-rfq.component.html',
+  styleUrl: './client-rfq.component.scss'
+})
+export class ClientRFQComponent implements OnInit {
+  siteId!: number;
+  clientId!: number;
+  tenantId!: number;
+  clientPOs: clientPurchase[] | undefined = [];
+  clientRFQs: clientRFQ[] | undefined = [];
+  expandedRows: { [id: number]: boolean } = {};
+  currOpMode: FormOpMode = FormOpMode.View;
+  isFormHidden: boolean = true;
+  form = new FormGroup({});
+  
+ model: any = {
+  tenantId: 0, 
+  clientId: 0, 
+  siteId: 0,
+  clientRFQNumber: '', 
+  vendorId: null, 
+  vendor: null,
+  orderDate: new Date(), // FIX: Keep it as a real Date object, not a string
+  deliveryDate: null, 
+  status: 'DRAFT', 
+  notes: '',
+  items: [{ productId: 0,prodName:"", quantity: 0, purchaseUom: '' }]
+};
+
+
+  raw: any;
+  fields: FormlyFieldConfig[] = [];
+  aForm!: any;
+activeDiscounts: LineDiscount[] = [];
+
+  private formlyConfig = inject(FormlyConfig);
+  private authServ = inject(AuthService);
+  private clientRFQService = inject(ClientRFQService);
+  private purchaseService = inject(PurchaseService);
+  private messageService = inject(MessageService);
+    private formService = inject(FormService);
+      private productService = inject(ProductService);
+  private cd = inject(ChangeDetectorRef);
+
+  ngOnInit(): void {
+    this.siteId = this.authServ.getSiteId()!;
+    this.clientId = this.authServ.getClientId()!;
+    this.tenantId = this.authServ.getTenantId()!;
+
+    this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
+    this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
+    this.formlyConfig.setType({ name: 'datepicker', component: FormlyFieldPrimengDatepickerComponent });
+    this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
+    this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
+
+    //this.buildFormlyFieldsLayout();
+    this.getForm_ClientRFQ()
+    this.getRFQList();
+  }
+ getForm_ClientRFQ() {
+    this.formService.getForm(this.tenantId!, 'clientrfq_form').subscribe(aform => {
+      this.aForm = aform;
+      this.raw = JSON.parse(this.aForm.FormlyConfig);
+      
+      // 🔥 This must happen INSIDE the subscribe block
+      console.log('hydrating now................................');
+    
+      const hydrated = hydrateFormlyConfig(this.raw); this.compileAndHydrateFields();
+      this.fields = hydrated;
+    });
+  }
+
+      private compileAndHydrateFields(): void {
+        this.fields = hydrateFormlyConfig(this.raw);
+    
+      bindDatabaseHooks(this.productService,this.tenantId,this.fields);
+      this.initializeFormBlueprint();
+      }
+
+  private initializeFormBlueprint(): void {
+    this.fields = hydrateFormlyConfig(this.raw);
+    const itemsSection = this.fields.find(f => f.key === 'items');
+
+    if (itemsSection && itemsSection.fieldArray && typeof itemsSection.fieldArray === 'object') {
+      const groupFields = itemsSection.fieldArray.fieldGroup || [];
+      const uomField = groupFields.find(f => f.key === 'purchaseUom');
+
+      if (uomField) {
+        uomField.hooks = {
+          onInit: (field: FormlyFieldConfig) => {
+            const parentGroup = field.parent;
+            if (!parentGroup) return;
+
+            const rowProductField = parentGroup.fieldGroup?.find(f => f.key === 'productId');
+            const currentProductId = parentGroup.model?.productId;
+            const currentVariantId = parentGroup.model?.productVariantId || 0;
+
+            if (currentProductId) {
+              this.purchaseService.fetchTenantRulesMatrix(this.tenantId, currentProductId, currentVariantId)
+                .subscribe({
+                  next: (matrix: TenantRulesMatrixResponse) => {
+                    if (field.props && matrix?.availablePurchaseUnits) {
+                      field.props.options = matrix.availablePurchaseUnits;
+                      this.cd.detectChanges();
+                    }
+                  }
+                });
+            }
+
+            if (rowProductField && rowProductField.formControl) {
+              const sub = rowProductField.formControl.valueChanges.subscribe((productId) => {
+                if (!productId) {
+                  if (field.props) field.props.options = [];
+                  field.formControl?.setValue(null);
+                  return;
+                }
+
+                const activeVariantId = parentGroup.model?.productVariantId || 0;
+                this.purchaseService.fetchTenantRulesMatrix(this.tenantId, productId, activeVariantId)
+                  .subscribe({
+                    next: (matrix: TenantRulesMatrixResponse) => {
+                      if (field.props && matrix?.availablePurchaseUnits) {
+                        field.props.options = matrix.availablePurchaseUnits;
+                        const currentUomValue = field.formControl?.value;
+                        if (!matrix.availablePurchaseUnits.some(u => u.value === currentUomValue)) {
+                          field.formControl?.setValue(null);
+                        }
+                        this.cd.detectChanges();
+                      }
+                    }
+                  });
+              });
+              field.hooks!.onDestroy = () => sub.unsubscribe();
+            }
+          }
+        };
+      }
+    }
+  }
+
+
+ 
+
+  buildFormlyFieldsLayout() {
+    this.raw = [
+      { "key": "id", "type": "input", "hide": true },
+      { "key": "createdByUserId", "type": "input", "hide": true },
+      { "key": "tenantId", "type": "input", "hide": true },
+      { "key": "siteId", "type": "input", "hide": true },
+      {
+        "className": "col-span-24 w-full block mb-0",
+        "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+        "fieldGroup": [
+          {
+            "type": "input",
+            "key": "clientRFQNumber",
+            "className": "col-span-6 md:col-span-4",
+            "props": {
+              "label": "Purchase Order#",
+              "readonly": true,
+              "placeholder": "PO#"
+            }
+          },
+
+
+{
+    "key": "poDate",
+    "type": "datepicker",
+     "className": "col-span-12 md:col-span-6",
+    "templateOptions": {
+      "label": "PO Date",
+      "required": true,
+      "placeholder": "YYYY-MM-DD"
+    },
+    "hooks": {
+      "onInit": "field.formControl.setValue(field.model.poDate ? new Date(field.model.poDate) : null)"
+    },
+    "parsers": [
+      "value => value instanceof Date ? value.toISOString().split('T')[0] : value"
+    ]
+  }
+
+        ]
+      },
+      {
+        "key": "items",
+        "type": "p-repeatsectionformly",
+        "wrappers": ["panel"],
+        "defaultValue": [],
+        "props": {
+          "label": "",
+          "addText": "Add Item",
+          "rowDefaults": { "quantity": "1" }
+        },
+        "expressionProperties": {
+  // Prevents adding/removing rows if the order is locked
+  "disabled": (field: any) => field.options?.model?.status !== 'DRAFT'
+},
+        "fieldArray": {
+          "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+          "fieldGroup": [
+            { "key": "id", "type": "input", "hide": true },
+            {
+              "type": "primeng-dropdown",
+              "key": "productId",
+              "className": "col-span-6 md:col-span-10",
+              "props": {
+                "label": "Item",
+                "optionLabel": "label",
+                "optionValue": "value",
+                "placeholder": "Select Item",
+                "lookupKey": "productTypes",
+                "required": true,
+                "filter": true
+              },
+              "expressions": {
+                      "props.label": "field.parent.index === 0 ? 'Item' : ''",
+                       "props.disabled": () => this.model?.status !== 'DRAFT' 
+                      },
+    
+            },
+            {
+              "type": "input",
+              "key": "quantity",
+              "className": "col-span-3 md:col-span-4",
+              "props": {
+                "placeholder": "Enter quantity",
+                "required": true,
+                "type": "number"
+              },
+               "expressionProperties": {
+  "props.label": "field.parent.index === 0 ? 'Quantity' : ''",
+  "props.disabled": () => this.model?.status !== 'DRAFT' // 🛡️ Directly binds to the component's state tracking parameter
+}
+            },
+            {
+              "type": "primeng-dropdown",
+              "key": "purchaseUom",
+              "className": "col-span-12 md:col-span-6",
+              "props": {
+                "label": "Purchase UOM:",
+                "optionLabel": "label",
+                "optionValue": "value",
+                "placeholder": "Select UOM",
+                "filter": true,
+                "required": true,
+                "options": []
+              },
+              "expressionProperties": {
+  "props.label": "field.parent.index === 0 ? 'Purchase UOM' : ''",
+  "props.disabled": () => this.model?.status !== 'DRAFT' // 🛡️ Directly binds to the component's state tracking parameter
+}
+            }
+          ]
+        }
+      }
+    ];
+
+    const hydrated = hydrateFormlyConfig(this.raw);
+    this.fields = hydrated;
+    injectPurchaseUomMatrixListeners(this.fields, this.purchaseService, this.tenantId);
+  }
+
+ 
+
+  getRFQList() {
+    this.clientRFQService.getClientRFQs(this.tenantId, this.siteId).subscribe(clientRfqs => {
+      this.clientRFQs = clientRfqs; console.log('clientRfqs:',clientRfqs);
+      
+    });
+  }
+
+  Add() {
+    this.isFormHidden = false;
+    this.currOpMode = FormOpMode.Add;
+    this.model = {
+      tenantId: this.tenantId,
+      clientId: this.clientId,
+      siteId: this.siteId,
+      clientRFQNumber: '',
+      orderDate: new Date().toISOString().substring(0, 10),
+      status: 'DRAFT',
+      notes: '',
+      items: []
+    };
+    this.form.reset();
+  }
+
+  CancelFormOp() {
+    this.currOpMode = FormOpMode.View;
+    this.isFormHidden = true;
+  }
+
+    async onEditClick(selectedRecord: any) {
+  this.isFormHidden = false;
+  this.currOpMode = FormOpMode.Update;
+  
+  // 🛡️ Create deep copy safely
+  const copy = JSON.parse(JSON.stringify(selectedRecord));
+  
+  // Force formatting to Uppercase to satisfy your HTML expressions string matching rules
+  if (copy.status) {
+    copy.status = copy.status.toUpperCase();
+  } else {
+    copy.status = 'DRAFT'; // Default fallback if field is missing from network row
+  }
+
+  // FIX: Explicitly convert the serialized string dates back into live Date objects
+  if (copy.orderDate) {
+    copy.orderDate = new Date(copy.orderDate);
+  }
+  if (copy.deliveryDate) {
+    copy.deliveryDate = new Date(copy.deliveryDate);
+  }
+
+  this.model = copy;
+  console.log('Normalized edit record target:', this.model);
+}
+
+
+  // 💾 Action 1: Save as Draft (keeps form editable)
+  saveRFQDraft() {
+    this.executePersistWorkflow(false);
+  }
+
+  // 🚀 Action 2: Submit to Head Office (locks document)
+  submitRFQForApproval() {
+    this.executePersistWorkflow(true);
+  }
+
+  // 🚀 inside your purchase-order-detail.component.ts
+
+approveRFQ() {
+  const poId = this.model.id || this.model.purchaseOrderId;
+  if (!poId) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No active Purchase Order selected.' });
+    return;
+  }
+
+  // 1. Map and sanitize the on-screen item data to capture quantity variations
+  const itemsPayload = this.model.items ? this.model.items.map((item: any) => ({
+    productId: item.productId || null,
+    productVariantId: item.productVariantId || null,
+    quantity: Number(item.quantity || 1),
+    purchaseUom: item.purchaseUom || null
+  })) : [];
+
+  // 2. Build the payload for the dedicated workflow action
+  const payload = {
+    action: 'APPROVE' as const, // Strict Type Casting to match service expectations
+    items: itemsPayload
+  };
+
+  // 3. Fire the dedicated POST request
+  this.clientRFQService.approveClientRFQOrder(poId, payload).subscribe({
+    next: (response:any) => {
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: 'Order Approved', 
+        detail: `Purchase Order #${this.model.clientRFQNumber || poId} has been successfully approved.` 
+      });
+      this.finalizeSaveSuccess(); // Cleans up screens and refreshes list view metrics
+    },
+    error: (err) => {
+      // Handles validation exceptions thrown back by the backend service guardrails
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Approval Blocked', 
+        detail: err.error?.message || err.message || 'An error occurred during approval.' 
+      });
+    }
+  });
+}
+
+
+  // ❌ Client Rejecting sitePurchase
+  rejectPO() {
+    const poId = this.model.id || this.model.purchaseOrderId;
+    if (!poId) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No active Purchase Order selected.' });
+      return;
+    }
+
+    // Build payload to send workflow state alteration to backend
+    const payload = {
+      status: 'REJECTED',
+      internalNotes: `${this.model.internalNotes || ''} | Rejected by Client on ${new Date().toISOString()}`
+    };
+
+    this.clientRFQService.updateClientRFQOrder(poId, payload).subscribe({
+      next: () => {
+        this.messageService.add({ 
+          severity: 'warn', 
+          summary: 'Order Rejected', 
+          detail: `Purchase Order #${this.model.clientRFQNumber || poId} has been sent back.` 
+        });
+        this.finalizeSaveSuccess(); // Refresh table listing and hide form panels
+      },
+      error: (err:any) => {
+        this.messageService.add({ severity: 'error', summary: 'Rejection Failed', detail: err.message });
+      }
+    });
+  }
+  
+  private executePersistWorkflow(shouldSubmitToClient: boolean) {
+    
+    
+    if (!this.model.items?.length) {
+      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'At least one product item is required' });
+      return;
+    }
+
+    // Bind parameters securely
+    this.model.tenantId = this.tenantId;
+    this.model.siteId = this.siteId;
+    this.model.clientId = this.clientId;
+    
+    // 💡 Workaround placeholder mapping for backend DTO structural validations
+    this.model.clientRFQNumber = this.model.clientRFQNumber || '';
+
+    // Handle structural state mutations before routing payload down
+    const payload = { ...this.model };
+    if (shouldSubmitToClient) {
+      payload.action = 'SUBMIT';
+      payload.status = 'PENDING_APPROVAL';
+    }
+    if (this.currOpMode === FormOpMode.Add) {
+      this.clientRFQService.createclientRFQOrder(payload).subscribe({
+        next: (res: any) => { 
+          this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Draft Order initialized.' });
+          const targetId = res?.id || res?.purchaseOrderId || (res as any).id;
+
+          if (shouldSubmitToClient) {
+            if (!targetId) {
+              console.error('[CPO Sync Error] Backend response payload does not contain an ID tracker:', res);
+              this.messageService.add({ severity: 'error', summary: 'Submission Interrupted', detail: 'Could not resolve internal reference ID.' });
+              this.finalizeSaveSuccess();
+              return;
+            }
+
+            this.clientRFQService.updateClientRFQOrder(targetId, { action: 'SUBMIT', status: 'PENDING_APPROVAL' }).subscribe({
+              next: () => this.finalizeSaveSuccess(),
+              error: (err) => this.messageService.add({ severity: 'error', summary: 'Submission Failed', detail: err.message })
+            });
+          } else {
+            this.finalizeSaveSuccess();
+          }
+        },
+        error: (err:any) => this.messageService.add({ severity: 'error', summary: 'Save Failed', detail: err.message })
+      });
+
+    } else if (this.currOpMode === FormOpMode.Update) {
+      // 🚀 FIX: Direct update pipeline for existing records
+      const existingId = this.model.id || this.model.purchaseOrderId;
+      
+      this.clientRFQService.updateClientRFQOrder(existingId, payload).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Purchase order changes saved and submitted.' });
+          this.finalizeSaveSuccess();
+        },
+        error: (err) => this.messageService.add({ severity: 'error', summary: 'Update Failed', detail: err.message })
+      });
+    }
+
+
+
+}
+
+  private finalizeSaveSuccess() {
+    this.getRFQList();
+    this.CancelFormOp();
+  }
+
+  // Stubs left intact to prevent template layout breakages
+  onVendorSelected(vendor: any) {}
+  onProductAdded(product: any) {}
+  addProductToOrder(product: any) {}
+  removeLine(index: number) {}
+  
+  clearRFQ() { 
+    this.model = {
+      tenantId: this.tenantId,
+      siteId: this.siteId,
+      clientRFQNumber: '',
+      vendorId: null,
+      vendor: null,
+      orderDate: new Date().toISOString().substring(0, 10),
+      deliveryDate: null,
+      status: 'DRAFT',
+      notes: '',
+      items: []
+    };
+    this.form.reset(); 
+  }
+}
+

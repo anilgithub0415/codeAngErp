@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, OnInit } from '@angular/core';
 import { ButtonTabsComponent, TabDirective } from '../../../shared/components/button-tabs/button-tabs.component';
 import { PermissionComponent } from '../permission/permission.component';
 import { RolePermissionsComponent } from '../role-permissions/role-permissions.component';
@@ -16,13 +16,13 @@ import { UserRoleComponent } from '../user-role/user-role.component';
   styleUrl: './permission-junction.component.scss'
 })
 export class PermissionJunctionComponent {
-
+@Input() tenantId!:number;
 myTabConfig:any;
   ngOnInit(){
      this.myTabConfig = [
     { label: 'Roles', id: 'Roles' },
-     { label: 'Permissions', id: 'Permissions' },
-    { label: 'Role Permissions', id: 'RolePermissions'}
+    {label:'Permissions',id:'Permissions'},
+         { label: 'Role Permissions', id: 'RolePermissions'}
   ];
   }
 

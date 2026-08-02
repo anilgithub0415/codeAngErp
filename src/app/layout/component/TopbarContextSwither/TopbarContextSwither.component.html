@@ -1,0 +1,32 @@
+<!-- currentTenantId:{{currentTenantId}}
+contexts.length_aaa:{{contexts.length}} -->
+
+<!-- Replace your current HTML layout with this styled PrimeNG version -->
+<header class="topbar">
+  <div class="logo"></div>
+
+  <div *ngIf="isSuperAdminProfile" class="pretend-selector-wrapper">
+    <span class="mode-indicator mr-2">
+      {{ currentTenantId === 0 ? '👑 Global Active Mode' : '👀 Pretending Mode' }}
+    </span>
+
+    <!-- Clean, styled PrimeNG Dropdown component -->
+    <p-dropdown 
+        [options]="contexts" 
+        [(ngModel)]="currentTenantId" 
+        optionValue="tenantId"
+        optionLabel="tenantName"
+        (onChange)="onDropdownChange($event)"
+        placeholder="Select a Tenant">
+        
+        <!-- Custom template to show the "Global System" label nicely -->
+        <ng-template let-item pTemplate="item">
+            <span>{{ item.tenantId === 0 ? 'Global System (All Tenants)' : 'Pretend as: ' + item.tenantName + item.roleName }}</span>
+        </ng-template>
+    </p-dropdown>
+  </div>
+
+  <div class="user-profile">
+    <!-- <span>Profile Active</span> -->
+  </div>
+</header>

@@ -1,0 +1,47 @@
+<!-- BAND 5: HELP & RESOLUTION DESK METRIC CARD -->
+<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem' }">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+        
+        <!-- Left Node: Support Icon & Active Status -->
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 350px;">
+            <!-- Icon Background switched to an opacity tint to adapt cleanly to dark theme layout -->
+            <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(168, 85, 247, 0.15); border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                <i class="pi pi-comments" style="color: #a855f7; font-size: 1.35rem;"></i>
+            </div>
+            <div>
+                <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Help & Resolution Desk</span>
+                <div style="color: var(--text-color); font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">
+                    {{ supportSummary.openTickets }} Active Service Tickets
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Dropdown Node Embedded in the Row -->
+        <div style="flex: 2 1 350px; min-width: 280px;">
+            <p-dropdown 
+                [(ngModel)]="selectedSupportAction" 
+                [options]="supportOptions" 
+                optionLabel="label" 
+                placeholder="What do you need assistance with? Select an area..." 
+                (onChange)="onSupportActionSelect($event)"
+                appendTo="body"
+                [style]="{'width':'100%'}"
+                [inputStyle]="{'padding':'0.5rem 0.75rem', 'background':'var(--repository-background, var(--surface-ground))', 'color':'var(--text-color)', 'border':'1px solid var(--surface-border)', 'border-radius':'6px', 'font-size':'0.85rem'}">
+                <ng-template let-option pTemplate="item">
+                    <!-- Dropdown item row uses text-color variables for dark view visibility -->
+                    <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--text-color);">
+                        <i [class]="option.icon" [style]="{ 'color': option.color }"></i>
+                        <span><strong>{{ option.label }}</strong> - {{ option.description }}</span>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+        </div>
+
+        <!-- Right Node: Quick Action Button -->
+        <div style="flex: 0 1 auto; text-align: right;">
+            <!-- PrimeNG helper button background overrides kept inline but bound via uniform safe styles -->
+            <button pButton type="button" label="Live Chat" icon="pi pi-discord" class="p-button-help p-button-sm" style="border-radius: 6px; font-size: 0.85rem; background-color: #a855f7; border-color: #a855f7;" (click)="initiateLiveChat()"></button>
+        </div>
+
+    </div>
+</p-card>

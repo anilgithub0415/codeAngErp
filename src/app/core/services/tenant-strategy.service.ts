@@ -26,11 +26,11 @@ export class TenantStrategyService {
     return this.http.get<TenantStrategy>(`/tenantStartegies/${tenantId}/${id}`);
   }
 
-  createStrategy(payload: TenantStrategy): Observable<TenantStrategy> {  
-    return this.http.post<TenantStrategy>('/tenantStartegies', payload);
+  createStrategy(tenantId: number,payload: TenantStrategy): Observable<TenantStrategy> {  
+    return this.http.post<TenantStrategy>('/tenantStartegies/'+tenantId, payload);
   }
 
-  updateStrategy(id: number, payload: Partial<TenantStrategy>): Observable<TenantStrategy> {  
-    return this.http.put<TenantStrategy>(`/tenantStartegies/${id}`, payload);
+  updateStrategy(tenantId: number,id: number, payload: Partial<TenantStrategy>): Observable<TenantStrategy> {  
+    return this.http.put<TenantStrategy>(`/tenantStartegies/${tenantId}/${id}`, payload);
   }
 }

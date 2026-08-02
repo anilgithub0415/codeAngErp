@@ -12,12 +12,15 @@
   </app-filter-control>
 
   <!-- Primary View State Action Control Trigger Button -->
-<p-button 
+<ng-container  *ngxPermissionsOnly="['Client.create']">
+  <p-button 
   *ngIf="currOpMode === FormOpMode.View"
   label="New Client" 
   icon="pi pi-plus" 
   (click)="Add()">
 </p-button>
+</ng-container>
+
   <!-- 1. DECOUPLED INTERACTIVE FORM CONFIGURATION PANEL SECTION -->
   <app-customer-form 
     [form]="form"

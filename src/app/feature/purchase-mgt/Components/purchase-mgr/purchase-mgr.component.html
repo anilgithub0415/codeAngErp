@@ -1,3 +1,11 @@
+<!-- Example using PrimeNG Chips (read-only tags) -->
+<h3>Your Permissions</h3>
+<p-chips [(ngModel)]="currentUserPermissions" [disabled]="true"></p-chips>
+
+<!-- Example using PrimeNG Listbox -->
+<div class="card">
+    <p-listbox [options]="currentUserPermissions" ></p-listbox>
+</div>
 
 <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>

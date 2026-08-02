@@ -1,0 +1,38 @@
+<!-- BAND 4: PROMOTIONS & VOLUME BRACKETS METRIC CARD -->
+<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem' }">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+        
+        <!-- Left Section: Promotion Icon & Tier Status -->
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 300px;">
+            <!-- Icon Background switched to an opacity tint to adapt cleanly across variable modes -->
+            <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(217, 70, 239, 0.15); border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                <i class="pi pi-percentage" style="color: #d946ef; font-size: 1.35rem;"></i>
+            </div>
+            <div>
+                <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Promotions & Volume Brackets</span>
+                <div style="color: var(--text-color); font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">{{promoMetrics.currentTier}}</div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Linear Progress Track Visualization -->
+        <div style="flex: 2 1 350px; min-width: 280px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-color); margin-bottom: 0.4rem; font-weight: 500;">
+                <span>Progress to {{promoMetrics.nextTier}}</span>
+                <strong>{{promoMetrics.progressPercent}}% Completed</strong>
+            </div>
+            <!-- Progress track container adapts using surface-ground variables natively -->
+            <div style="width: 100%; height: 8px; background-color: var(--surface-ground); border-radius: 4px; overflow: hidden; border: 1px solid var(--surface-border);">
+                <div [style.width.%]="promoMetrics.progressPercent" style="height: 100%; background: linear-gradient(90deg, #d946ef, #a855f7); border-radius: 4px;"></div>
+            </div>
+            <span style="font-size: 0.75rem; color: var(--text-color-secondary); display: block; margin-top: 0.4rem;">Spend {{promoMetrics.spendToNextTier | currency}} more to drop catalog rates across chemical lines.</span>
+        </div>
+
+        <!-- Right Section: Accrued Rebates Counter Node -->
+        <!-- Dotted separation border matches active theme outlines cleanly -->
+        <div style="flex: 0 1 auto; text-align: right; min-width: 160px; border-left: 1px dashed var(--surface-border); padding-left: 1rem;">
+            <div style="font-size: 0.75rem; color: var(--text-color-secondary);">Accrued Rebates</div>
+            <div style="font-size: 1.35rem; font-weight: 800; color: #d946ef; margin-top: 0.15rem;">{{promoMetrics.activeRebate | currency}}</div>
+        </div>
+
+    </div>
+</p-card>

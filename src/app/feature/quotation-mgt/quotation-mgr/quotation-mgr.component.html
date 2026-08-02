@@ -16,7 +16,7 @@ lock clientId
 
 
 <p-toast></p-toast>
-clientId:{{clientId}}
+clientId:{{clientId}}  isPortalContext:{{isPortalContext}} currOpMode:{{currOpMode}}
 <div class="quotation-container p-4">
 
   <!-- CRUD FORM WORKFLOW LAYERS -->
@@ -29,7 +29,10 @@ clientId:{{clientId}}
     [quotationData]="selectedQuotation"
     (onCancel)="onOperationCancelled()"
     (onSaveSuccess)="onOperationSaved($event)"
-    (onErrorToast)="showToast($event.severity, $event.summary, $event.detail)">
+    (onErrorToast)="showToast($event.severity, $event.summary, $event.detail)"
+    (onFinalize)="handleFinalize($event)"
+        (onApprove)="handleApprove($event)"
+        >
   </app-quotation-form>
 </div>
 
@@ -47,6 +50,7 @@ clientId:{{clientId}}
   <!-- MASTER TABULAR STORAGE DISPLAY GRID -->
   <app-quotation-grid
     *ngIf="currOpMode === 'VIEW'"
+     [opMode]="currOpMode"
     [quotations]="quotations"
     (onEditClick)="onEditTriggered($event)">
   </app-quotation-grid>

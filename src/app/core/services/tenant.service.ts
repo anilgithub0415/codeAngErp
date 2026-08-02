@@ -48,12 +48,20 @@ export class TenantService {
    * @returns An Observable of an array of User objects.
    */
   getTenants(): Observable<Tenant[]> {
+    console.log('............................url tenant get..............',this.apiUrl);
+    
        return this.http.get<Tenant[]>(this.apiUrl).pipe(
          // tap(tenants => console.log('Fetched tenants:', tenants)),
           catchError(this.handleError)
       );
   }
 
+getTenant(tid:number): Observable<Tenant> {
+       return this.http.get<Tenant>(this.apiUrl+'/'+tid).pipe(
+         // tap(tenants => console.log('Fetched tenants:', tenants)),
+          catchError(this.handleError)
+      );
+  }
 
 
   /**
@@ -62,6 +70,7 @@ export class TenantService {
    * @returns An Observable of the created User object (including its new ID).
    */
   createTenant(userData: CreateTenantDto): Observable<Tenant> {
+    
       console.log(`Creating tenant at ${this.apiUrl} with data:`, userData);
       return this.http.post<Tenant>(this.apiUrl, userData).pipe(
           tap(newTenant => console.log('Created tenant:', newTenant)),

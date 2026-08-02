@@ -2,7 +2,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { FORMLY_ROW_REGISTRY } from "../../feature/customer-mgt/formly-registry";
 import { typeaheadSearchExtension } from "../components/formlyfields/typeaheadSearchExtension";
 import { FormGroup } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { combineLatest, distinctUntilChanged, firstValueFrom, Observable, startWith } from "rxjs";
 import { PurchaseService } from "../../core/services/purchase.service";
 
    export function hydrateFormlyConfig(rawConfig: any[]): FormlyFieldConfig[] {
@@ -95,6 +95,62 @@ import { PurchaseService } from "../../core/services/purchase.service";
      return rawConfig as FormlyFieldConfig[];
    }
 
+   //About: Note:Logic/protocol
+   /* This function always assumes a field name 'finalPrice' exists where calculated price will be displayed */
+   export function bindDatabaseHooks(productService:any,tenantId:number,fields: FormlyFieldConfig[]) {
+    if (!fields) return;
+    fields.forEach((field) => {
+      if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+        bindDatabaseHooks(productService,tenantId,field.fieldGroup);
+      }
+      if (field.key === 'items' && field.fieldArray) {
+        const arrayConfig = field.fieldArray as FormlyFieldConfig;
+        if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+          const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+          if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+            if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+              chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+                if (!targetField || !targetField.formControl) return;
+                const rootForm = targetField.form?.root;
+                const clientIdControl = rootForm?.get('clientId');
+                if (!clientIdControl) return;
+
+                combineLatest([
+                  targetField.formControl.valueChanges.pipe(startWith(targetField.formControl.value)),
+                  clientIdControl.valueChanges.pipe(startWith(clientIdControl.value))
+                ]).pipe(
+                  distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1])
+                ).subscribe(async ([prodId, clientId]) => {
+                  if (!prodId || !clientId) return;
+                  try {
+                    const finalPriceData = await getProductFinalPrice(productService,tenantId,prodId, clientId);
+                    const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
+                    if (finalPriceControl) {
+                      finalPriceControl.setValue(
+                        finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
+                        { emitEvent: true, onlySelf: true }
+                      );
+                    }
+                  } catch (error) {
+                    console.error(error);
+                  }
+                });
+              });
+            }
+          }
+        }
+      }
+    });
+  }
+  export  async function  getProductFinalPrice(productService:any,tenantId:number,prodId: number, clientId: number): Promise<any> {
+    const p = await firstValueFrom(productService.getProduct(tenantId, prodId));
+    return new Promise((resolve) => {
+      productService.getProductFinalPrice(prodId, tenantId, p, clientId).subscribe((afinalPrice :any)=> {
+        console.log('got price for resolve:', afinalPrice);
+        resolve(afinalPrice);
+      });
+    });
+  }
   //  export function  applyLocalSearchExtension(fields: FormlyFieldConfig[]) {
   //   console.log('...........................fields:',fields);
     

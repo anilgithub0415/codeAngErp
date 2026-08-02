@@ -10,6 +10,7 @@ import { UrlTree } from '@angular/router';
 
 import { NgxPermissionsService } from 'ngx-permissions'; 
 import { LayoutService } from '../../layout/service/layout.service';
+import { TenantType } from '../models/tenant.model';
 // Define the structure of your JWT payload (claims)
 // Ensure these property names match exactly what your backend embeds in the JWT.
 interface JwtPayload {
@@ -119,10 +120,13 @@ private _clientId = new BehaviorSubject<number | null>(null);
    
     
     // BehaviorSubject to hold the currently active context
-    private _activeContext = new BehaviorSubject<AvailableContext | null>(this.loadActiveContext());
-    activeContext$ = this._activeContext.asObservable();
+// 1. Initialize cleanly with a starting value of null
+private _activeContext = new BehaviorSubject<AvailableContext | null>(null);
+public activeContext$ = this._activeContext.asObservable();
+
 
     constructor(private http: HttpClient,private permissionsService: NgxPermissionsService , private layoutService:LayoutService) {
+        this.loadActiveContext();
         // When the service is created, attempt to load tokens from localStorage
         // and set the initial authentication state.
         this.authToken = localStorage.getItem('mytoken');
@@ -145,6 +149,14 @@ private _clientId = new BehaviorSubject<number | null>(null);
     
 
     }
+// Inside your AuthService class file:
+
+/**
+ * Public method to safely toggle the login state from external components
+ */
+public setLoginStatus(isLoggedIn: boolean): void {
+  this._isLoggedIn.next(isLoggedIn);
+}
 
     /**
      * Checks the initial login status based on tokens in localStorage.
@@ -169,8 +181,24 @@ private _clientId = new BehaviorSubject<number | null>(null);
      * @returns An Observable of the TokenResponse from the backend.
      */
     login(userName: string, password: string): Observable<TokenResponse> {
+         // Clear old state before proceeding with the new authentication
+    
+        // localStorage.removeItem(this.ACTIVE_CONTEXT_KEY);
+
+    this.saveActiveContext(null);
+    
         return this.http.post<TokenResponse>('/login', { userName, password }).pipe(
             tap((response: TokenResponse) => {
+
+              
+                                const initialContext = response.availableContexts[0];
+                                this._activeContext.next({
+                                    displayName: initialContext.displayName || initialContext.userName, // Fallback if missing
+                                    roleName: initialContext.roleName,
+                                    tenantName: initialContext.tenantName,tenantType:initialContext.tenantType,tenantId: parseInt(initialContext.tenantId!), permissions:initialContext.permissions
+                                });
+
+
                 if (response && response.access_token) {
 
                     console.log('seeting userId ',response.userId,'with key and response is......................: ',response.availableContexts);                    
@@ -195,7 +223,14 @@ console.log('............response.tenantid:',response.tenantId);
                     console.log('setted authtoken...................................');
                     
                     this.setRefreshToken(response.refresh_token);
-                    
+                      //combinined permissions are in response.permissions , 
+                      //context now have permission of one role but we need combined permissions
+                      console.log('..................one role permissions are:',response.availableContexts[0].permissions);
+                      
+                      response.availableContexts[0].permissions=response.permissions;
+
+                      console.log('..................combined permissions are:',response.availableContexts[0].permissions);
+                      //end 
                 //     //added
                     this.saveActiveContext(response.availableContexts[0]);
                      
@@ -203,14 +238,14 @@ console.log('............response.tenantid:',response.tenantId);
                      
                      
                   //read userpreferences from DB
-                  this.layoutService.loadUserPreferences(parseInt(response.tenantId!),response.userId!);
+                //3.//  this.layoutService.loadUserPreferences(parseInt(response.tenantId!),response.userId!);
                    
                     
 
                     
    //
   // if (this._isLoggedIn.getValue() !== true) {
-        this._isLoggedIn.next(true); // Update login status via BehaviorSubject  
+      // 2.//  this._isLoggedIn.next(true); // Update login status via BehaviorSubject  
   // }
 
   console.log('isLoggedIn true');
@@ -226,7 +261,8 @@ console.log('............response.tenantid:',response.tenantId);
                     }
                     localStorage.setItem('tokenExpiry', this.tokenExpiryTimestamp.toString());
                  
-                    this.updateCurrentUserRoleAndPermissions();
+                   // this.updateCurrentUserRoleAndPermissions();
+
                 } else if (response && response.message) {
                     console.log('Login failed:', response.message);
                     throw new Error(response.message);
@@ -253,6 +289,26 @@ console.log('............response.tenantid:',response.tenantId);
             })
         );
     }
+
+    // Add this helper method inside your AuthService class
+public evaluateAndSetContext(contexts: any[]): { shouldShowDialog: boolean, availableContexts?: any[] } {
+  if (contexts && contexts.length > 1) {
+    return { shouldShowDialog: true, availableContexts: contexts };
+  } else if (contexts && contexts.length === 1) {
+    this.setActiveContext(contexts[0]).subscribe({
+      next: () => console.log('Auto-selected single context.'),
+      error: (err) => {
+        console.error('Auto-selection failed:', err);
+        this.logout(this.getRefreshToken());
+      }
+    });
+    return { shouldShowDialog: false };
+  } else {
+    console.warn('No contexts found after login.');
+    this.logout(this.getRefreshToken());
+    return { shouldShowDialog: false };
+  }
+}
 
     /**
      * Handles user registration and initial tenant/subscription creation.
@@ -549,7 +605,7 @@ getClientId(): number | null {
     private saveActiveContext(context: AvailableContext | null): void {
      
         console.log('saving context:',context);
-        
+      
         if (context) {
             localStorage.setItem(this.ACTIVE_CONTEXT_KEY, JSON.stringify(context));
         } else {
@@ -558,16 +614,38 @@ getClientId(): number | null {
         this._activeContext.next(context); // Emit the new active context
     }
 
-     loadActiveContext(): AvailableContext | null {
-  const storedContext = localStorage.getItem(this.ACTIVE_CONTEXT_KEY);
-  if (!storedContext) return null;
-  try {
-    return JSON.parse(storedContext) as AvailableContext;
-  } catch (err) {
-    console.error('AuthService: failed to parse active context', err);
-    return null;
+   // Inside your auth.service.ts constructor or session initialization helper:
+  public loadActiveContext(): boolean {
+  const savedRole = localStorage.getItem('active_context_role');
+  const savedTenantId = localStorage.getItem('tenant_id');
+  
+  if (savedRole && savedTenantId) {
+     const savedPermissions = localStorage.getItem('user_permissions');
+     
+     const restoredContext: AvailableContext = {
+        tenantId: Number(savedTenantId),
+        displayName: localStorage.getItem('user_display_name') || 'SuperAdmin',
+        tenantName: localStorage.getItem('active_tenant_name') || 'Spoofed Workspace',
+        tenantType: localStorage.getItem('tenant_type') || 'SYSTEM',
+        roleName: savedRole, 
+        permissions: savedPermissions ? JSON.parse(savedPermissions) : []
+     };
+
+     // 1. Broadcast the object to your topbar async pipes
+     this._activeContext.next(restoredContext);
+
+     // 2. 🚨 CRITICAL FRONTEND FIX: Force your global permissions checker to parse the new storage claims instantly on boot!
+     this.updateCurrentUserRoleAndPermissions(); 
+
+     return true; 
   }
+  return false; 
 }
+
+
+
+
+
 
     // --- NEW: Method to get all available contexts after initial login ---
     getAvailableContexts(): AvailableContext[] | null {
@@ -596,67 +674,75 @@ getClientId(): number | null {
         }
     }
 
-    setActiveContext(context: AvailableContext): Observable<any> {
-     
-      //  alert('start setActiveContext....')
-      console.log('setting Active context now....................');
-      
-        const userId = this.getUserId();
-        const refreshToken = this.getRefreshToken();
-       
-console.log('got userid n Rtoken:',userId);
+    setActiveContext(context: any): Observable<any> {
+    console.log('setting Active context now....................');
+    
+    const userId = this.getUserId();
+    const refreshToken = this.getRefreshToken();
+   
+    console.log('got userid n Rtoken:', userId);
 
-        //if (!userId || !refreshToken) { 
-            if (!userId) { 
-              console.log('no user or no refreshtoken');
-            if(!userId){            console.log('nope userid  is controll............');  }
-          //  if(!refreshToken){            console.log('nope refreshtoken  is controll............');  }
-            return of(new Error('User not logged in or refresh token missing.'));
-        }
-
-        // Make a backend call to get a context-specific access token
-        // You'll need a new backend endpoint for this, e.g., /auth/select-context
-        return this.http.post('/login/select-context', {
-            userId: userId,
-          
-            refreshToken: refreshToken, // Pass refresh token for re-issuing
-            tenantId: context.tenantId,
-            roleName: context.roleName
-        }).pipe(
-            tap((response: any) => {                     //new access_token:',response.access_token, ',
-                
-             //   alert('go for setActiveContext....')
-
-             console.log('setting activecontext from response:',response); 
-this.setSiteId(response.user.siteId);
-this.setClientId(response.clientId);
-                this.setAuthToken(response.access_token); // Update the main access token
-                this.setRefreshToken( response.refresh_token ); // Update refresh token if rotated  //earlier was response.refresh_token || refreshToken
-                                 // Save the selected context from the response (which includes tenantName, permissions)
-                // This ensures consistency with what the backend confirmed for the context
-                const selectedContextFromResponse: AvailableContext = {
-                    tenantId: response.tenantId,
-                    tenantName: response.tenantName,tenantType: response.tenantType,
-                    roleName: response.roleName,
-                    permissions: response.permissions, 
-                     //added
-            displayName:response.displayName,
-                };
-              
-            
-                console.log('saving activecontext :',selectedContextFromResponse); 
-                
-                this.saveActiveContext(selectedContextFromResponse);// Save the selected context
-                
-            }),
-            catchError(error => {
-                console.error('Error setting active context:', error);
-                var arefreshtoken=this.getRefreshToken();
-                this.logout(arefreshtoken); // Logout on error
-                return of(error); // Re-throw or handle error appropriately
-            })
-        );
+    if (!userId) { 
+        console.log('nope userid is controll............');
+        return of(new Error('User not logged in or user ID missing.'));
     }
+
+    // Make a backend call to get a context-specific access token
+    return this.http.post('/login/select-context', {
+        userId: userId,
+        refreshToken: refreshToken, 
+        tenantId: context.tenantId,
+        roleName: context.roleName
+    }).pipe(
+        tap((response: any) => {                     
+            console.log('setting activecontext from response:', response); 
+
+            // 1. Update core application identifiers
+            // Added safe check in case response.user is missing
+            const siteId = response.user?.siteId || response.siteId; 
+            this.setSiteId(siteId);
+            this.setClientId(response.clientId);
+
+            // 2. Rotate core authentication session tokens
+            this.setAuthToken(response.access_token); 
+            this.setRefreshToken(response.refresh_token); 
+
+            // 3. Map final verified properties into the complete Context profile object
+            const selectedContextFromResponse: AvailableContext = {
+                tenantId: response.tenantId,
+                tenantName: response.tenantName,
+                tenantType: response.tenantType,
+                roleName: response.roleName+'_added',
+                permissions: response.permissions, 
+                displayName: response.displayName
+            };
+          
+            console.log('saving activecontext :', selectedContextFromResponse); 
+            
+            // 4. [PRESERVED] Save context values using your existing persistence helper
+            this.saveActiveContext(selectedContextFromResponse);
+
+            // 5. [FIX] PUSH NEW VALUE TO RXJS BROADCAST STREAM 
+            // This forces your Topbar async pipes to instantly re-render 'Client' or 'Admin'
+            if (this._activeContext) {
+                this._activeContext.next(selectedContextFromResponse);
+            
+            }
+
+            // 6. Push role string to your standalone role stream if your application relies on it
+            if (this._currentUserRole) {
+                this._currentUserRole.next(response.roleName);
+            }
+        }),
+        catchError(error => {
+            console.error('Error setting active context:', error);
+            const currentRefreshToken = this.getRefreshToken();
+            this.logout(currentRefreshToken); 
+            return throwError(() => error); // Using throwError to correctly bubble up back to components
+        })
+    );
+}
+
     
     //this version of getUserId is replaced by new one below
     // /**
@@ -748,12 +834,13 @@ this.setClientId(response.clientId);
 
      // --- Modified getUserRole() ---
      getUserRole(): string | null {
+    // 1. Grab the actual structured context object from the stream value
+    const activeContext = this._activeContext.value;
+    
+    // 2. Safely read and return the roleName string
+    return activeContext ? activeContext.roleName : null;
+}
 
-        const activeContext = this.loadActiveContext();
-        
-        
-        return activeContext ? activeContext.roleName : null;
-    }
 
     
    
@@ -779,9 +866,13 @@ this.setClientId(response.clientId);
 
      // --- Modified getUserPermissions() ---
      getUserPermissions(): string[] {
-        const activeContext = this.loadActiveContext();
-        return activeContext ? activeContext.permissions : [];
-    }
+    // 1. Grab the actual structured context object from the stream memory snapshot
+    const activeContext = this._activeContext.value;
+    
+    // 2. Return the permissions array if it exists, otherwise fallback to an empty list
+    return activeContext ? activeContext.permissions : [];
+}
+
 //this version was called from line# 103, 597 now getTenantId is used
     /**
      * Extracts and returns the active tenantId from the stored access token.
@@ -808,16 +899,16 @@ this.setClientId(response.clientId);
     }
 
     // --- Modified getTenantId() --- earlier was getActiveTenant
-    getTenantId(): number | null {
+   getTenantId(): number | null {
+    // 1. Grab the actual structured context object from the stream snapshot
+    const activeContext = this._activeContext.value;
+    
+    // 2. Return the tenantId if it exists, otherwise return null
+    return activeContext ? activeContext.tenantId : null;
+}
 
-       
-        
-        const activeContext = this.loadActiveContext();
-        
-        return activeContext ? activeContext.tenantId : null;
-    }
      // Helper to update the _currentUserRole subject
-     private updateCurrentUserRoleAndPermissions(): void {
+     public updateCurrentUserRoleAndPermissions(): void {
       
         const role = this.getUserRole(); // Use the synchronous method to get the current role;
         const permissions = this.getUserPermissions();
@@ -855,4 +946,103 @@ this.setClientId(response.clientId);
     }
 
     
+    //helper methods
+    // Inside auth.service.ts
+
+// A BehaviorSubject to broadcast the active workspace tenant ID context
+private activeTenantIdSubject = new BehaviorSubject<number>(0);
+public activeTenantIdObs = this.activeTenantIdSubject.asObservable();
+
+/**
+ * Checks if the currently authenticated token profile represents a core system SuperAdmin
+ */
+// Inside your auth.service.ts -> Update this method to look at the token payload or a baseline key
+public isSuperAdminProfile(): boolean {
+  const token = this.getAuthToken();
+  if (!token) return false;
+  
+  try {
+    // Decode your JWT token payload structure
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    
+    // Check if the original array contains a SuperAdmin role option 
+    // OR if you set a baseline flag in local storage upon initial credentials login
+    const contexts = payload.availableContexts || [];
+    return contexts.some((ctx: any) => Number(ctx.tenantId) === 0 && ctx.roleName === 'SuperAdmin');
+  } catch (e) {
+    return false;
+  }
+}
+
+
+/**
+ * Switch context helper method executed when the SuperAdmin changes the dropdown option
+ */
+public switchContext1(targetTenantId: number): Observable<any> {
+  const userId = this.getUserId();
+  const refreshToken = this.getRefreshToken();
+  const contexts = this.getAvailableContexts() || [];
+  
+  const selectedContext = contexts.find(c => Number(c.tenantId) === Number(targetTenantId));
+
+  const targetRoleName = Number(targetTenantId) === 0 
+    ? 'SuperAdmin' 
+    : (selectedContext ? selectedContext.roleName : 'Admin');
+
+  const payload = {
+    userId: Number(userId),
+    refreshToken: refreshToken!,
+    tenantId: Number(targetTenantId),
+    roleName: targetRoleName,
+    availableContexts: contexts 
+  };
+
+  return this.http.post<any>('/login/select-context', payload).pipe(
+   // Inside your frontend auth.service.ts -> switchContext1() method
+tap((response) => {
+      console.log('...................while switch response.permissions...............',response.permissions);
+    
+      
+  if (response && response.access_token) {
+    // 1. Core Session Token Overwrites
+    this.setAuthToken(response.access_token);
+    this.setRefreshToken(response.refresh_token);
+    
+    // 2. 🚨 CRITICAL OVERWRITE: Force storage primitives to hold the newly spoofed values
+    localStorage.setItem('tenant_id', response.tenantId.toString());
+    localStorage.setItem('active_context_role', response.roleName); // Overwrites 'SuperAdmin' with 'Admin'
+    localStorage.setItem('user_permissions', JSON.stringify(response.permissions || []));
+    localStorage.setItem('tenant_type', response.tenantType || 'INSTITUTE');
+    
+    // Keep the dropdown configuration array intact across the reload boundary
+    if (response.availableContexts) {
+       localStorage.setItem('available_contexts', JSON.stringify(response.availableContexts));
+    }
+
+  
+    // 3. Build a complete layout profile structure 
+    const structuralContextProfile: AvailableContext = {
+      tenantId: Number(response.tenantId),
+      displayName: response.displayName || 'SuperAdmin (Impersonated)',
+      tenantName: response.tenantName || 'Spoofed Workspace',
+      tenantType: response.tenantType || 'INSTITUTE',
+      roleName: response.roleName, // Holds 'Admin'
+      permissions: response.permissions || []
+    };
+
+    // 4. Update the reactive state pipeline
+    this.saveActiveContext(structuralContextProfile);
+    if (this._activeContext) {
+      this._activeContext.next(structuralContextProfile);
+    }
+  }
+})
+
+  );
+}
+
+
+
+
+    //----------------------------------------------------------------------------------
 }

@@ -1,0 +1,88 @@
+<p>form-jsonback-ups-gharana works!</p>
+
+
+  <app-button-tabs [options]="myTabConfig">
+  
+
+    
+
+     <ng-template appTab="Product">
+        
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="product_form | json">
+        </textarea>
+
+    </ng-template> 
+
+    <ng-template appTab="Customer">
+
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="customer_form | json">
+        </textarea>
+
+    </ng-template> 
+    
+    <ng-template appTab="Purchase">
+        
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="purchase_form | json">
+        </textarea>
+
+    </ng-template>
+    
+        
+  <ng-template appTab="Sales">
+        
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="sales_form | json">
+        </textarea>
+
+    </ng-template>
+
+    <ng-template appTab="Quotation">
+        
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="quotation_form | json">
+        </textarea>
+
+    </ng-template>
+
+    
+    <ng-template appTab="ClientPO">
+        
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="clientpo_form | json">
+        </textarea>
+
+    </ng-template>
+
+    
+    <ng-template appTab="ClientRFQ">
+        
+         <textarea 
+            rows="20" 
+            cols="100" 
+            readonly 
+            [value]="clientrfq_form | json">
+        </textarea>
+
+    </ng-template>
+</app-button-tabs>

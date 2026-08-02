@@ -11,6 +11,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-purchase-grid',
@@ -23,7 +24,8 @@ import { NgxPermissionsModule } from 'ngx-permissions';
     SelectButtonModule, 
     ButtonModule, 
     RippleModule,
-    NgxPermissionsModule
+    NgxPermissionsModule,TableModule
+    
   ],
   templateUrl: './purchase-grid.component.html'
 })

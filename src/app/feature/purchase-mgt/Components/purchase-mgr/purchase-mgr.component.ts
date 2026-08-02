@@ -1,5 +1,5 @@
 
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -11,11 +11,17 @@ import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
 import { PurchaseGridComponent } from '../purchase-grid/purchase-grid.component';
 import { PurchaseFormComponent } from '../purchase-form/purchase-form.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { NgxPermissionsService } from 'ngx-permissions';
+import { ChipsModule } from 'primeng/chips'; // Import the module
+import { FormsModule } from '@angular/forms'; // Needed for ngModel
+import { ListboxModule } from 'primeng/listbox'; // Import ListboxModule
 
 @Component({
   selector: 'app-purchase-mgr',
   standalone: true,
-  imports: [CommonModule, ToastModule, PurchaseGridComponent, PurchaseFormComponent,ConfirmDialogModule],
+  imports: [CommonModule, ToastModule, PurchaseGridComponent, PurchaseFormComponent,ConfirmDialogModule,
+    ChipsModule, FormsModule,ListboxModule
+  ],
     templateUrl: './purchase-mgr.component.html',
     styleUrl: './purchase-mgr.component.scss',
       providers: [MessageService, ConfirmationService],
@@ -24,21 +30,34 @@ export class PurchaseMgrComponent implements OnInit {
   tenantId!: number;
   POs: any[] = [];
   expandedRows: { [id: number]: boolean } = {};
-  currOpMode: FormOpMode = FormOpMode.View;
+ 
   activeModel: any = null;
 
   // Make enum accessible in the template
   FormOpMode = FormOpMode;
 
+  currOpMode: FormOpMode = FormOpMode.View;
   private purchaseService = inject(PurchaseService);
   private authServ = inject(AuthService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private cd = inject(ChangeDetectorRef);
+ 
+  //penind remove permision related code as it is added here for only check current permissions
+  private permissionsService=inject(NgxPermissionsService)
+currentUserPermissions: string[] = [];
+
+
 
   ngOnInit(): void {
     this.tenantId = this.authServ.getTenantId()!;
     this.getPOList();
+
+    //pending: Remove permision related code as it is added here for only check current permissions
+    const permissionsObj = this.permissionsService.getPermissions();
+    // Extract the permission names into an array
+    this.currentUserPermissions = Object.keys(permissionsObj);
+
   }
 
   getPOList(): void {
@@ -53,7 +72,8 @@ export class PurchaseMgrComponent implements OnInit {
 
   handleAdd(): void {
     this.currOpMode = FormOpMode.Add;
-    localStorage.setItem('currOpMode', this.currOpMode);
+   // localStorage.setItem('currOpMode', this.currOpMode);
+localStorage.setItem('currOpMode', String(FormOpMode.Add));
 
     this.activeModel = {
       id: 0,

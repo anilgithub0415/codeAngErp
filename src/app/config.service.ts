@@ -2,10 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 
-export interface GlobalConfig{
-  //config_usersCreatedby:string; //signup/superadmin
-  config_useraddthru:string;
+export interface GlobalConfig {
+  config_useraddthru?: string;
+  config_client_onbehalf_roles?: string[]; // 👈 Add the new dynamic roles array
 }
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,20 +17,25 @@ export class ConfigService {
   
   private http =inject(HttpClient);
 
-  loadAppConfig(): Promise<GlobalConfig> { // 👈 Changed return type
+  loadAppConfig(): Promise<GlobalConfig> {
   return firstValueFrom(
     this.http.get<GlobalConfig>(this.apiUrl)
   ).then(data => {
     this.configData = data;
-    return data; // 👈 Explicitly return data
+    return data;
   })
   .catch(error => {
-    console.error('Could not load application configuration');
-    const fallback = { config_useraddthru: 'signup' };
+    console.error('Could not load application configuration', error);
+    // Provide safe defaults for the system
+    const fallback: GlobalConfig = { 
+      config_useraddthru: 'signup',
+      config_client_onbehalf_roles: ['Site_Supervisor', 'Client'] // 👈 Safe defaults
+    };
     this.configData = fallback;
-    return fallback; // 👈 Explicitly return fallback
+    return fallback;
   });
 }
+
 
 
   get config():GlobalConfig|null{

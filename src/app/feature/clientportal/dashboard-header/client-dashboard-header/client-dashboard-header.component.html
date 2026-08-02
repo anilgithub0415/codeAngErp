@@ -1,0 +1,53 @@
+
+
+<!-- Main Container: Uses PrimeNG theme variables for background and border color shifts -->
+<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px' }">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+        
+        <!-- Node 1: Welcome & Company Name Profile Anchor -->
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 300px;">
+            <!-- Avatar background changes using surface-ground variables -->
+            <div style="display: flex; align-items: center; justify-content: center; background-color: var(--surface-ground); border-radius: 50%; width: 3.5rem; height: 3.5rem; min-width: 3.5rem; border: 2px solid var(--surface-border);">
+                <i class="pi pi-user" style="color: var(--text-color-secondary); font-size: 1.5rem;"></i>
+            </div>
+            <div>
+                <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; display: block;">Welcome Back</span>
+                <div style="color: var(--text-color); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.025em;">{{ headerData.clientName }}     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span *ngIf="headerData.siteLocation" style="color: var(--text-color-secondary); font-size: 0.85rem; font-weight: 500;"><i class="pi pi-map-marker" style="color: red; font-size: 1.2rem"></i>
+ {{headerData.siteLocation }} </span> </div>
+                <span style="color: var(--text-color-secondary); font-size: 0.85rem; font-weight: 500;">{{ headerData.companyName }}  </span> 
+            </div>
+        </div>
+
+        <!-- Node 2: Core Wholesale Metadata Grid (Contract & Security Trace) -->
+        <div style="flex: 2 1 400px; min-width: 320px; display: flex; flex-wrap: wrap; gap: 2rem; align-items: center;">
+            
+            <!-- Current Active B2B Contract Node -->
+            <div style="font-size: 0.85rem; min-width: 140px;">
+                <span style="color: var(--text-color-secondary); display: block; font-weight: 500;">Current Contract:</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.15rem;">
+                    <i class="pi pi-verified" style="color: #3b82f6; font-size: 0.9rem;"></i>
+                    <strong style="color: var(--text-color); font-size: 0.95rem;">{{ headerData.contractTier }}</strong>
+                </span>
+                <span style="color: var(--text-color-secondary); font-size: 0.75rem; display: block;">Expires: {{ headerData.contractExpiry | date:'mediumDate' }}</span>
+            </div>
+            
+            <!-- Last Security Login Timestamp Node (Responsive border color) -->
+            <div [style]="{ 'font-size': '0.85rem', 'border-left': '1px solid var(--surface-border)', 'padding-left': '1.5rem', 'min-width': '160px' }">
+                <span style="color: var(--text-color-secondary); display: block; font-weight: 500;">Last Active Login:</span>
+                <strong style="color: var(--text-color); font-size: 0.95rem; display: block; margin-top: 0.15rem;">{{ headerData.lastLoginTimestamp  }}</strong>
+                <span style="color: var(--text-color-secondary); font-size: 0.75rem; display: block;">IP: {{ headerData.lastLoginIp }}</span>
+            </div>
+        </div>
+
+        <!-- Node 3: Live Shared Real-Time ERP Connector Status -->
+        <div style="flex: 0 1 auto; text-align: right; min-width: 150px;">
+            <span style="color: var(--text-color-secondary); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">ERP System Status</span>
+            <!-- Shifted background and borders to dark-friendly emerald shades -->
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 0.35rem 0.75rem; border-radius: 20px;">
+                <span style="width: 0.5rem; height: 0.5rem; background-color: #22c55e; border-radius: 50%; display: block; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);"></span>
+                <span style="color: #22c55e; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">{{ headerData.erpStatus }}</span>
+            </div>
+        </div>
+
+    </div>
+</p-card>

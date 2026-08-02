@@ -1,5 +1,5 @@
 // src/app/pages/role-permissions/role-permissions.component.ts
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormlyConfig, FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
@@ -34,7 +34,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class RolePermissionsComponent implements OnInit {
   visibleDataArray!: any[];
-  tenantId!: number;          
+  @Input()   tenantId!: number;          
   isFormHidden: boolean = true;
   readonly FormOpMode = FormOpMode; 
   currOpMode: FormOpMode = FormOpMode.View; 
@@ -53,7 +53,7 @@ export class RolePermissionsComponent implements OnInit {
   constructor(private cd: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.tenantId = this.authServ.getTenantId()!;   
+    
     this.resetModel();
     this.buildFormlyFields();
     this.refreshGrid();

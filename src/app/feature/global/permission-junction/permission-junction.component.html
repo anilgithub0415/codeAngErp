@@ -1,18 +1,19 @@
 
+  junction tenantId:{{tenantId}}
   <app-button-tabs [options]="myTabConfig">
   
   <!-- Content for the 'roles' tab wrapped in ng-template -->
     <ng-template appTab="Roles">
-      <app-user-role></app-user-role>
+      <app-user-role [tenantId]='tenantId'></app-user-role>
     </ng-template>
   <!-- Content for the 'salesorders' tab wrapped in ng-template -->
     <ng-template appTab="Permissions">
-      <app-permission></app-permission>
+      <app-permission [tenantId]='tenantId'></app-permission>
     </ng-template>
 
   <!-- Content for the 'metrics' tab wrapped in ng-template -->
   <ng-template appTab="RolePermissions">
-        <app-role-permissions></app-role-permissions>
+        <app-role-permissions  [tenantId]='tenantId'></app-role-permissions>
   </ng-template>
 
 </app-button-tabs>

@@ -1,0 +1,75 @@
+<!-- BAND 2: BILLING & ACCOUNT METRICS CARD -->
+<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem' }">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
+        
+        <!-- Left Node: Financial Icon & Core Status -->
+        <div style="display: flex; align-items: center; gap: 1.25rem; flex: 1 1 350px;">
+            <!-- Icon Background switched to an opacity tint to adapt cleanly to dark theme layout -->
+            <div style="display: flex; align-items: center; justify-content: center; background-color: rgba(34, 197, 94, 0.15); border-radius: 8px; width: 3rem; height: 3rem; min-width: 3rem;">
+                <i class="pi pi-credit-card" style="color: #22c55e; font-size: 1.35rem;"></i>
+            </div>
+            <div>
+                <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Billing & Account</span>
+                <div style="color: var(--text-color); font-size: 1.15rem; font-weight: 700; margin-top: 0.15rem;">
+                    Available Credit: <span style="color: #22c55e;">{{ accountSummary.availableCredit | currency }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Node: Live Statement & Aging Tracker -->
+        <div style="flex: 2 1 350px; min-width: 280px; display: flex; gap: 2rem; align-items: center;">
+            <div [style]="{'font-size': '0.85rem'}">
+                <span style="color: var(--text-color-secondary); display: block;">Total Outstanding:</span>
+                <strong style="color: var(--text-color); font-size: 1rem; display: block;">{{ accountSummary.totalOutstanding | currency }}</strong>
+            </div>
+            <!-- Border color updated to match active theme rules dynamically -->
+            <div [style]="{ 'font-size': '0.85rem', 'border-left': '1px solid var(--surface-border)', 'padding-left': '1.5rem' }">
+                <span style="color: var(--text-color-secondary); display: block;">Overdue (>30 Days):</span>
+                <strong style="color: #ef4444; font-size: 1rem; display: block;">{{ accountSummary.overdueAmount | currency }}</strong>
+            </div>
+        </div>
+
+        <!-- Right Node: Action Button -->
+        <div style="flex: 0 1 auto; text-align: right;">
+            <!-- PrimeNG p-button-success matches standard layouts automatically; background limits enforced via clean variables -->
+            <button pButton type="button" label="Pay Statement" icon="pi pi-wallet" class="p-button-success p-button-sm" style="border-radius: 6px; font-size: 0.85rem; background-color: #22c55e; border-color: #22c55e;"></button>
+        </div>
+    </div>
+</p-card>
+
+<!-- INVOICES LEDGER SUBSURFACE TABLE CONTAINER -->
+<div style="margin-top: 1rem; border: 1px solid var(--surface-border); border-radius: 10px; overflow: hidden; background: var(--surface-card);">
+    <!-- Native styling injected cleanly via dynamic structural object maps -->
+    <p-table [value]="recentInvoices" [rows]="5" styleClass="p-datatable-sm" [style]="{'font-size': '0.85rem', 'color': 'var(--text-color)'}">
+        <ng-template pTemplate="header">
+            <!-- Table Row header switches canvas grounds safely according to design setup states -->
+            <tr style="background-color: var(--surface-ground); font-size: 0.8rem; text-transform: uppercase; color: var(--text-color-secondary);">
+                <th style="padding: 0.75rem 1rem; background: transparent; border-bottom: 1px solid var(--surface-border);">Invoice No</th>
+                <th style="padding: 0.75rem 1rem; background: transparent; border-bottom: 1px solid var(--surface-border);">Due Date</th>
+                <th style="padding: 0.75rem 1rem; background: transparent; border-bottom: 1px solid var(--surface-border);">Wholesale Items Included</th>
+                <th style="padding: 0.75rem 1rem; text-align: right; background: transparent; border-bottom: 1px solid var(--surface-border);">Amount Due</th>
+                <th style="padding: 0.75rem 1rem; text-align: center; background: transparent; border-bottom: 1px solid var(--surface-border);">Status</th>
+                <th style="padding: 0.75rem 1rem; background: transparent; border-bottom: 1px solid var(--surface-border);"></th>
+            </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-invoice>
+            <tr style="background: transparent; border-bottom: 1px solid var(--surface-border); font-size: 0.85rem; color: var(--text-color);">
+                <td style="padding: 0.75rem 1rem;"><strong>{{invoice.invoiceNumber}}</strong></td>
+                <td style="padding: 0.75rem 1rem;">{{invoice.dueDate | date}}</td>
+                <td style="padding: 0.75rem 1rem; color: var(--text-color-secondary);">{{invoice.itemSummary}}</td>
+                <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700;">{{invoice.amount | currency}}</td>
+                <td style="padding: 0.75rem 1rem; text-align: center;">
+                    <!-- Semi-transparent color pill badges for flexible readability across bright or dark rows -->
+                    <span [style]="invoice.isOverdue ? 'background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;' : 'background: rgba(34, 197, 94, 0.15); color: #22c55e; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;'">
+                        {{invoice.status}}
+                    </span>
+                </td>
+                <td style="padding: 0.75rem 1rem; text-align: right;">
+                    <!-- Downloader action link handles theme inversion natively -->
+                    <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-secondary p-button-sm" style="padding: 0.25rem; color: var(--text-color-secondary);"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

@@ -1,7 +1,7 @@
-<p>internal-pos works!</p>
+<!-- <p>internal-pos works!</p>
 siteId:{{siteId}}
 clientId:{{clientId}}
-currOpMode:{{currOpMode}}
+currOpMode:{{currOpMode}} -->
 
 <div class="purchase-order-container p-4">
   <p-toast></p-toast>
@@ -38,7 +38,7 @@ currOpMode:{{currOpMode}}
   <!-- View Mode Operations Controls -->
    <div class="mb-3" *ngIf="currOpMode === 'VIEW'">
   <p-button 
-  *ngxPermissionsOnly="['ClientQuotation.create']"
+  *ngxPermissionsOnly="['ClientPO.create']"
     label="New Client Purchase Order" 
     icon="pi pi-plus" 
     (click)="Add()">

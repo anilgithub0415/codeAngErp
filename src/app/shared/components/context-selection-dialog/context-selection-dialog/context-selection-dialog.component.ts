@@ -40,26 +40,32 @@ interface AvailableContext {
   styles: []
 })
 export class ContextSelectionDialogComponent implements OnInit {
-  @Input() visible: boolean = false;
-  @Input() contexts: AvailableContext[] | null = null;
-  @Output() contextSelected = new EventEmitter<AvailableContext>();
-  @Output() logoutInitiated = new EventEmitter<void>();
+@Input() visible: boolean = false;
+@Input() contexts: AvailableContext[] | null = null; 
 
-  ngOnInit(): void {
-      // Optional: Add logic to pre-select if only one context
-      if (this.contexts && this.contexts.length === 1) {
-          this.onSelectContext(this.contexts[0]);
-      }
-  }
+@Output() visibleChange = new EventEmitter();
+@Output() contextSelected = new EventEmitter();
+@Output() logoutInitiated = new EventEmitter(); 
 
-  onSelectContext(context: AvailableContext): void {
-      this.contextSelected.emit(context);
-      this.visible = false; // Close dialog
-  }
+ngOnInit(): void {
+if (this.contexts && this.contexts.length === 1) {
+this.onSelectContext(this.contexts[0]);
+}
+} 
 
-  onLogout(): void {
-    alert('logoutinitiated............111')
-      this.logoutInitiated.emit();
-      this.visible = false; // Close dialog
-  }
+onSelectContext(context: AvailableContext): void {
+this.contextSelected.emit(context); console.log('..........this context is selected.......',context);
+
+this.visibleChange.emit(false);
+} 
+
+onLogout(): void {
+this.logoutInitiated.emit();
+this.visibleChange.emit(false);
+} 
+
+onVisibleChange(value: boolean): void {
+this.visible = value;
+this.visibleChange.emit(value);
+}
 }

@@ -1,16 +1,29 @@
-<p>tenant-profile-tabs works!</p>
 
 
+<app-tenant-kanban-card [tenant]="tenant"></app-tenant-kanban-card>
   <app-button-tabs [options]="myTabConfig">
   
     <ng-template appTab="TenantStrategy">
-          TenantStrategy
+          <app-tenant-strategies [tenantId]='tenantId'></app-tenant-strategies>
     </ng-template> 
     
-    <ng-template appTab="Type">
-        Type
+    <ng-template appTab="Junction">
+      <app-permission-junction [tenantId]='tenantId'></app-permission-junction>
     </ng-template>
     
       
+  <ng-template appTab="FormJSONs">
+      <app-form-jsons [tenantId]='tenantId'></app-form-jsons>
+    </ng-template>
 
+     <ng-template appTab="FormJSONBackUps">
+
+        <ng-container *ngIf="tenantId == 1; else nobackup">
+          <app-form-jsonback-ups-gharana></app-form-jsonback-ups-gharana>
+        </ng-container>
+
+        <ng-template #nobackup>
+          U need to create component to keep formJSONs for this tenant
+        </ng-template>
+    </ng-template> 
 </app-button-tabs>

@@ -16,6 +16,9 @@ import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 import { UserService } from '../../core/services/user.service';
 import { EventBusService, Events } from '../../core/services/event-bus.service';
+import { TopbarContextSwitcher } from './TopbarContextSwither/TopbarContextSwither.component';
+
+
 
 // Interface for AvailableContext (copy from AuthService or define globally if shared)
 interface AvailableContext {
@@ -28,7 +31,9 @@ interface AvailableContext {
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu, MenuModule, ButtonModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, Menu, MenuModule, ButtonModule, 
+        TopbarContextSwitcher
+     ],
     providers:[MessageService],
     
     template: ` <div class="layout-topbar">
@@ -83,8 +88,9 @@ interface AvailableContext {
     </div>
     
 
+<div *ngIf='loadingContext'>loadingContext...</div>  <div *ngIf='!loadingContext'>loaded Context...<app_topbarcontextswitcher></app_topbarcontextswitcher></div>
 
-<div *ngIf='loadingContext'>loadingContext...</div>  <div *ngIf='!loadingContext'>loaded Context...</div>
+         
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
@@ -211,14 +217,23 @@ export class AppTopbar implements OnInit {
             return;
         }
 
-        const currentActiveContext = this.auth.loadActiveContext(); // Get current active context
+        // 1. Get the current active values from localStorage instead of the boolean method response
+const activeTenantId = Number(localStorage.getItem('tenant_id') || 0);
+const activeRoleName = localStorage.getItem('active_context_role') || '';
 
-        this.contextMenuItems = this.availableContexts.map(context => ({
-            label: `${context.tenantName} (${context.roleName})`,
-            icon: context.tenantId === currentActiveContext?.tenantId && context.roleName === currentActiveContext?.roleName ? 'pi pi-check' : '', // Add checkmark for active
-            command: () => this.selectContext(context),
-            disabled: context.tenantId === currentActiveContext?.tenantId && context.roleName === currentActiveContext?.roleName // Disable current active context
-        }));
+// 2. Map your menu items smoothly without type clashes
+this.contextMenuItems = this.availableContexts.map(context => {
+    // Check if this menu option matches the currently loaded active workspace context parameters
+    const isActive = Number(context.tenantId) === activeTenantId && context.roleName === activeRoleName;
+
+    return {
+        label: `${context.tenantName} (${context.roleName})`,
+        icon: isActive ? 'pi pi-check' : '', // Add a clean visual checkmark for the active item
+        command: () => this.selectContext(context),
+        disabled: isActive // Disable selection for the already active context option
+    };
+});
+
     }
 
     selectContext(context: AvailableContext): void {

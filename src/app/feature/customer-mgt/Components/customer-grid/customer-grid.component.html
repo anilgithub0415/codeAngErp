@@ -74,68 +74,133 @@
     <!-- FIXED VIEW PATTERN A: HIGH-DENSITY LIST LAYOUT WITH EXPANDABLE ROW MATRIX -->
     <ng-template #list let-items>
       <div class="grid grid-nogutter col-12 px-0 flex flex-column w-full mt-2">
-        <p-table [value]="items" dataKey="id" [expandedRowKeys]="expandedRows" class="p-datatable-sm w-full">
-          <ng-template pTemplate="header">
-            <tr class="surface-100 text-600 font-semibold border-bottom-1 surface-border">
-              <th style="width: 4rem"></th> 
-              <th style="width: 4rem"></th>
-              <th>Person Name</th>
-              <th>Client Status</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-customer let-expanded="expanded">
-            <tr (click)="rowToggle.emit(customer)" class="cursor-pointer hover:bg-slate-50 border-bottom-1 surface-border">
-              <td>
-                <p-button 
-                  type="button" 
-                  pRipple 
-                  [pRowToggler]="customer" 
-                  [text]="true" 
-                  [rounded]="true" 
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-                </p-button>         
-              </td>
-              <td>
-                <p-button 
-                  type="button" 
-                  pRipple 
-                  [text]="true" 
-                  [rounded]="true"   
-                  (click)="$event.stopPropagation(); edit.emit(customer)"
-                  icon="pi pi-pencil">
-                </p-button>         
-              </td>
-              <td><strong>{{customer.customerName}}</strong></td>
-              <td>{{customer.clientStatus}}</td>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="expandedrow" let-customer>
-            <tr>
-              <td colspan="4">
-                <p-table *ngIf="customer && customer?.sites && customer?.sites.length" [value]="customer?.sites" dataKey="id" class="p-datatable-sm w-full">
-                  <ng-template pTemplate="header">
-                    <tr class="surface-50 text-500 font-semibold">
-                      <th>Firm</th>
-                      <th>Category</th>
-                      <th>Contact Person</th>
-                      <th>Mobile</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template pTemplate="body" let-org>
-                    <tr>
-                      <td>{{ org.organisationName }}</td>
-                      <td>{{ org.customerCategory }}</td>
-                      <td>{{ org.contactPersonName }}</td>
-                      <td>{{ org.commercialContactPhone }}</td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+       <p-table
+    [value]="items"
+    dataKey="id"
+    [expandedRowKeys]="expandedRows"
+    styleClass="w-full text-left p-datatable-sm"
+    [tableStyle]="{'line-height':'1rem','border-collapse':'collapse'}">
+
+    <!-- Header -->
+    <ng-template pTemplate="header">
+        <tr style="height:2rem; font-size:16px; background-color:var(--surface-b); color:var(--text-color-secondary); border-bottom:1px solid var(--surface-border);">
+            <th style="width:50px; padding:2px 4px !important;" class="text-center"></th>
+            <th style="width:50px; padding:2px 4px !important;"></th>
+            <th style="padding:2px 4px !important;">Person Name</th>
+            <th style="padding:2px 4px !important;">Client Status</th>
+        </tr>
+    </ng-template>
+
+    <!-- Body -->
+    <ng-template pTemplate="body" let-customer let-expanded="expanded">
+        <tr
+            (click)="rowToggle.emit(customer)"
+            class="cursor-pointer hover:surface-hover transition-colors"
+            style="font-size:13px; color:var(--text-color); border-bottom:1px solid var(--surface-border); background-color:var(--surface-card);">
+
+            <td style="padding:2px 4px !important;" class="text-center">
+                <button
+                    pButton
+                    type="button"
+                    pRipple
+                    [pRowToggler]="customer"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                    class="p-button-rounded p-button-text p-button-secondary p-0 w-2rem h-2rem"
+                    (click)="$event.stopPropagation()">
+                </button>
+            </td>
+
+            <td style="padding:2px 4px !important;">
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-text p-button-sm text-primary p-0 w-2rem h-2rem"
+                    (click)="$event.stopPropagation(); edit.emit(customer)">
+                </button>
+            </td>
+
+            <td style="padding:2px 4px !important;" class="font-semibold">
+                {{ customer.customerName }}
+            </td>
+
+            <td style="padding:2px 4px !important;">
+                <span
+                    class="text-xs font-bold px-2 py-0.5 border-round uppercase"
+                    style="background-color:var(--surface-b); color:var(--text-color-secondary);">
+                    {{ customer.clientStatus }}
+                </span>
+            </td>
+        </tr>
+    </ng-template>
+
+    <!-- Expanded Row -->
+    <ng-template pTemplate="expandedrow" let-customer>
+        <tr>
+            <td colspan="4" style="padding:12px 16px !important; background-color:var(--surface-b); border-bottom:1px solid var(--surface-border);">
+
+                <div
+                    class="p-3 border-1 border-round shadow-1 ml-4"
+                    style="background-color:var(--surface-card); border-color:var(--surface-border);"
+                    *ngIf="customer?.sites?.length">
+
+                    <p class="mt-0 mb-2 font-semibold text-sm flex align-items-center gap-2"
+                       style="color:var(--text-color);">
+                        <i class="pi pi-building text-primary"></i>
+                        Customer Sites ({{ customer.sites.length }})
+                    </p>
+
+                    <p-table
+                        [value]="customer.sites"
+                        dataKey="id"
+                        styleClass="w-full text-left p-datatable-sm"
+                        [tableStyle]="{'line-height':'0.9rem','border-collapse':'collapse'}">
+
+                        <ng-template pTemplate="header">
+                            <tr style="font-size:12px; background-color:var(--surface-c); color:var(--text-color-secondary); border-bottom:1px solid var(--surface-border);">
+                                <th style="padding:6px 8px !important;">Firm</th>
+                                <th style="padding:6px 8px !important;">Category</th>
+                                <th style="padding:6px 8px !important;">Contact Person</th>
+                                <th style="padding:6px 8px !important;">Mobile</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-org>
+                            <tr style="font-size:12px; color:var(--text-color); border-bottom:1px solid var(--surface-border);">
+                                <td style="padding:6px 8px !important;" class="font-medium">
+                                    {{ org.organisationName }}
+                                </td>
+
+                                <td style="padding:6px 8px !important;">
+                                    {{ org.customerCategory }}
+                                </td>
+
+                                <td style="padding:6px 8px !important;">
+                                    {{ org.contactPersonName }}
+                                </td>
+
+                                <td style="padding:6px 8px !important;" class="font-semibold">
+                                    {{ org.commercialContactPhone }}
+                                </td>
+                            </tr>
+                        </ng-template>
+
+                    </p-table>
+
+                </div>
+
+                <div
+                    class="p-3 text-500 text-xs italic ml-4"
+                    *ngIf="!customer?.sites?.length">
+                    <i class="pi pi-info-circle mr-1"></i>
+                    No sites available for this customer.
+                </div>
+
+            </td>
+        </tr>
+    </ng-template>
+
+</p-table>
       </div>
     </ng-template>
 

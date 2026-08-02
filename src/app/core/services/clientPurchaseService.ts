@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { clientPurchase, createclientPurchase } from '../models/clientPurchase.model';
+import { clientRFQ } from '../models/clientRFQ.model';
 
 export interface PurchaseUnit {
   label: string;
@@ -52,6 +53,26 @@ export class clientPurchaseService {
       catchError(this.handleError)
     );
   }
+
+  // 🔄 inside your client-purchase.service.ts
+
+/**
+ * Executes the formal approval workflow for a Client PO, tracking item variations
+ * @param id The primary database identifier sequence of the target PO
+ * @param approvalData Contains the explicit action string and the updated array items
+ */
+approveClientPurchaseOrder(
+  id: number, 
+  approvalData: { action: 'APPROVE' | 'REJECT'; items?: any[] }
+): Observable<clientPurchase> {
+  console.log(`Executing dedicated PO approval for ID ${id} at ${this.apiUrl}/${id}/approve`, approvalData);
+  
+  return this.http.post<clientPurchase>(`${this.apiUrl}/${id}/approve`, approvalData).pipe(
+    tap(updatedOrder => console.log('Successfully completed workflow execution:', updatedOrder)),
+    catchError(this.handleError)
+  );
+}
+
 getClientPOs(ptenantId: number, psiteId: number, pclientId?: number): Observable<clientPurchase[]> {
   let url = `${this.apiUrl}/?activeTenantId=${ptenantId}&siteId=${psiteId}`;
   
@@ -61,9 +82,21 @@ getClientPOs(ptenantId: number, psiteId: number, pclientId?: number): Observable
   }
   console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa url:',url);
   
-  return this.http.get<clientPurchase[]>(url);
+  return this.http.get<clientPurchase[]>(url+'/clientPOs');
 }
 
+
+getClientRFQs(ptenantId: number, psiteId: number, pclientId?: number): Observable<clientRFQ[]> {
+  let url = `${this.apiUrl}/?activeTenantId=${ptenantId}&siteId=${psiteId}`;
+  
+  // Append clientId parameter to the stream request if present
+  if (pclientId) {
+    url += `&clientId=${pclientId}`;
+  }
+  console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa url:',url);
+  
+  return this.http.get<clientRFQ[]>(url+'/clientRFQs');
+}
 
   fetchTenantRulesMatrix(tenantId: number, pProductId: number, pProductVariantId: number): Observable<TenantRulesMatrixResponse> {
     const url = `${this.apiUrl}/fetchTenantRulesMatrix/${tenantId}/${pProductId}/${pProductVariantId}`;

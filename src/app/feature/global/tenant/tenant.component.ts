@@ -266,6 +266,11 @@ export class TenantComponent implements OnInit {
     }
 
     try {
+      // Add this at the top of your method or DTO mapping
+if (this.model.tenantId === 0) {
+    delete (this.model as any).tenantId;
+}
+
       await firstValueFrom(this.tenantService.createTenant(this.model));
       this.getTenantList().then(data => {
         this.tenants = data;
