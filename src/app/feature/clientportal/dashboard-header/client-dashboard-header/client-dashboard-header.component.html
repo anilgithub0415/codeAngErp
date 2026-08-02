@@ -1,4 +1,4 @@
-<span>Last Login: {{ headerData?.lastLoginTimestamp }}</span>
+
 
 <!-- Main Container: Uses PrimeNG theme variables for background and border color shifts -->
 <p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px' }">
@@ -12,8 +12,9 @@
             </div>
             <div>
                 <span style="color: var(--text-color-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; display: block;">Welcome Back</span>
-                <div style="color: var(--text-color); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.025em;">{{ headerData.clientName }}</div>
-                <span style="color: var(--text-color-secondary); font-size: 0.85rem; font-weight: 500;">{{ headerData.companyName }}</span>
+                <div style="color: var(--text-color); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.025em;">{{ headerData.clientName }}     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span *ngIf="headerData.siteLocation" style="color: var(--text-color-secondary); font-size: 0.85rem; font-weight: 500;"><i class="pi pi-map-marker" style="color: red; font-size: 1.2rem"></i>
+ {{headerData.siteLocation }} </span> </div>
+                <span style="color: var(--text-color-secondary); font-size: 0.85rem; font-weight: 500;">{{ headerData.companyName }}  </span> 
             </div>
         </div>
 

@@ -11,14 +11,16 @@ import { FormJSONsComponent } from '../../form-jsons/form-jsons.component';
 import { TenantService } from '../../../../core/services/tenant.service';
 import { tap } from 'rxjs';
 import { TenantKanbanCardComponent } from '../../Kanban/tenant-kanban-card/tenant-kanban-card.component';
+import { FormJSONBackUpsGharanaComponent } from '../../../../src/app/feature/global/form-jsonback-ups-gharana/form-jsonback-ups-gharana.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tenant-profile-tabs',
-    imports: [ButtonTabsComponent,TabDirective, 
+    imports: [CommonModule,ButtonTabsComponent,TabDirective, 
           ToastModule,
           ClientRequiremnetComponent,InteractionLogComponent,QuotationMgrComponent,
           TenantStrategiesComponent, PermissionJunctionComponent, FormJSONsComponent,
-          TenantKanbanCardComponent
+          TenantKanbanCardComponent,FormJSONBackUpsGharanaComponent
         ],
   templateUrl: './tenant-profile-tabs.component.html',
   styleUrl: './tenant-profile-tabs.component.scss'
@@ -36,6 +38,7 @@ tenant!:any;
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(){
+  
     this.tenantId = parseInt(this.route.snapshot.paramMap.get('id')!);
     this.clientId = parseInt(this.route.snapshot.paramMap.get('id')!);
     
@@ -45,7 +48,7 @@ tenant!:any;
     { label: 'Junction', id: 'Junction' },    
     { label: 'FormJSONs', id: 'FormJSONs' },   
     
-    { label: 'TenantCard', id: 'TenantCard' },   
+    { label: 'FormJSONBackUps', id: 'FormJSONBackUps' },   
      
     
   ];

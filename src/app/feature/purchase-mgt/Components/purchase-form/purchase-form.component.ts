@@ -15,13 +15,16 @@ import { FormlyFieldPrimengDropdownComponent } from '../../../../shared/componen
 import { FormlyFieldPrimengDatepickerComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
 import { RepeatsectionformlyComponent } from '../../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
 import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { bindDatabaseHooks, hydrateFormlyConfig } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { bindDatabaseHooks, hydrateFormlyConfig , chainOnInitHook} from '../../../../shared/utils/hydrationOfFormlyJson';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { BadgeModule } from 'primeng/badge';
 import { FormlyWrapperTypeaheadComponent } from '../../../../shared/components/formlyfields/formly-wrapper-typeahead/formly-wrapper-typeahead.component';
 import { FormlyFieldButtonComponent } from '../../../../shared/components/formlyfields/formly-field-button/formly-field-button.component';
 import { FormService } from '../../../../core/services/form.service';
 import { ProductService } from '../../../../core/services/product.service';
+import { combineLatest, distinctUntilChanged, firstValueFrom, startWith } from 'rxjs';
+import { LineDiscount } from '../../../../core/models/line-discount.model';
+import { LineDiscountService } from '../../../../core/services/line-discount.service';
 
 
 @Component({
@@ -50,10 +53,14 @@ export class PurchaseFormComponent implements OnInit {
   aForm!: any;
   totals = { subTotal: 0, taxTotal: 0, grandTotal: 0 };
 
+
+    activeDiscounts: LineDiscount[] = [];
+
     private formService = inject(FormService);
   private formlyConfig = inject(FormlyConfig);
   private purchaseService = inject(PurchaseService);
     private productService = inject(ProductService); 
+      private lineDiscountService = inject(LineDiscountService); 
   private cd = inject(ChangeDetectorRef);
 
   // private rawFormConfigBlueprint = [
@@ -140,7 +147,7 @@ export class PurchaseFormComponent implements OnInit {
     
     this.generateFormlyJSONBlueprint();
     this.configureFormlyTypes();
-    this.initializeFormBlueprint();
+  //  this.initializeFormBlueprint();
 
     // Listen to changes and compute financial matrices
     this.form.valueChanges.subscribe(() => this.computeTotals());
@@ -170,7 +177,6 @@ export class PurchaseFormComponent implements OnInit {
     this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
     this.formlyConfig.setType({ name: 'button', component: FormlyFieldButtonComponent});
   }
-
     private generateFormlyJSONBlueprint(): void { console.log('calling form...........');
     
       this.formService.getForm(this.tenantId!, 'purchase_form').subscribe(aform => {
@@ -183,10 +189,165 @@ export class PurchaseFormComponent implements OnInit {
       const hydrated = hydrateFormlyConfig(this.raw); this.compileAndHydrateFields();
       this.fields = hydrated;
        
-      //bindDatabasePricingHook(this.fields);
-      bindDatabaseHooks(this.productService,this.tenantId,this.fields)
+     this.bindDatabasePricingHooks(this.fields);
+      bindDatabaseHooks(this.productService,this.tenantId,this.fields);
+        this.initializeFormBlueprint();
       });
     }
+
+
+
+    private bindDatabasePricingHooks(fields: FormlyFieldConfig[]) {
+    if (!fields) return;
+    fields.forEach((field) => {
+      if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+        this.bindDatabasePricingHooks(field.fieldGroup);
+      }
+      if (field.key === 'items' && field.fieldArray) {
+        const arrayConfig = field.fieldArray as FormlyFieldConfig;
+        if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+          const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+          if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+            if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+              chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+                if (!targetField || !targetField.formControl) return;
+
+                const clientControl = this.form.get('clientId');
+                if (!clientControl) return;
+
+                // 🌟 FIX: Combine both value change streams so changing EITHER the client OR the product updates the price
+                combineLatest([
+                  targetField.formControl.valueChanges.pipe(
+                    startWith(targetField.formControl.value),
+                    distinctUntilChanged()
+                  ),
+                  clientControl.valueChanges.pipe(
+                    startWith(clientControl.value),
+                    distinctUntilChanged()
+                  )
+                ]).subscribe(async ([prodId, activeClientId]) => {
+                  console.log('Pricing hook triggered! -> prodId:', prodId, ' and activeClientId:', activeClientId);
+                  
+                  if (!prodId || !activeClientId) return;
+                  
+                  const parentField = targetField.parent; 
+                  const rowGroup = parentField?.formControl as FormGroup;
+
+                  // Skip lookup only if we are initializing a completely untouched loaded record
+                  if (this.currOpMode === FormOpMode.Update && rowGroup && rowGroup.get('price')?.value > 0 && parentField!.model && parentField!.model.prodName && !targetField.formControl?.dirty && !clientControl.dirty) {
+                    this.calculateSingleLineAmount(parentField!.model);
+                    return;
+                  }
+                  
+                  try {
+                    const productMaster = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
+                    const finalPriceData = await this.getProductFinalPrice(prodId, Number(activeClientId));
+                    console.log('finalPriceData matched from selection:', finalPriceData);
+                    
+                    const extractedName = productMaster?.prodName || 'Product #' + prodId;
+                    const extractedSku = productMaster?.sku || '';
+                    const resolvedRate = finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData;
+
+                    if (parentField && parentField.model && rowGroup) {
+                      parentField.model.productId = prodId;
+                      parentField.model.prodName = extractedName;
+                      parentField.model.sku = extractedSku;
+                      parentField.model.price = Number(resolvedRate);
+
+                      rowGroup.patchValue({
+                        productId: prodId,
+                        prodName: extractedName,
+                        sku: extractedSku,
+                        price: Number(resolvedRate)
+                      }, { emitEvent: false });
+
+                      this.calculateSingleLineAmount(parentField.model);
+                      
+                      if (targetField.options && targetField.options.detectChanges) {
+                        targetField.options.detectChanges(targetField);
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Pricing lookup pipeline error:', error);
+                  }
+                });
+              });
+            }
+          }
+        }
+      }
+    });
+  }
+
+   private preloadTenantPromotions(): void {
+    this.lineDiscountService.getDiscounts(this.tenantId).subscribe({
+      next: (res: LineDiscount[]) => {
+        this.activeDiscounts = res || [];
+        // if (this.model && this.model.items) {
+        //   this.recalculateAllQuotationLines();
+        // }
+      },
+      error: (err) => console.error('Failed loading discount matrices context:', err)
+    });
+  }
+
+ async getProductFinalPrice(prodId: number, clientId: number): Promise<any> {
+    const p = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
+    return new Promise((resolve) => {
+      this.productService.getProductFinalPrice(prodId, this.tenantId, p, clientId).subscribe(afinalPrice => {
+        console.log('got price for resolve:', afinalPrice);
+        resolve(afinalPrice);
+      });
+    });
+  }
+  public calculateSingleLineAmount(rowModel: any): void {
+    if (!rowModel) return;
+
+    const quantity = Number(rowModel.quantity) || 0;
+    const price = Number(rowModel.price) || 0;
+    const gstPercent = Number(rowModel.gstPercentage) || 0;
+    const baseSubtotal = price * quantity;
+
+    rowModel.discount = 0.00;
+    rowModel.appliedLineDiscountId = null;
+
+    if (rowModel.productId) {
+      const matchRule = this.activeDiscounts.find(d => Number(d.productId) === Number(rowModel.productId) && d.isActive);
+      
+      if (matchRule) { 
+        console.log('matchrule:', matchRule);
+        rowModel.appliedLineDiscountId = matchRule.id;
+        
+        const strategyLabel = matchRule.discountType && typeof matchRule.discountType === 'object' 
+          ? (matchRule.discountType as any).typeName 
+          : String(matchRule.discountType);
+
+        if (strategyLabel === 'Percentage' || strategyLabel === '1') { 
+          rowModel.discount = Number((baseSubtotal * (Number(matchRule.discountValue) / 100)).toFixed(2));
+        } else if (strategyLabel === 'Fixed_Amount' || strategyLabel === '2') {
+          rowModel.discount = Number((Number(matchRule.discountValue) * quantity).toFixed(2));
+        }
+      }
+    }
+
+    const netGrossTotal = baseSubtotal - rowModel.discount;
+    const postPromotionTotal = netGrossTotal >= 0 ? netGrossTotal : 0;
+    const taxMultiplier = 1 + (gstPercent / 100);
+    
+    rowModel.totalItemAmount = Number((postPromotionTotal * taxMultiplier).toFixed(2));
+
+    this.form.patchValue(this.model, { emitEvent: false });
+    this.updateGrandTotalSummary();
+  }
+
+  private updateGrandTotalSummary(): void {
+    let grandSum = 0;
+    if (this.model && this.model.items) {
+      grandSum = this.model.items.reduce((acc: number, cur: any) => acc + (Number(cur.totalItemAmount) || 0), 0);
+    }
+    this.model.totalAmount = Number(grandSum.toFixed(2));
+    this.cd.detectChanges();
+  }
 
 
   private compileAndHydrateFields(): void {

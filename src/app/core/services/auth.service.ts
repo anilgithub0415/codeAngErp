@@ -10,6 +10,7 @@ import { UrlTree } from '@angular/router';
 
 import { NgxPermissionsService } from 'ngx-permissions'; 
 import { LayoutService } from '../../layout/service/layout.service';
+import { TenantType } from '../models/tenant.model';
 // Define the structure of your JWT payload (claims)
 // Ensure these property names match exactly what your backend embeds in the JWT.
 interface JwtPayload {
@@ -119,10 +120,13 @@ private _clientId = new BehaviorSubject<number | null>(null);
    
     
     // BehaviorSubject to hold the currently active context
-    private _activeContext = new BehaviorSubject<AvailableContext | null>(this.loadActiveContext());
-    activeContext$ = this._activeContext.asObservable();
+// 1. Initialize cleanly with a starting value of null
+private _activeContext = new BehaviorSubject<AvailableContext | null>(null);
+public activeContext$ = this._activeContext.asObservable();
+
 
     constructor(private http: HttpClient,private permissionsService: NgxPermissionsService , private layoutService:LayoutService) {
+        this.loadActiveContext();
         // When the service is created, attempt to load tokens from localStorage
         // and set the initial authentication state.
         this.authToken = localStorage.getItem('mytoken');
@@ -219,7 +223,14 @@ console.log('............response.tenantid:',response.tenantId);
                     console.log('setted authtoken...................................');
                     
                     this.setRefreshToken(response.refresh_token);
-                    
+                      //combinined permissions are in response.permissions , 
+                      //context now have permission of one role but we need combined permissions
+                      console.log('..................one role permissions are:',response.availableContexts[0].permissions);
+                      
+                      response.availableContexts[0].permissions=response.permissions;
+
+                      console.log('..................combined permissions are:',response.availableContexts[0].permissions);
+                      //end 
                 //     //added
                     this.saveActiveContext(response.availableContexts[0]);
                      
@@ -594,7 +605,7 @@ getClientId(): number | null {
     private saveActiveContext(context: AvailableContext | null): void {
      
         console.log('saving context:',context);
-        
+      
         if (context) {
             localStorage.setItem(this.ACTIVE_CONTEXT_KEY, JSON.stringify(context));
         } else {
@@ -603,16 +614,38 @@ getClientId(): number | null {
         this._activeContext.next(context); // Emit the new active context
     }
 
-     loadActiveContext(): AvailableContext | null {
-  const storedContext = localStorage.getItem(this.ACTIVE_CONTEXT_KEY);
-  if (!storedContext) return null;
-  try {
-    return JSON.parse(storedContext) as AvailableContext;
-  } catch (err) {
-    console.error('AuthService: failed to parse active context', err);
-    return null;
+   // Inside your auth.service.ts constructor or session initialization helper:
+  public loadActiveContext(): boolean {
+  const savedRole = localStorage.getItem('active_context_role');
+  const savedTenantId = localStorage.getItem('tenant_id');
+  
+  if (savedRole && savedTenantId) {
+     const savedPermissions = localStorage.getItem('user_permissions');
+     
+     const restoredContext: AvailableContext = {
+        tenantId: Number(savedTenantId),
+        displayName: localStorage.getItem('user_display_name') || 'SuperAdmin',
+        tenantName: localStorage.getItem('active_tenant_name') || 'Spoofed Workspace',
+        tenantType: localStorage.getItem('tenant_type') || 'SYSTEM',
+        roleName: savedRole, 
+        permissions: savedPermissions ? JSON.parse(savedPermissions) : []
+     };
+
+     // 1. Broadcast the object to your topbar async pipes
+     this._activeContext.next(restoredContext);
+
+     // 2. 🚨 CRITICAL FRONTEND FIX: Force your global permissions checker to parse the new storage claims instantly on boot!
+     this.updateCurrentUserRoleAndPermissions(); 
+
+     return true; 
   }
+  return false; 
 }
+
+
+
+
+
 
     // --- NEW: Method to get all available contexts after initial login ---
     getAvailableContexts(): AvailableContext[] | null {
@@ -679,7 +712,7 @@ getClientId(): number | null {
                 tenantId: response.tenantId,
                 tenantName: response.tenantName,
                 tenantType: response.tenantType,
-                roleName: response.roleName,
+                roleName: response.roleName+'_added',
                 permissions: response.permissions, 
                 displayName: response.displayName
             };
@@ -801,12 +834,13 @@ getClientId(): number | null {
 
      // --- Modified getUserRole() ---
      getUserRole(): string | null {
+    // 1. Grab the actual structured context object from the stream value
+    const activeContext = this._activeContext.value;
+    
+    // 2. Safely read and return the roleName string
+    return activeContext ? activeContext.roleName : null;
+}
 
-        const activeContext = this.loadActiveContext();
-        
-        
-        return activeContext ? activeContext.roleName : null;
-    }
 
     
    
@@ -832,9 +866,13 @@ getClientId(): number | null {
 
      // --- Modified getUserPermissions() ---
      getUserPermissions(): string[] {
-        const activeContext = this.loadActiveContext();
-        return activeContext ? activeContext.permissions : [];
-    }
+    // 1. Grab the actual structured context object from the stream memory snapshot
+    const activeContext = this._activeContext.value;
+    
+    // 2. Return the permissions array if it exists, otherwise fallback to an empty list
+    return activeContext ? activeContext.permissions : [];
+}
+
 //this version was called from line# 103, 597 now getTenantId is used
     /**
      * Extracts and returns the active tenantId from the stored access token.
@@ -861,14 +899,14 @@ getClientId(): number | null {
     }
 
     // --- Modified getTenantId() --- earlier was getActiveTenant
-    getTenantId(): number | null {
+   getTenantId(): number | null {
+    // 1. Grab the actual structured context object from the stream snapshot
+    const activeContext = this._activeContext.value;
+    
+    // 2. Return the tenantId if it exists, otherwise return null
+    return activeContext ? activeContext.tenantId : null;
+}
 
-       
-        
-        const activeContext = this.loadActiveContext();
-        
-        return activeContext ? activeContext.tenantId : null;
-    }
      // Helper to update the _currentUserRole subject
      public updateCurrentUserRoleAndPermissions(): void {
       
@@ -908,4 +946,103 @@ getClientId(): number | null {
     }
 
     
+    //helper methods
+    // Inside auth.service.ts
+
+// A BehaviorSubject to broadcast the active workspace tenant ID context
+private activeTenantIdSubject = new BehaviorSubject<number>(0);
+public activeTenantIdObs = this.activeTenantIdSubject.asObservable();
+
+/**
+ * Checks if the currently authenticated token profile represents a core system SuperAdmin
+ */
+// Inside your auth.service.ts -> Update this method to look at the token payload or a baseline key
+public isSuperAdminProfile(): boolean {
+  const token = this.getAuthToken();
+  if (!token) return false;
+  
+  try {
+    // Decode your JWT token payload structure
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    
+    // Check if the original array contains a SuperAdmin role option 
+    // OR if you set a baseline flag in local storage upon initial credentials login
+    const contexts = payload.availableContexts || [];
+    return contexts.some((ctx: any) => Number(ctx.tenantId) === 0 && ctx.roleName === 'SuperAdmin');
+  } catch (e) {
+    return false;
+  }
+}
+
+
+/**
+ * Switch context helper method executed when the SuperAdmin changes the dropdown option
+ */
+public switchContext1(targetTenantId: number): Observable<any> {
+  const userId = this.getUserId();
+  const refreshToken = this.getRefreshToken();
+  const contexts = this.getAvailableContexts() || [];
+  
+  const selectedContext = contexts.find(c => Number(c.tenantId) === Number(targetTenantId));
+
+  const targetRoleName = Number(targetTenantId) === 0 
+    ? 'SuperAdmin' 
+    : (selectedContext ? selectedContext.roleName : 'Admin');
+
+  const payload = {
+    userId: Number(userId),
+    refreshToken: refreshToken!,
+    tenantId: Number(targetTenantId),
+    roleName: targetRoleName,
+    availableContexts: contexts 
+  };
+
+  return this.http.post<any>('/login/select-context', payload).pipe(
+   // Inside your frontend auth.service.ts -> switchContext1() method
+tap((response) => {
+      console.log('...................while switch response.permissions...............',response.permissions);
+    
+      
+  if (response && response.access_token) {
+    // 1. Core Session Token Overwrites
+    this.setAuthToken(response.access_token);
+    this.setRefreshToken(response.refresh_token);
+    
+    // 2. 🚨 CRITICAL OVERWRITE: Force storage primitives to hold the newly spoofed values
+    localStorage.setItem('tenant_id', response.tenantId.toString());
+    localStorage.setItem('active_context_role', response.roleName); // Overwrites 'SuperAdmin' with 'Admin'
+    localStorage.setItem('user_permissions', JSON.stringify(response.permissions || []));
+    localStorage.setItem('tenant_type', response.tenantType || 'INSTITUTE');
+    
+    // Keep the dropdown configuration array intact across the reload boundary
+    if (response.availableContexts) {
+       localStorage.setItem('available_contexts', JSON.stringify(response.availableContexts));
+    }
+
+  
+    // 3. Build a complete layout profile structure 
+    const structuralContextProfile: AvailableContext = {
+      tenantId: Number(response.tenantId),
+      displayName: response.displayName || 'SuperAdmin (Impersonated)',
+      tenantName: response.tenantName || 'Spoofed Workspace',
+      tenantType: response.tenantType || 'INSTITUTE',
+      roleName: response.roleName, // Holds 'Admin'
+      permissions: response.permissions || []
+    };
+
+    // 4. Update the reactive state pipeline
+    this.saveActiveContext(structuralContextProfile);
+    if (this._activeContext) {
+      this._activeContext.next(structuralContextProfile);
+    }
+  }
+})
+
+  );
+}
+
+
+
+
+    //----------------------------------------------------------------------------------
 }

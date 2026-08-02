@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FormlyModule, FormlyFieldConfig, FormlyConfig } from '@ngx-formly/core';
@@ -16,16 +16,20 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../../../core/services/auth.service';
 import { clientPurchaseService } from '../../../../core/services/clientPurchaseService';
-import { PurchaseService } from '../../../../core/services/purchase.service';
+import { PurchaseService, TenantRulesMatrixResponse } from '../../../../core/services/purchase.service';
 import { FormlyCardWrapperComponent } from '../../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
 import { FormlyFieldPrimengDropdownComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
 
 import { FormlyFieldPrimengDatepickerComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
 import { RepeatsectionformlyComponent } from '../../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
 import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { hydrateFormlyConfig, injectPurchaseUomMatrixListeners } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { bindDatabaseHooks, chainOnInitHook, hydrateFormlyConfig, injectPurchaseUomMatrixListeners } from '../../../../shared/utils/hydrationOfFormlyJson';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
+import { FormService } from '../../../../core/services/form.service';
+import { ProductService } from '../../../../core/services/product.service';
+import { combineLatest, distinctUntilChanged, firstValueFrom, startWith } from 'rxjs';
+import { LineDiscount } from '../../../../core/models/line-discount.model';
 @Component({
   selector: 'app-internal-pos',
   imports: [
@@ -64,12 +68,17 @@ export class InternalPOsComponent implements OnInit {
 
   raw: any;
   fields: FormlyFieldConfig[] = [];
+  aForm!: any;
+activeDiscounts: LineDiscount[] = [];
 
   private formlyConfig = inject(FormlyConfig);
   private authServ = inject(AuthService);
   private clientPurchaseService = inject(clientPurchaseService);
   private purchaseService = inject(PurchaseService);
   private messageService = inject(MessageService);
+    private formService = inject(FormService);
+      private productService = inject(ProductService);
+  private cd = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.siteId = this.authServ.getSiteId()!;
@@ -82,8 +91,99 @@ export class InternalPOsComponent implements OnInit {
     this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
     this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
 
-    this.buildFormlyFieldsLayout();
+    //this.buildFormlyFieldsLayout();
+    this.getForm_ClientPO()
     this.getPOList();
+  }
+ getForm_ClientPO() {
+    this.formService.getForm(this.tenantId!, 'clientpo_form').subscribe(aform => {
+      this.aForm = aform;
+      this.raw = JSON.parse(this.aForm.FormlyConfig);
+      
+      // 🔥 This must happen INSIDE the subscribe block
+      console.log('hydrating now................................');
+    
+      const hydrated = hydrateFormlyConfig(this.raw); this.compileAndHydrateFields();
+      this.fields = hydrated;
+    });
+  }
+
+      private compileAndHydrateFields(): void {
+        this.fields = hydrateFormlyConfig(this.raw);
+    
+      bindDatabaseHooks(this.productService,this.tenantId,this.fields);
+      this.initializeFormBlueprint();
+      }
+
+  private initializeFormBlueprint(): void {
+    this.fields = hydrateFormlyConfig(this.raw);
+    const itemsSection = this.fields.find(f => f.key === 'items');
+
+    if (itemsSection && itemsSection.fieldArray && typeof itemsSection.fieldArray === 'object') {
+      const groupFields = itemsSection.fieldArray.fieldGroup || [];
+      const uomField = groupFields.find(f => f.key === 'purchaseUom');
+
+      if (uomField) {
+        uomField.hooks = {
+          onInit: (field: FormlyFieldConfig) => {
+            const parentGroup = field.parent;
+            if (!parentGroup) return;
+
+            const rowProductField = parentGroup.fieldGroup?.find(f => f.key === 'productId');
+            const currentProductId = parentGroup.model?.productId;
+            const currentVariantId = parentGroup.model?.productVariantId || 0;
+
+            if (currentProductId) {
+              this.purchaseService.fetchTenantRulesMatrix(this.tenantId, currentProductId, currentVariantId)
+                .subscribe({
+                  next: (matrix: TenantRulesMatrixResponse) => {
+                    if (field.props && matrix?.availablePurchaseUnits) {
+                      field.props.options = matrix.availablePurchaseUnits;
+                      this.cd.detectChanges();
+                    }
+                  }
+                });
+            }
+
+            if (rowProductField && rowProductField.formControl) {
+              const sub = rowProductField.formControl.valueChanges.subscribe((productId) => {
+                if (!productId) {
+                  if (field.props) field.props.options = [];
+                  field.formControl?.setValue(null);
+                  return;
+                }
+
+                const activeVariantId = parentGroup.model?.productVariantId || 0;
+                this.purchaseService.fetchTenantRulesMatrix(this.tenantId, productId, activeVariantId)
+                  .subscribe({
+                    next: (matrix: TenantRulesMatrixResponse) => {
+                      if (field.props && matrix?.availablePurchaseUnits) {
+                        field.props.options = matrix.availablePurchaseUnits;
+                        const currentUomValue = field.formControl?.value;
+                        if (!matrix.availablePurchaseUnits.some(u => u.value === currentUomValue)) {
+                          field.formControl?.setValue(null);
+                        }
+                        this.cd.detectChanges();
+                      }
+                    }
+                  });
+              });
+              field.hooks!.onDestroy = () => sub.unsubscribe();
+            }
+          }
+        };
+      }
+    }
+  }
+
+
+  private updateGrandTotalSummary(): void {
+    let grandSum = 0;
+    if (this.model && this.model.items) {
+      grandSum = this.model.items.reduce((acc: number, cur: any) => acc + (Number(cur.totalItemAmount) || 0), 0);
+    }
+    this.model.totalAmount = Number(grandSum.toFixed(2));
+    this.cd.detectChanges();
   }
 
   buildFormlyFieldsLayout() {
@@ -106,24 +206,7 @@ export class InternalPOsComponent implements OnInit {
               "placeholder": "PO#"
             }
           },
-//           { 
-//             "type": "datepicker",
-//             "key": "orderDate",
-//             "className": "col-span-12 md:col-span-6",
-//             "props": {
-//               "label": "Order Date",
-//               "dateFormat": "dd-mm-yy",
-//               "numberOfMonths": 1,
-//               "selectionMode": "single",
-//               "required": true,
-//             }
-            
-//             ,"expressionProperties": {
-//   // Use field.options.model to ensure it targets the global parent document state
-//   "disabled": (field: any) => field.options?.model?.status !== 'DRAFT'
-// }
 
-//           }
 
 {
     "key": "poDate",
@@ -287,34 +370,50 @@ export class InternalPOsComponent implements OnInit {
     this.executePersistWorkflow(true);
   }
 
-  //Client Approving sitePurchase
-  approvePO() {
-    const poId = this.model.id || this.model.purchaseOrderId;
-    if (!poId) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No active Purchase Order selected.' });
-      return;
-    }
+  // 🚀 inside your purchase-order-detail.component.ts
 
-    // Build payload to send workflow state alteration to backend
-    const payload = {
-      status: 'APPROVED',
-      internalNotes: `${this.model.internalNotes || ''} | Approved by Client on ${new Date().toISOString()}`
-    };
-
-    this.clientPurchaseService.updateClientPurchaseOrder(poId, payload).subscribe({
-      next: () => {
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Order Approved', 
-          detail: `Purchase Order #${this.model.clientPoNumber || poId} has been fully approved.` 
-        });
-        this.finalizeSaveSuccess(); // Refresh table listing and hide form panels
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Approval Failed', detail: err.message });
-      }
-    });
+approvePO() {
+  const poId = this.model.id || this.model.purchaseOrderId;
+  if (!poId) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No active Purchase Order selected.' });
+    return;
   }
+
+  // 1. Map and sanitize the on-screen item data to capture quantity variations
+  const itemsPayload = this.model.items ? this.model.items.map((item: any) => ({
+    productId: item.productId || null,
+    productVariantId: item.productVariantId || null,
+    quantity: Number(item.quantity || 1),
+    purchaseUom: item.purchaseUom || null
+  })) : [];
+
+  // 2. Build the payload for the dedicated workflow action
+  const payload = {
+    action: 'APPROVE' as const, // Strict Type Casting to match service expectations
+    items: itemsPayload
+  };
+
+  // 3. Fire the dedicated POST request
+  this.clientPurchaseService.approveClientPurchaseOrder(poId, payload).subscribe({
+    next: (response) => {
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: 'Order Approved', 
+        detail: `Purchase Order #${this.model.clientPoNumber || poId} has been successfully approved.` 
+      });
+      this.finalizeSaveSuccess(); // Cleans up screens and refreshes list view metrics
+    },
+    error: (err) => {
+      // Handles validation exceptions thrown back by the backend service guardrails
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Approval Blocked', 
+        detail: err.error?.message || err.message || 'An error occurred during approval.' 
+      });
+    }
+  });
+}
+
 
   // ❌ Client Rejecting sitePurchase
   rejectPO() {

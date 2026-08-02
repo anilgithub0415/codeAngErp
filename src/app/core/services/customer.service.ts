@@ -65,8 +65,8 @@ updateCustomer(id: number, customerData: any): Observable<Customer> {
 }
 
 // 💡 FIX: Changed Observable data shape from array to singular item metadata
-getCustomer(ptenantId: number, prodId: number): Observable<Customer> {
-  return this.http.get<Customer>(this.apiUrl + '/' + ptenantId + '/' + prodId);
+getCustomer(ptenantId: number, clientId: number): Observable<Customer> {
+  return this.http.get<Customer>(this.apiUrl + '/' + ptenantId + '/' + clientId);
 }
 
 

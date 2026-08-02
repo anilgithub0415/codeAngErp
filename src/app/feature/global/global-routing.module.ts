@@ -16,6 +16,7 @@ import { TenantStrategiesComponent } from './tenant-strategies/tenant-strategies
 import { TenantKanbanCardComponent } from './Kanban/tenant-kanban-card/tenant-kanban-card.component';
 import { TenantKanbanBoardComponent } from './views/tenant-kanban-board/tenant-kanban-board.component';
 import { TenantProfileTabsComponent } from './views/tenant-profile-tabs/tenant-profile-tabs.component';
+import { DbStatusComponent } from './db-status/db-status.component';
 
 // src/app/feature/global/global-routing.module.ts
 const routes: Routes = [
@@ -26,7 +27,9 @@ const routes: Routes = [
     children: [
       { path: '', component: HSNTaxRuleComponent },
       { path: 'tenant', component: TenantComponent },
+      { path: 'dbStatus', component: DbStatusComponent },
       { path: 'subscription', component: SubscriptionPlanComponent },
+
       { path: 'RolePermissionJunction', component: PermissionJunctionComponent },
       {path:'TenantTypes',component:TenantTypesComponent},
          {

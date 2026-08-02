@@ -48,6 +48,8 @@ export class TenantService {
    * @returns An Observable of an array of User objects.
    */
   getTenants(): Observable<Tenant[]> {
+    console.log('............................url tenant get..............',this.apiUrl);
+    
        return this.http.get<Tenant[]>(this.apiUrl).pipe(
          // tap(tenants => console.log('Fetched tenants:', tenants)),
           catchError(this.handleError)

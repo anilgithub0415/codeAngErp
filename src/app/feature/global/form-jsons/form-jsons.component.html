@@ -19,6 +19,8 @@ JSON rule: Always use 'finalPrice' as calculating price field, as Utils.bindData
       <!-- Input Field 2: Multiline Textarea Value Payload Layout Box -->
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
         <label for="formlyConfigInput" style="font-weight: 600; font-size: 0.875rem;">Formly JSON Layout Configuration Schema</label>
+     
+    
         <textarea 
           id="formlyConfigInput"
           [rows]="18" 
@@ -26,6 +28,10 @@ JSON rule: Always use 'finalPrice' as calculating price field, as Utils.bindData
           formControlName="FormlyConfig" 
           placeholder="Enter valid raw or escaped Formly JSON array text metadata"
           style="width: 100%; font-family: monospace; resize: vertical; min-height: 150px;"></textarea>
+
+
+
+
       </div>
 
     </div>
@@ -93,7 +99,7 @@ JSON rule: Always use 'finalPrice' as calculating price field, as Utils.bindData
           </button>
         </td>
         <td>{{ config.FormKey }}</td>
-        <td>{{ config.FormlyConfig }}</td>
+        <td> config.FormlyConfig</td>
       </tr>
     </ng-template>
   </p-table>

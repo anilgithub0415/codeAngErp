@@ -16,7 +16,14 @@
       <app-form-jsons [tenantId]='tenantId'></app-form-jsons>
     </ng-template>
 
-     <ng-template appTab="TenantCard">
-          
+     <ng-template appTab="FormJSONBackUps">
+
+        <ng-container *ngIf="tenantId == 1; else nobackup">
+          <app-form-jsonback-ups-gharana></app-form-jsonback-ups-gharana>
+        </ng-container>
+
+        <ng-template #nobackup>
+          U need to create component to keep formJSONs for this tenant
+        </ng-template>
     </ng-template> 
 </app-button-tabs>

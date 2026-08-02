@@ -237,6 +237,8 @@ export class CustomerMgrComponent implements OnInit {
   }
 
   async onEditClick(selectedRecord: any) {
+    console.log('...selectedRecord.....:',selectedRecord);
+    
     this.isFormHidden = false;
     this.currOpMode = FormOpMode.Update; 
     localStorage.setItem('currOpMode', this.currOpMode);

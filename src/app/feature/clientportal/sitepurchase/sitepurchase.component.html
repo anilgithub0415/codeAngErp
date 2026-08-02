@@ -36,11 +36,13 @@ currOpMode:{{currOpMode}}
   </form>
     
   <!-- View Mode Operations Controls -->
+    <ng-container *ngxPermissionsOnly="['ClientPO.create']">
   <p-button *ngIf="currOpMode === 'VIEW'"
     label="New Client Purchase Order" 
     icon="pi pi-plus" 
     (click)="Add()">
   </p-button>
+</ng-container>
 
   <div class="card mt-4" *ngIf="currOpMode === 'VIEW'">
     <p-table [value]="clientPOs ?? []" dataKey="id" [expandedRowKeys]="expandedRows">

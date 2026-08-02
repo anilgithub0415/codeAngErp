@@ -1,0 +1,13 @@
+<p>db-status works!</p>
+
+
+<div *ngIf="databaseStatus as status; else loading">
+  <p>Status: {{ status.status }}</p>
+  <p>Database: {{ status.database }}</p>
+  <p>Type: {{ status.type }}</p>
+  <p>Host: {{ status.host }}</p>
+</div>
+
+<ng-template #loading>
+  <p>Fetching database status...</p>
+</ng-template>

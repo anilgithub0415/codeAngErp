@@ -96,10 +96,13 @@ export class AppComponent implements OnInit {
     loadingContext:boolean=false;
     availableContextsForSelection: AvailableContext[] | null = null;
     
-public authService=inject(AuthService)
-    constructor( private router: Router, private eventbusService:EventBusService
-        ,  private usercontextService:UserContextService,
-        private contextUiService: ContextUiService,private layoutService:LayoutService
+    public authService=inject(AuthService)
+
+    constructor( private router: Router, 
+      //all these were used for context-selection that is any one role out of all
+      // private eventbusService:EventBusService
+      //   ,  private usercontextService:UserContextService,
+      //   private contextUiService: ContextUiService,private layoutService:LayoutService
         ) {
          
            
@@ -177,46 +180,52 @@ public authService=inject(AuthService)
 
 
 ngOnInit() {
-  this.contextUiService.dialogState$.subscribe(state => {
-    this.showContextSelectionDialog = state.visible;
-    this.availableContextsForSelection = state.contexts;
-  });
+ this.loadingContext = false; 
+      //all these were used for context-selection that is any one role out of all
+    
+  // this.contextUiService.dialogState$.subscribe(state => {
+  //   this.showContextSelectionDialog = state.visible;
+  //   this.availableContextsForSelection = state.contexts;}
 }
+
 handleContextSelection(event: any) {
-  console.log('Assigning context to AuthService:', event);
+       //all this commented code was used for context-selection that is any one role out of all
+  // console.log('Assigning context to AuthService:', event);
 
-  this.authService.setActiveContext(event).subscribe({
-    next: () => {
-      console.log('Active context assigned. Completing application state setup...');
+  // this.authService.setActiveContext(event).subscribe({
+  //   next: () => {
+  //     console.log('Active context assigned. Completing application state setup...');
 
-      // 1. Fetch user data for the specific chosen context
-      const userId = this.authService.getUserId(); 
-      const tenantId = event.tenantId || localStorage.getItem('tenant_id');
+  //     // 1. Fetch user data for the specific chosen context
+  //     const userId = this.authService.getUserId(); 
+  //     const tenantId = event.tenantId || localStorage.getItem('tenant_id');
       
-      if (tenantId && userId) {
-        this.layoutService.loadUserPreferences(parseInt(tenantId), userId);
-      }
+  //     if (tenantId && userId) {
+  //       this.layoutService.loadUserPreferences(parseInt(tenantId), userId);
+  //     }
 
-      // 2. Build permissions and roles for this context
-      this.authService.updateCurrentUserRoleAndPermissions();
+  //     // 2. Build permissions and roles for this context
+  //     this.authService.updateCurrentUserRoleAndPermissions();
 
-      // 3. Mark the user as fully logged in AFTER state is ready
-      // This triggers header components and layouts to safely render
-      this.authService.setLoginStatus(true); 
+  //     // 3. Mark the user as fully logged in AFTER state is ready
+  //     // This triggers header components and layouts to safely render
+  //     this.authService.setLoginStatus(true); 
 
-      // 4. Close the dialog UI
-      this.contextUiService.closeSelectionDialog();
+  //     // 4. Close the dialog UI
+  //     this.contextUiService.closeSelectionDialog();
       
-      // 5. Navigate to the page now that all states are initialized
-      this.router.navigate(['/app']); 
-    },
-    error: (err) => {
-      console.error('Failed to set active context:', err);
-      this.authService.logout(this.authService.getRefreshToken());
-      this.contextUiService.closeSelectionDialog();
-      this.router.navigate(['/auth/login']);
-    }
-  });
+  //     // 5. Navigate to the page now that all states are initialized
+  //     this.router.navigate(['/app']); 
+  //   },
+  //   error: (err) => {
+  //     console.error('Failed to set active context:', err);
+  //     this.authService.logout(this.authService.getRefreshToken());
+  //     this.contextUiService.closeSelectionDialog();
+  //     this.router.navigate(['/auth/login']);
+  //   }
+  // });
+
+  console.log('Context selection dialog event captured but ignored (flag is false).');
 }
 
 
@@ -229,6 +238,7 @@ handleContextSelection(event: any) {
 handleLogout(): void {
     this.showContextSelectionDialog = false;
     this.authService.logout(this.authService.getRefreshToken());
+     this.router.navigate(['/auth/login']);
 }
 
 

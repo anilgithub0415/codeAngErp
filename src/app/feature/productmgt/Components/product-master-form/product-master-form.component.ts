@@ -29,6 +29,7 @@ import { FormService } from '../../../../core/services/form.service';
 })
 export class ProductMasterFormComponent implements OnInit, OnChanges {
   @Input() tenantId!: number;
+  
   @Input() opMode!: FormOpMode;
   @Input() isFormHidden: boolean = true;
   @Input() productData: any = null;

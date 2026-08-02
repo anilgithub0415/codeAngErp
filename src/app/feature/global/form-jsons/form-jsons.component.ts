@@ -103,8 +103,10 @@ export class FormJSONsComponent implements OnInit {
     this.form.reset({ id: 0, tenantId: this.tenantId, FormKey: '', FormlyConfig: '' });
   }
   
-    async saveFormConfig() {
-    if (!this.form.valid) {
+    async saveFormConfig() { console.log('.........yes running');
+    
+    if (!this.form.valid) { console.log('this.form.valid:',this.form.valid);
+    
       this.messageService.add({ 
         severity: 'error', 
         summary: 'Error', 

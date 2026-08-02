@@ -34,10 +34,13 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     } catch (e) {
       console.error('❌ [Interceptor Error]: Failed to decode token string!', e);
     }
+const tenantId = localStorage.getItem('tenant_id') || '0';
 
     let clonedReq = req;
     clonedReq = req.clone({
-      setHeaders: { Authorization: `Bearer ${authToken}` }
+      setHeaders: { Authorization: `Bearer ${authToken}`,
+       'X-Tenant-Id': tenantId // 🌟 Ensures your backend sees you as Tenant1 instead of Tenant0
+    }
     });
 
     return next(clonedReq).pipe(

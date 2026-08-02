@@ -23,6 +23,10 @@ export class TenantFormConfigsService {
  
 
   createFormConfig(tenantId: number, payload: TenantFormConfig): Observable<TenantFormConfig> {  
+    console.log('paiurl:',this.apiUrl);
+    
+    console.log('payload:',payload);
+    
     return this.http.post<TenantFormConfig>(`${this.apiUrl}/${tenantId}`, payload);
   }
 
