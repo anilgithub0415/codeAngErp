@@ -1,0 +1,33 @@
+<p>client-rfq-mgr works!</p>
+<p>client-rfq works!</p>
+
+<div class="rfq-order-container p-4">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Grid View Mode Display -->
+  <app-client-rfq-grid 
+    *ngIf="currOpMode === 'VIEW'"
+    [clientRFQs]="clientRFQs"
+    (addRequested)="Add()"
+    (editRequested)="onEditClick($event)"
+    (deleteRequested)="onDeleteRequested($event)"
+      (convertRequested)="onConvertRequested($event)">
+  </app-client-rfq-grid>
+    
+  <!-- Form Execution Mode Display -->
+  <app-client-rfq-form
+    *ngIf="currOpMode !== 'VIEW' && currOpMode !== 'NONE'"
+    [form]="form"
+    [fields]="fields"
+    [model]="model"
+    [currOpMode]="currOpMode"
+    (saveDraft)="saveRFQDraft()"
+    (submitForApproval)="submitRFQForApproval()"
+    (clearForm)="clearRFQ()"
+    (approve)="approveRFQ()"
+    (send)="sendRFQ()"
+    (reject)="rejectPO()"
+    (cancel)="CancelFormOp()">
+  </app-client-rfq-form>
+</div>

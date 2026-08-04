@@ -1,0 +1,23 @@
+
+
+  <app-button-tabs [options]="myTabConfig" [activeTabId]="activeTab">
+  
+    <ng-template appTab="RFQ">
+        Client RFQ when displayed from wholesalers point of view, only PENDING_APPROVAL RFQs are displayed.
+        To filter the RFQs while displaying from wholesalers point of view (to encourage sale) a Input() variable isWholesalerView is used
+        By passing input params like: <br/><br/>
+        app-client-rfq <br/>
+           [isWholesalerView]="true" 
+           [allowedStatuses]="['PENDING_APPROVAL']"> <br/>
+       app-client-rfq
+
+    </ng-template> 
+    
+    
+  <ng-template appTab="tab2">
+      t1
+</ng-template> 
+
+   
+
+</app-button-tabs>

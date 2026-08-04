@@ -181,16 +181,16 @@ async handleApprove(poId: number): Promise<void> {
 
 
 
-  onDeleteRequested(so: any) { console.log('trying to deelete SO.........',so.id);
+  onDeleteRequested(po: any) { console.log('trying to deelete SO.........',po.id);
   
     this.confirmationService.confirm({
-      message: `Are you sure you want to permanently delete "${so.id}"?`,
+      message: `Are you sure you want to permanently delete "${po.id}"?`,
       header: 'Delete Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.purchaseService.deletePurchaseOrder(so.id).subscribe({
+        this.purchaseService.deletePurchaseOrder(po.id).subscribe({
           next: () => {
-            this.POs = this.POs!.filter(s => s.id !== so.id);
+            this.POs = this.POs!.filter(s => s.id !== po.id);
            // this.visibleDataArray = this.visibleDataArray.filter(p => p.id !== so.id);
             
             this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Sales Order successfully removed.' });

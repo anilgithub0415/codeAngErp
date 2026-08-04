@@ -1,4 +1,4 @@
-<div class="grid-actions-bar mb-0" *ngxPermissionsOnly="['PO.create']">
+<div class="grid-actions-bar mb-0" *ngxPermissionsOnly="['PO.Create']">
   <p-button 
     label="New Purchase Order" 
     icon="pi pi-plus" 
@@ -89,7 +89,25 @@
               <td style="padding: 2px  4px !important;">
                 <button pButton type="button" icon="pi pi-trash" 
                         class="p-button-rounded p-button-text p-button-danger p-button-sm p-0 m-0 w-2rem h-2rem flex align-items-center justify-content-center"
-                        (click)="triggerDelete(po)"></button>
+                        (click)="triggerDelete(po)"
+                         (mouseenter)="op.show($event)" 
+                        (mouseleave)="op.hide()"></button>
+
+                                   <p-overlayPanel #op [dismissable]="true" appendTo="body">
+                                      <div class="p-2 text-sm max-w-20rem">
+                                          @if (po.status === 'DRAFT' || po.status === 'PENDING_APPROVAL') {
+                                              <div class="flex align-items-center gap-2 text-red-600">
+                                                  <i class="pi pi-exclamation-triangle"></i>
+                                                  <span>This order is in <strong>{{ po.status }}</strong> status. It will be <strong>permanently removed</strong> from the system.</span>
+                                              </div>
+                                          } @else {
+                                              <div class="flex align-items-center gap-2 text-amber-600">
+                                                  <i class="pi pi-info-circle"></i>
+                                                  <span>This order is active. It will be marked as <strong>CANCELLED</strong> and inventory balances will be reverted.</span>
+                                              </div>
+                                          }
+                                      </div>
+                                  </p-overlayPanel>
               </td>
             </tr>
 

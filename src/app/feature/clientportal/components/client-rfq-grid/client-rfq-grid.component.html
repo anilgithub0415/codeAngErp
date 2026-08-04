@@ -1,0 +1,121 @@
+<p>client-rfq-grid works!</p>
+<div class="mb-3">
+  <button 
+    *ngxPermissionsOnly="['ClientRFQ.Create']"
+    pButton
+    type="button"
+    label="New Request For Quotation" 
+    icon="pi pi-plus" 
+    (click)="addRequested.emit()">
+  </button>
+</div>
+
+<div class="card mt-4">
+  <p-table [value]="clientRFQs ?? []" dataKey="id" [expandedRowKeys]="expandedRows">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5rem"></th> 
+        <th style="width: 5rem"></th>
+        <th>RFQ Number</th>
+        <th>rfqDate</th>
+        <th>Status</th>
+        <th style="width: 5rem"></th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-rfq let-expanded="expanded">
+      <tr>
+        <td>
+          <button 
+            pButton
+            type="button" 
+            pRipple 
+            [pRowToggler]="rfq" 
+            [text]="true" 
+            [rounded]="true" 
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+          </button>         
+        </td>
+        <td>
+          <button 
+            pButton
+            type="button" 
+            pRipple 
+            [text]="true" 
+            [rounded]="true" 
+            (click)="editRequested.emit(rfq)"
+            [icon]="rfq.status === 'DRAFT' ? 'pi pi-pencil' : 'pi pi-eye'">
+          </button>         
+        </td>
+        <td><strong>{{rfq.clientRFQNumber}}</strong></td>
+        <td>{{rfq.rfqDate}}</td>
+        <td>
+          <span class="px-2 py-1 rounded text-sm font-medium"
+            [ngClass]="{
+              'bg-gray-100 text-gray-800': rfq.status === 'DRAFT',
+              'bg-orange-100 text-orange-800': rfq.status === 'PENDING_APPROVAL',
+              'bg-green-100 text-green-800': rfq.status === 'APPROVED'
+            }">
+            {{rfq.status}}
+          </span>
+        </td>
+        <!--button for start RFQconversion-->
+        <td>
+<button 
+            type="button" 
+            class="btn btn-primary" 
+            (click)="onConvertClick(rfq)"
+            >
+            Convert to Quote
+          </button>
+        </td>
+        <td style="padding: 2px 4px !important;">
+          <button pButton type="button" icon="pi pi-trash" 
+                  class="p-button-rounded p-button-text p-button-danger p-button-sm p-0 m-0 w-2rem h-2rem flex align-items-center justify-content-center"
+                  (click)="deleteRequested.emit(rfq); op.show($event)"
+                  (mouseenter)="op.show($event)" 
+                  (mouseleave)="op.hide()"></button>
+             
+          <p-overlayPanel #op [dismissable]="true" appendTo="body">
+            <div class="p-2 text-sm max-w-20rem">
+              @if (rfq.status === 'DRAFT' || rfq.status === 'PENDING_APPROVAL') {
+                <div class="flex align-items-center gap-2 text-red-600">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span>This order is in <strong>{{ rfq.status }}</strong> status. It will be <strong>permanently removed</strong> from the system.</span>
+                </div>
+              } @else {
+                <div class="flex align-items-center gap-2 text-amber-600">
+                  <i class="pi pi-info-circle"></i>
+                  <span>This order is active. It will be marked as <strong>CANCELLED</strong> and inventory balances will be reverted.</span>
+                </div>
+              }
+            </div>
+          </p-overlayPanel>
+        </td>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="expandedrow" let-po>
+      <tr>
+        <td colspan="6">
+          <p-table *ngIf="po && po?.items && po?.items.length" [value]="po?.items" dataKey="id" class="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Product SKU / Name</th>
+                <th>Quantity</th>
+                <th>UOM</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
+                <td>{{ item.sku }} - {{ item.prodName }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.purchaseUom }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

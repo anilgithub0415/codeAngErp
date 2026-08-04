@@ -23,6 +23,7 @@ clientId:{{clientId}}  isPortalContext:{{isPortalContext}} currOpMode:{{currOpMo
   <!-- Inside quotation-mgr.component.html -->
 <div *ngIf="currOpMode !== FormOpMode.View">
   <app-quotation-form 
+   [quotationData]="selectedQuotation" 
     [tenantId]="tenantId"
    
     [opMode]="currOpMode"
@@ -40,7 +41,7 @@ clientId:{{clientId}}  isPortalContext:{{isPortalContext}} currOpMode:{{currOpMo
   <!-- LIST DISCOVERY CONTROL HUD LAYER -->
   <div class="mb-3" *ngIf="currOpMode === 'VIEW'">
     <p-button 
-      *ngxPermissionsOnly="['Quotation.create']"
+      *ngxPermissionsOnly="['Quotation.Create']"
       label="New Quotation Profile Blueprint" 
       icon="pi pi-plus" 
       (click)="onAddTriggered()">

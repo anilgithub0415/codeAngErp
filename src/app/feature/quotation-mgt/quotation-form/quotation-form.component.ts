@@ -37,21 +37,35 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
   ],
   templateUrl: './quotation-form.component.html',
   styleUrl: './quotation-form.component.scss'
-})
-export class QuotationFormComponent implements OnInit {
+})export class QuotationFormComponent implements OnInit {
   readonly FormOpMode = FormOpMode;
   @Input() tenantId!: number;
   @Input() opMode!: FormOpMode;
-  @Input() quotationData: any = null;
+
+  // 🚀 1. REPLACE the plain input with an explicit Property Setter
+  private _quotationData: any = null;
+
+  @Input() 
+  set quotationData(value: any) {
+    this._quotationData = value;
+    
+    // If the component is already initialized and a conversion payload arrives, trigger processing instantly
+    if (value && this.fields && this.fields.length > 0) {
+      this.processIncomingDataState();
+    }
+  }
+
+  get quotationData(): any {
+    return this._quotationData;
+  }
 
   @Output() onCancel = new EventEmitter<void>();
   @Output() onSaveSuccess = new EventEmitter<string>();
-
   @Output() onFinalize = new EventEmitter<any>();
   @Output() onApprove = new EventEmitter<number>();
   @Output() onErrorToast = new EventEmitter<{ severity: string, summary: string, detail: string }>();
 
-  raw!:any;
+  raw!: any;
   form = new FormGroup({});
   model: any = {};
   fields: FormlyFieldConfig[] = [];
@@ -68,21 +82,49 @@ export class QuotationFormComponent implements OnInit {
   private cd = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    //this.registerCustomFormlyEngineExtensions();
-    //this.preloadTenantPromotions();
-    this.generateFormlyJSONBlueprint();//quotation_form
-    this.registerFormlyExtensions()
+    this.generateFormlyJSONBlueprint(); // Generates your quotation_form layout
+    this.registerFormlyExtensions();
     
-   
+    // 🚀 2. PROCESS STATE LOCALLY AFTER BLUEPRINT IS GENERATED
+    this.processIncomingDataState();
+  }
 
-    if ((this.opMode === FormOpMode.Update || this.opMode === FormOpMode.PortalNegotiation) && this.quotationData) {
+  // 🚀 3. NEW WORKFLOW ROUTER METHOD: Handles Update vs Create vs RFQ Conversion states safely
+  private processIncomingDataState(): void {
+    if (!this.quotationData) {
+      this.executeFreshCreationSetup();
+      return;
+    }
+
+    console.log('Formly Form: Intercepted data entry object processing strategy. Mode:', this.opMode);
+
+    // Context A: Standard Database Record Update Flow
+    if (this.opMode === FormOpMode.Update || this.opMode === FormOpMode.PortalNegotiation) {
       this.initiateUpdateWorkflow(this.quotationData);
-    } else {
+      return;
+    }
+
+    // Context B: 🚀 THE RFQ CONVERSION FIX (OpMode is 'CREATE' but with embedded input parameters data payload)
+    if (this.opMode === FormOpMode.Add) {
+      console.log('Formly Form: Executing RFQ to Quotation Model Mapping Procedure.');
+      
       this.form.reset();
-      this.resetModelToDefault();
+      
+      // Assign the mapped structural fields object cleanly directly into formly's observed model tracking reference
+      // Ensure the child array property key matches exactly what your RepeatSection schema expects (e.g., 'items' or 'quotationItems')
+      this.model = { ...this.quotationData }; 
+      
+      // Force change detection engine layout updates
       this.cd.detectChanges();
     }
   }
+
+  private executeFreshCreationSetup(): void {
+    this.form.reset();
+    this.resetModelToDefault();
+    this.cd.detectChanges();
+  }
+
   private registerFormlyExtensions(): void {
     this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
     this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
@@ -90,13 +132,6 @@ export class QuotationFormComponent implements OnInit {
     this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
     this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
     this.formlyConfig.setType({ name: 'button', component: FormlyFieldButtonComponent});
-  }
-  private registerCustomFormlyEngineExtensions(): void {
-    this.formlyConfig.setWrapper({ name: 'panel', component: FormlyCardWrapperComponent });
-    this.formlyConfig.setType({ name: 'primeng-dropdown', component: FormlyFieldPrimengDropdownComponent });
-    this.formlyConfig.setType({ name: 'datepicker', component: FormlyFieldPrimengDatepickerComponent });
-    this.formlyConfig.setType({ name: 'p-repeatsectionformly', component: RepeatsectionformlyComponent });
-    this.formlyConfig.setType({ name: 'custom', component: FormlyCustomRowBridgeComponent });
   }
 
   private preloadTenantPromotions(): void {

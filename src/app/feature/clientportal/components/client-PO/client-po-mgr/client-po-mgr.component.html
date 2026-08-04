@@ -1,0 +1,27 @@
+<p>client-po-mgr works!</p>
+<div class="purchase-order-container p-4">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- 1. Presentation Grid Area (Dumb Data Rendering Output Element Matrix) -->
+  <app-client-po-grid
+    *ngIf="currOpMode === 'VIEW'"
+    [clientPOs]="clientPOs"
+    (onAdd)="onAddRequested()"
+    (onEdit)="onEditRequested($event)"
+    (onDelete)="onDeleteRequested($event)">
+  </app-client-po-grid>
+
+  <!-- 2. Dynamic Input Capture Entry Form Workspace (Isolated Structure Matrix) -->
+  <app-client-po-form
+    *ngIf="currOpMode !== 'VIEW' && !isFormHidden"
+    [model]="selectedModel"
+    [currOpMode]="currOpMode"
+    [tenantId]="tenantId"
+    (onSaveWorkflow)="onSaveWorkflowRequested($event)"
+    (onApprove)="onApproveWorkflowRequested($event)"
+    (onSend)="onSendWorkflowRequested($event)"
+    (onReject)="onRejectWorkflowRequested($event)"
+    (onCancel)="onCancelOperation()">
+  </app-client-po-form>
+</div>

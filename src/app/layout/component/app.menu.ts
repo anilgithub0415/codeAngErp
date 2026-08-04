@@ -148,11 +148,7 @@ export class AppMenu {
                         label: 'Client Portal ',
                         icon: 'pi pi-fw pi-compass',
                         items: [
-                            {
-                                label: 'Received Quotations',
-                                icon: 'pi pi-fw pi-sign-in',
-                                routerLink: ['/app/clientportal']
-                            },
+                            
                            {
                                 label: 'dashboard',
                                 icon: 'pi pi-fw pi-users',
@@ -163,11 +159,7 @@ export class AppMenu {
                                 icon: 'pi pi-fw pi-users',
                                 routerLink: ['/app/clientportal/siteusers']
                             },
-                            {
-                                label: 'internalpurchaseorder',
-                                icon: 'pi pi-fw pi-shopping-cart',
-                                routerLink: ['/app/clientportal/sitepurchase']
-                            },
+                          
                             {
                                 label: 'sites',
                                 icon: 'pi pi-fw pi-shopping-cart',
@@ -212,6 +204,14 @@ export class AppMenu {
                                 routerLink: ['/app/globalmgt/KanbanBoard']
                             },
                             {
+                                label: 'pendingworks',
+                                icon: 'pi pi-fw pi-heart-fill',
+                                routerLink: ['/app/globalmgt/pendingworks']
+                            },   {
+                                label: 'infojunction',
+                                icon: 'pi pi-fw pi-heart-fill',
+                                routerLink: ['/app/globalmgt/infojunction']
+                            },   {
                                 label: 'Diagnosis',
                                 icon: 'pi pi-fw pi-heart-fill',
                                 routerLink: ['/app/globalmgt/diagnosis']

@@ -5,7 +5,7 @@ import { SiteComponent } from './site/site.component';
 import { UserMgrComponent } from '../usermgt/user-mgr/user-mgr.component';
 import { ClientPurchaseMgrComponent } from './CRUD/client-purchase-mgr/client-purchase-mgr.component';
 import { QuotationMgrComponent } from '../quotation-mgt/quotation-mgr/quotation-mgr.component';
-import { ReceivedQuotesNOffersComponent } from './received-quotes-noffers/received-quotes-noffers.component';
+
 import { Dashboard1Component } from './samplesComponents/dashboard1/dashboard1.component';
 import { Dashboard2Component } from './samplesComponents/dashboard2/dashboard2.component';
 import { Dashboard3Component } from './samplesComponents/dashboard3/dashboard3.component';
@@ -15,6 +15,7 @@ import { Dashboard5Component } from './samplesComponents/dashboard5/dashboard5.c
 import { SampleDashboardMainComponent } from './samplesComponents/sample-dashboard-main/sample-dashboard-main.component';
 import { DashboardComponent } from '../dashboard/dashboard/dashboard.component';
 import { ClientDashboardComponentComponent } from './Dashboard/client-dashboard.component/client-dashboard.component.component';
+import { ProcurementsComponent } from './procurements/procurements.component';
 
 const routes: Routes = [
   {
@@ -23,7 +24,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'receivedQuotesNOffers', // Standardize your landing target to a child route that exists
+        redirectTo: 'procurement', // Standardize your landing target to a child route that exists
         pathMatch: 'full'
       },
  {
@@ -31,8 +32,8 @@ const routes: Routes = [
         component: ClientDashboardComponentComponent
       },
       {
-        path: 'receivedQuotesNOffers',
-        component: ReceivedQuotesNOffersComponent
+        path: 'procurement',
+        component: ProcurementsComponent
       },
       {
         path: 'sites',

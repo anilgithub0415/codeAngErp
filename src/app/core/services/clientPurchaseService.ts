@@ -54,7 +54,19 @@ export class clientPurchaseService {
     );
   }
 
-  // 🔄 inside your client-purchase.service.ts
+  
+    /**
+   * Deletes a draft or cancels an active purchase order via DELETE resource id path binding.
+   */
+  deletePurchaseOrder(id: number): Observable<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }> {
+    const url = `${this.apiUrl}/${id}`;
+    console.log(`Sending delete/cancel request for purchase order at ${url}`);
+    
+    return this.http.delete<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }>(url).pipe(
+      tap(response => console.log('Delete/Cancel purchase order response:', response)),
+      catchError(this.handleError)
+    );
+  }
 
 /**
  * Executes the formal approval workflow for a Client PO, tracking item variations
@@ -73,20 +85,51 @@ approveClientPurchaseOrder(
   );
 }
 
-getClientPOs(ptenantId: number, psiteId: number, pclientId?: number): Observable<clientPurchase[]> {
-  let url = `${this.apiUrl}/?activeTenantId=${ptenantId}&siteId=${psiteId}`;
+/** 
+
+* Executes the formal dispatch workflow for a Client PO, advancing state from APPROVED to SENT
+* @param id The primary database identifier sequence of the target PO
+* @param sendData Contains the explicit action string and the updated array items
+*/
+sendClientPurchaseOrder(
+id: number,
+sendData: { action: 'SENT'; items?: any[] }
+): Observable<clientPurchase> {
+console.log('Executing dedicated PO dispatch for ID ${id} at ${this.apiUrl}/${id}/send, sendData');
+
+return this.http.post<clientPurchase> (`${this.apiUrl}/${id}/send`, sendData).pipe(
+tap(updatedOrder => console.log('Successfully completed dispatch workflow execution:', updatedOrder)),
+catchError(this.handleError)
+);
+}
+
+getClientPOs(
+  ptenantId: number, 
+  psiteId: number, 
+  pclientId?: number,
+  pStatuses?: string[]
+): Observable<clientPurchase[]> {
+  // 1. Build base path first before query parameters
+  let url = `${this.apiUrl}?activeTenantId=${ptenantId}&siteId=${psiteId}`;
   
-  // Append clientId parameter to the stream request if present
-  if (pclientId) {
+  // 2. Safely append clientId parameter if it's truthy and greater than zero
+  if (pclientId && pclientId > 0) {
     url += `&clientId=${pclientId}`;
   }
-  console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa url:',url);
+
+  // 3. Append array of statuses as a comma-separated query string
+  if (pStatuses && pStatuses.length > 0) {
+    url += `&status=${pStatuses.join(',')}`;
+  }
   
-  return this.http.get<clientPurchase[]>(url+'/clientPOs');
+  console.log('Generated Client PO Request URL:', url);
+  
+  return this.http.get<clientPurchase[]>(url);
 }
 
 
-getClientRFQs(ptenantId: number, psiteId: number, pclientId?: number): Observable<clientRFQ[]> {
+
+getClientRFQs_notinuse(ptenantId: number, psiteId: number, pclientId?: number): Observable<clientRFQ[]> {
   let url = `${this.apiUrl}/?activeTenantId=${ptenantId}&siteId=${psiteId}`;
   
   // Append clientId parameter to the stream request if present

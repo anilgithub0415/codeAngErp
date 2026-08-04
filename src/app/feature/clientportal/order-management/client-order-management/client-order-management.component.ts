@@ -3,10 +3,11 @@ import { CardModule } from 'primeng/card';
 import { ClientOrderDashboardService } from '../../../../core/services/client-order-dashboard.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MessageService } from 'primeng/api';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-client-order-management',
-  imports: [CardModule], providers:[MessageService],
+  imports: [CardModule, RouterLink], providers:[MessageService],
   templateUrl: './client-order-management.component.html',
   styleUrl: './client-order-management.component.scss'
 })
@@ -22,7 +23,9 @@ purchaseCount = 4; // Backordered replenishment batches
   private cd=inject(ChangeDetectorRef)
 
     private authService=inject(AuthService);
+ constructor(private router: Router, private route: ActivatedRoute) {}
 
+  
   ngOnInit(){
          this.tenantId=this.authService.getTenantId()!;
          console.log('ngOnInit of clientorder');
@@ -38,6 +41,13 @@ purchaseCount = 4; // Backordered replenishment batches
       error: (err:any) => this.showToast('error', 'Error', err.message || 'Failed to load PO lines.')
     }); 
 }
+
+navigateToTab(tabId: string) {
+    this.router.navigate(['../procurement'], { 
+      relativeTo: this.route,
+      queryParams: { tab: tabId } // Adds ?tab=InternalPOs to URL
+    });
+  }
 
   private showToast(severity: string, summary: string, detail: string): void {
     this.messageService.add({ severity, summary, detail });

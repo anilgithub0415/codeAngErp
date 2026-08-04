@@ -13,7 +13,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 
 // Internal Services and TypeORM State Enums
-import { QuotationStatus } from '../../Kanban/quotation-kanban-card/quotation-kanban-card.component';
+import { QuotationStatus } from '../../../../core/models/quotation.model';
 import { QuotationService } from '../../../../core/services/quotation.service';
 import { AuthService } from '../../../../core/services/auth.service';
 

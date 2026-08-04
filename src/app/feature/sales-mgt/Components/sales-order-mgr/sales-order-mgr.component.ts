@@ -24,7 +24,7 @@ import { bindDatabaseHooks, chainOnInitHook, hydrateFormlyConfig, injectSalesUom
 import { typeaheadSearchExtension } from '../../../../shared/components/formlyfields/typeaheadSearchExtension';
 import { FilterControlComponent } from '../../../../shared/components/filter-control/filter-control.component';
 import { ButtonTabsComponent, TabDirective } from '../../../../shared/components/button-tabs/button-tabs.component';
-import { ClientpurchaselistComponent } from '../../../clientportal/clientpurchaselist/clientpurchaselist.component';
+// import { ClientpurchaselistComponent } from '../../../clientportal/clientpurchaselist/clientpurchaselist.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
 
 import { SalesOrderGridComponent } from '../sales-order-grid/sales-order-grid.component';
@@ -38,7 +38,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   imports: [
     CommonModule, ReactiveFormsModule, FormsModule, ToastModule, ConfirmDialogModule,ButtonModule,
     FilterControlComponent, ButtonTabsComponent, TabDirective, NgxPermissionsModule,
-    ClientpurchaselistComponent, SalesOrderGridComponent, SalesOrderFormComponent
+     SalesOrderGridComponent, SalesOrderFormComponent
+     //ClientpurchaselistComponent
   ],
   templateUrl: './sales-order-mgr.component.html',
   styleUrl: './sales-order-mgr.component.scss',
@@ -104,39 +105,6 @@ export class SalesOrderMgrComponent implements OnInit {
   }
 
   gerForm_SO() {
-    // this.raw = [
-    //   { "key": "id", "type": "input", "hide": true },
-    //   { "key": "createdByUserId", "type": "input", "hide": true },
-    //   { "key": "tenantId", "type": "input", "hide": true },
-    //   {
-    //     "wrappers": ["panel"],
-    //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
-    //     "fieldGroup": [
-    //       { "type": "input", "key": "soNumber", "className": "col-span-12 md:col-span-4", "props": { "label": "Sales Order#", "readonly": true, "placeholder": "SO#" } },
-    //       { "type": "primeng-dropdown", "key": "clientId", "className": "col-span-12 md:col-span-10", "props": { "label": "Lead / Customer", "valueProp": "value", "styleClass": "w-full", "labelProp": "label", "optionLabel": "label", "optionValue": "value", "placeholder": "Select Customer", "lookupKey": "customerTypes", "required": true, "filter": true } },
-    //       { "type": "input", "key": "status", "className": "col-span-12 md:col-span-4", "props": { "label": "Status", "placeholder": "Status", "required": true } }
-    //     ]
-    //   },
-    //   {
-    //     "key": "items",
-    //     "type": "p-repeatsectionformly",
-    //     "wrappers": ["panel"],
-    //     "defaultValue": [],
-    //     "props": { "label": "", "addText": "Add Line Item", "rowDefaults": { "quantity": "1" } },
-    //     "fieldArray": {
-    //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-    //       "fieldGroup": [
-    //         { "key": "id", "type": "input", "hide": true },
-    //         { "type": "primeng-dropdown", "key": "productId", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select Item", "lookupKey": "productTypes", "required": true, "filter": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Item' : ''" }, "hooks": { "onInit": "onProductDropdownChange" } },
-    //         { "type": "input", "key": "quantity", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Qty", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Quantity' : ''" } },
-    //         { "type": "primeng-dropdown", "key": "salesUom", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select UOM", "filter": true, "required": true, "options": [] }, "expressions": { "props.label": "field.parent.index === 0 ? 'Sales Unit' : ''" } },
-    //         { "type": "input", "key": "finalPrice", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Price", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Final Price' : ''" } }
-    //       ]
-    //     }
-    //   },
-    //   { "type": "button", "className": "col-span-24 md:col-span-4 mt-4", "props": { "text": "Save Sales Order", "type": "submit", "styleClass": "p-button-success" } }
-    // ];
-
 
     this.formService.getForm(this.tenantId!, 'sales_form').subscribe(aform => {
       this.aForm = aform; 
@@ -308,6 +276,40 @@ async handleApprove(soId: number): Promise<void> {
       }
     });
   } 
+
+  
+  onDeleteRequested(so: any) { console.log('trying to deelete SO.........',so.id);
+  
+    this.confirmationService.confirm({
+      message: `Are you sure you want to permanently delete "${so.id}"?`,
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.salesService.deleteSalesOrder(so.id).subscribe({
+          next: () => {
+            this.SOs = this.SOs!.filter(s => s.id !== so.id);
+            this.visibleDataArray = this.visibleDataArray.filter(p => p.id !== so.id);
+            
+            this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Sales Order successfully removed.' });
+            this.cd.detectChanges();
+          },
+          error: (err:any) => {
+            if (err.status === 409 || err.message?.includes('DB_DEPENDENCY_RESTRICTION_ERROR')) {
+              const warningMessage = err.error?.message || 'Cannot delete. Related records exist.';
+              this.messageService.add({ severity: 'warn', summary: 'Deletion Blocked', detail: warningMessage, life: 6000 });
+            } else {
+              this.messageService.add({ severity: 'error', summary: 'System Error', detail: 'Database engine transmission error.' });
+            }
+          }
+        });
+      }
+    });
+  }
+
+
+}
+
+
     
   // bindDatabaseHooks(fields: FormlyFieldConfig[]) {
   //   if (!fields) return;
@@ -356,36 +358,35 @@ async handleApprove(soId: number): Promise<void> {
   // }
 
 
-
-  
-  onDeleteRequested(so: any) { console.log('trying to deelete SO.........',so.id);
-  
-    this.confirmationService.confirm({
-      message: `Are you sure you want to permanently delete "${so.id}"?`,
-      header: 'Delete Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.salesService.deleteSalesOrder(so.id).subscribe({
-          next: () => {
-            this.SOs = this.SOs!.filter(s => s.id !== so.id);
-            this.visibleDataArray = this.visibleDataArray.filter(p => p.id !== so.id);
-            
-            this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Sales Order successfully removed.' });
-            this.cd.detectChanges();
-          },
-          error: (err:any) => {
-            if (err.status === 409 || err.message?.includes('DB_DEPENDENCY_RESTRICTION_ERROR')) {
-              const warningMessage = err.error?.message || 'Cannot delete. Related records exist.';
-              this.messageService.add({ severity: 'warn', summary: 'Deletion Blocked', detail: warningMessage, life: 6000 });
-            } else {
-              this.messageService.add({ severity: 'error', summary: 'System Error', detail: 'Database engine transmission error.' });
-            }
-          }
-        });
-      }
-    });
-  }
-
-
-}
-
+    // this.raw = [
+    //   { "key": "id", "type": "input", "hide": true },
+    //   { "key": "createdByUserId", "type": "input", "hide": true },
+    //   { "key": "tenantId", "type": "input", "hide": true },
+    //   {
+    //     "wrappers": ["panel"],
+    //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+    //     "fieldGroup": [
+    //       { "type": "input", "key": "soNumber", "className": "col-span-12 md:col-span-4", "props": { "label": "Sales Order#", "readonly": true, "placeholder": "SO#" } },
+    //       { "type": "primeng-dropdown", "key": "clientId", "className": "col-span-12 md:col-span-10", "props": { "label": "Lead / Customer", "valueProp": "value", "styleClass": "w-full", "labelProp": "label", "optionLabel": "label", "optionValue": "value", "placeholder": "Select Customer", "lookupKey": "customerTypes", "required": true, "filter": true } },
+    //       { "type": "input", "key": "status", "className": "col-span-12 md:col-span-4", "props": { "label": "Status", "placeholder": "Status", "required": true } }
+    //     ]
+    //   },
+    //   {
+    //     "key": "items",
+    //     "type": "p-repeatsectionformly",
+    //     "wrappers": ["panel"],
+    //     "defaultValue": [],
+    //     "props": { "label": "", "addText": "Add Line Item", "rowDefaults": { "quantity": "1" } },
+    //     "fieldArray": {
+    //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+    //       "fieldGroup": [
+    //         { "key": "id", "type": "input", "hide": true },
+    //         { "type": "primeng-dropdown", "key": "productId", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select Item", "lookupKey": "productTypes", "required": true, "filter": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Item' : ''" }, "hooks": { "onInit": "onProductDropdownChange" } },
+    //         { "type": "input", "key": "quantity", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Qty", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Quantity' : ''" } },
+    //         { "type": "primeng-dropdown", "key": "salesUom", "className": "col-span-24 md:col-span-6", "props": { "optionLabel": "label", "optionValue": "value", "placeholder": "Select UOM", "filter": true, "required": true, "options": [] }, "expressions": { "props.label": "field.parent.index === 0 ? 'Sales Unit' : ''" } },
+    //         { "type": "input", "key": "finalPrice", "className": "col-span-24 md:col-span-3", "props": { "type": "number", "placeholder": "Price", "required": true }, "expressions": { "props.label": "field.parent.index === 0 ? 'Final Price' : ''" } }
+    //       ]
+    //     }
+    //   },
+    //   { "type": "button", "className": "col-span-24 md:col-span-4 mt-4", "props": { "text": "Save Sales Order", "type": "submit", "styleClass": "p-button-success" } }
+    // ];

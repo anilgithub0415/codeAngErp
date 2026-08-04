@@ -1,0 +1,27 @@
+<p>sales-dashboard works!</p>
+
+  <app-button-tabs [options]="myTabConfig" [activeTabId]="activeTab">
+  
+    <ng-template appTab="Sales">
+        <app-salesorder-mgr></app-salesorder-mgr>
+    </ng-template> 
+    
+    <ng-template appTab="received_clientRFQs">
+      <app-client-po-mgr
+           [isWholesalerView]="true" 
+           [allowedStatuses]="['SENT']"
+           ></app-client-po-mgr>
+    </ng-template> 
+
+
+    <ng-template appTab="clientPOs">
+      <app-client-po-mgr
+           [isWholesalerView]="true" 
+           [allowedStatuses]="['PENDING_APPROVAL']"
+           ></app-client-po-mgr>
+    </ng-template> 
+    
+   
+   
+
+</app-button-tabs>
