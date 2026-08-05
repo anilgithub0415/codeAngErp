@@ -81,6 +81,21 @@
       </span>
     </ng-container>
 
+    <!--*ngxPermissionsOnly="['SalesOrder.Create']"-->
+    <ng-container >
+
+      <span *ngIf="model?.status === 'SENT' && currOpMode === 'UPDATE'">
+
+          <p-button
+              label="Convert to Sales"
+              icon="pi pi-shopping-cart"
+              styleClass="p-button-warning mr-2"
+              (onClick)="convertToSalesOrder()">
+          </p-button>
+  </span>
+    
+
+    </ng-container>
 
     <ng-container *ngxPermissionsOnly="['ClientPO.Reject']">
       <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 

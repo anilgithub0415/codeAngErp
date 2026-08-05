@@ -1,0 +1,19 @@
+<p>info-rfq works!</p>
+    
+Client RFQ when displayed from wholesalers point of view, only PENDING_APPROVAL RFQs are displayed.
+        To filter the RFQs while displaying from wholesalers point of view (to encourage sale) a Input() variable isWholesalerView is used
+        By passing input params like: <br/><br/>
+        app-client-rfq <br/>
+           [isWholesalerView]="true" 
+           
+           [allowedStatuses]="['PENDING_APPROVAL']"> <br/>
+       app-client-rfq
+
+       *Basically a RFQ is converted to Quotation 
+       and
+       clientPO is converted to Salesorder
+
+       *While converting RFQ to Quotation approach used is very diffrent from approach used for converting clientPO to SalesOrder 
+
+
+

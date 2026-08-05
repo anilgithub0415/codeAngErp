@@ -15,7 +15,8 @@ import { clientRFQ } from '../../../../core/models/clientRFQ.model';
 })
 export class ClientRFQGridComponent {
   @Input() clientRFQs: clientRFQ[] | undefined = [];
-  
+  @Input() isWholesalerView!:boolean; //*ngIf="isWholesalerView"
+
   @Output() addRequested = new EventEmitter<void>();
   @Output() editRequested = new EventEmitter<any>();
   @Output() deleteRequested = new EventEmitter<any>();

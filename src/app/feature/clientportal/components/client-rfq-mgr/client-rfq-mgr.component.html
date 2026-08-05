@@ -8,6 +8,7 @@
   <!-- Grid View Mode Display -->
   <app-client-rfq-grid 
     *ngIf="currOpMode === 'VIEW'"
+    [isWholesalerView]="false"
     [clientRFQs]="clientRFQs"
     (addRequested)="Add()"
     (editRequested)="onEditClick($event)"

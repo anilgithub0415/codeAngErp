@@ -1,5 +1,5 @@
 
-import { Component, OnInit, inject, ChangeDetectorRef, Input } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -21,7 +21,10 @@ import { ClientPOFormComponent } from '../client-po-form/client-po-form.componen
 })
 export class ClientPOMgrComponent implements OnInit {
    @Input() isWholesalerView: boolean = false;
+   @Input() includeConverted = false; //for hiding already converted clientPOs
   @Input() allowedStatuses: string[] = []; 
+  @Output() convertRequested = new EventEmitter<clientPurchase>();
+  
   siteId!: number;
   clientId!: number;
   tenantId!: number;
@@ -45,10 +48,11 @@ export class ClientPOMgrComponent implements OnInit {
     this.getPOList();
   }
 
+
   getPOList() {
 
     const statusFilter = this.isWholesalerView ? this.allowedStatuses : [];
-    this.clientPurchaseService.getClientPOs(this.tenantId, this.siteId,0,statusFilter).subscribe(clientpos => {
+    this.clientPurchaseService.getClientPOs(this.tenantId, this.siteId,0,statusFilter,this.includeConverted).subscribe(clientpos => {
       this.clientPOs = clientpos;
       this.cd.detectChanges();
     });
@@ -194,6 +198,41 @@ this.messageService.add({ severity: 'error', summary: 'Dispatch Blocked', detail
 }
 });
 }
+
+onConvertToSalesRequested(poId: number) {
+
+    this.clientPurchaseService
+        .convertClientPOToSalesOrder(poId)
+        .subscribe({
+
+            next: (result: any) => {
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Sales Order created successfully.'
+                });
+
+                this.finalizeSaveSuccess();
+
+            },
+
+            error: (err: any) => {
+console.log( err);
+
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Conversion Failed',
+                    detail: err.error?.message || err.message
+                });
+
+            }
+
+        });
+
+}
+
+
   onRejectWorkflowRequested(poId: number) {
     const payload = {
       status: 'REJECTED',

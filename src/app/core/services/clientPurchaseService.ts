@@ -103,11 +103,18 @@ catchError(this.handleError)
 );
 }
 
+convertClientPOToSalesOrder(poId: number) {
+  return this.http.post(
+    `${this.apiUrl}/${poId}/convert-to-sales`,
+    {}
+  );
+}
+
 getClientPOs(
   ptenantId: number, 
   psiteId: number, 
   pclientId?: number,
-  pStatuses?: string[]
+  pStatuses?: string[],includeConverted?:boolean,
 ): Observable<clientPurchase[]> {
   // 1. Build base path first before query parameters
   let url = `${this.apiUrl}?activeTenantId=${ptenantId}&siteId=${psiteId}`;
@@ -121,8 +128,10 @@ getClientPOs(
   if (pStatuses && pStatuses.length > 0) {
     url += `&status=${pStatuses.join(',')}`;
   }
-  
+  url += `&includeConverted=${includeConverted}`;
   console.log('Generated Client PO Request URL:', url);
+  
+  console.log('url at front......',url);
   
   return this.http.get<clientPurchase[]>(url);
 }

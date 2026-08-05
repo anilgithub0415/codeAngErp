@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ButtonTabsComponent,TabDirective } from '../../../shared/components/button-tabs/button-tabs.component';
 import { ActivatedRoute } from '@angular/router';
+import { InfoRFQComponent } from './info-rfq/info-rfq.component';
+import { InfoUIComponent } from './info-ui/info-ui.component';
 
 
 @Component({
   selector: 'app-info-junction',
-  imports: [ButtonTabsComponent,TabDirective],
+  imports: [ButtonTabsComponent,TabDirective, InfoRFQComponent, InfoUIComponent],
   templateUrl: './info-junction.component.html',
   styleUrl: './info-junction.component.scss'
 })
@@ -19,6 +21,7 @@ activeTab: string = 'RFQ'; // 2. Create a property for the active tab (default t
   ngOnInit(){
      this.myTabConfig = [
     { label: 'RFQ', id: 'RFQ' },  
+        { label: 'UI', id: 'UI' },  
       { label: 'tab2', id: 'tab2'}
     
     

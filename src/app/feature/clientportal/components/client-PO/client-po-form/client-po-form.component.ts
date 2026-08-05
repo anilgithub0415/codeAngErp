@@ -37,6 +37,7 @@ export class ClientPOFormComponent implements OnInit {
 
   @Output() onReject = new EventEmitter<number>();
   @Output() onCancel = new EventEmitter<void>();
+@Output() onConvertToSales = new EventEmitter<number>();
 
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [];
@@ -151,6 +152,11 @@ export class ClientPOFormComponent implements OnInit {
     const poId = this.model.id || this.model.purchaseOrderId;
     this.onSend.emit(poId);
   }
+  
+  convertToSalesOrder() {
+          const poId = this.model.id || this.model.purchaseOrderId;
+          this.onConvertToSales.emit(poId);
+    }
 
   rejectPO() {
     const poId = this.model.id || this.model.purchaseOrderId;

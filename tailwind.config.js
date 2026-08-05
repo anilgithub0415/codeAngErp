@@ -13,12 +13,25 @@ export default {
             xl: '1200px',
             '2xl': '1920px'
         },
-         extend: {
+        extend: {
             gridTemplateColumns: {
                 '24': 'repeat(24, minmax(0, 1fr))', // Enables grid-cols-24
             },
             gridColumn: {
-                 'span-13': 'span 13 / span 13',
+                // Manually map out ALL 24 column spans so they work perfectly inside grid-cols-24
+                'span-1': 'span 1 / span 1',
+                'span-2': 'span 2 / span 2',
+                'span-3': 'span 3 / span 3',
+                'span-4': 'span 4 / span 4',
+                'span-5': 'span 5 / span 5',
+                'span-6': 'span 6 / span 6',
+                'span-7': 'span 7 / span 7',
+                'span-8': 'span 8 / span 8',
+                'span-9': 'span 9 / span 9',
+                'span-10': 'span 10 / span 10',
+                'span-11': 'span 11 / span 11',
+                'span-12': 'span 12 / span 12',
+                'span-13': 'span 13 / span 13',
                 'span-14': 'span 14 / span 14',
                 'span-15': 'span 15 / span 15',
                 'span-16': 'span 16 / span 16',

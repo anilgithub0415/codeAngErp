@@ -14,6 +14,7 @@ import { NgxPermissionsModule, NgxPermissionsService } from 'ngx-permissions';
   styleUrl: './sales-order-form.component.scss'
 })
 export class SalesOrderFormComponent {
+
   @Input() form!: FormGroup;
   @Input() fields: FormlyFieldConfig[] = [];
   @Input() model: any;
@@ -27,7 +28,11 @@ export class SalesOrderFormComponent {
   @Output() clear = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 public permissionsService=inject(NgxPermissionsService)
+formState:any;
 
+ngOnInit(){
+  
+}
 
 submitToApprovalPipeline(): void {
   if (this.form.valid) {

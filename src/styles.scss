@@ -94,12 +94,73 @@ formly-field-input,
 //for p-card
 /* Inside global styles.scss */
 /* Inside global styles.scss */
+/*
 @layer app-overrides {
   p-card .p-card {
     background: #ffffff; padding:0rem; margin: 0rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 }
+  */
+  @layer app-overrides {
+
+      /* ⚡ REDUCE GAP BETWEEN TEXT AND BORDER INSIDE INPUTS & DROPDOWNS ⚡ */
+  /* ⚡ TARGET ALL INPUT HOOKS AND FIELDS EVENLY ⚡ */
+  .p-fluid .p-inputtext,
+  .p-fluid input,                               /* ✨ Target raw HTML inputs (Qty, Price) */
+  .p-fluid formly-field-input input,            /* ✨ Direct Formly input pathing */
+  .p-fluid p-select .p-select-label,
+  .p-fluid p-multiSelect .p-multiselect-label,
+  .p-fluid p-dropdown .p-dropdown-label,       
+  .p-fluid .p-dropdown .p-dropdown-label {      
+    
+    padding: 4px 6px !important;                /* Tight structural padding */
+    font-size: 13px !important; 
+    
+    display: inline-flex !important;
+    align-items: center !important;
+    
+    /* Overrides theme defaults preventing shrink */
+    min-height: unset !important;
+    height: 30px !important;                    /* Explicit uniform height anchor */
+    box-sizing: border-box !important;
+  }
+
+  /* ⚡ TIGHTENS THE DROPDOWN ARROW BOX INSIDE THE ADDENDUM ROWS ⚡ */
+  .p-fluid .p-select .p-select-dropdown,
+  .p-fluid p-multiSelect .p-multiselect-dropdown,
+  .p-fluid p-dropdown .p-dropdown-trigger,      /* ✨ Fixes Addendum Trigger Tag */
+  .p-fluid .p-dropdown .p-dropdown-trigger {     /* ✨ Fixes Addendum Trigger Class */
+    width: 2rem !important;
+    height: auto !important;
+  }
+
+  /* 1. Outer Card Box styles */
+  p-card .p-card {
+    background: #ffffff; 
+    margin: 0rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 2. ⚡ TARGET THE INNER CONTAINERS TO STRIP INTERNAL PADDING ⚡ */
+  p-card .p-card .p-card-body {
+    padding: 6px !important; /* Forces a super-tight 6px container gap on mobile layout viewports */
+  }
+
+  /* 3. Strip extra structural margins from nested sub-content elements */
+  p-card .p-card .p-card-content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 4. Restore normal layout breathing room when items are viewed on a standard desktop monitor */
+  @media (min-width: 768px) {
+    p-card .p-card .p-card-body {
+      padding: 16px !important; /* Expands dynamically to 16px padding on tablet and desktop screens */
+    }
+  }
+}
+
 .hidden-form {
   display: none !important;
 }

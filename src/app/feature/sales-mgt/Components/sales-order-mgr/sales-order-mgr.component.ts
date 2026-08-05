@@ -1,7 +1,7 @@
 
-import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, HostListener, inject, OnInit } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormlyConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { FormlyConfig, FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { CommonModule } from '@angular/common';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -30,6 +30,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { SalesOrderGridComponent } from '../sales-order-grid/sales-order-grid.component';
 import { SalesOrderFormComponent } from '../sales-order-form/sales-order-form.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { clientPurchase } from '../../../../core/models/clientPurchase.model';
 
 @Component({
   selector: 'app-salesorder-mgr',
@@ -83,7 +84,24 @@ export class SalesOrderMgrComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private cd = inject(ChangeDetectorRef);
 
+
+  // 1. Establish the FormState global reference context
+  options: FormlyFormOptions = {
+    formState: {
+      isMobile: window.innerWidth < 768
+    }
+  };
+@HostListener('window:resize', ['$event'])
+onResize() {
+  // Bypasses the event target completely to prevent null issues
+  this.options.formState.isMobile = true;//window.innerWidth < 768;
+}
+
+  
+
   ngOnInit(): void {
+    
+    
     this.tenantId = this.authServ.getTenantId()!;
     this.form.valueChanges?.subscribe(() => this.computeTotals());
     
@@ -98,6 +116,11 @@ export class SalesOrderMgrComponent implements OnInit {
     ];
 
     this.gerForm_SO();
+  }
+
+  beginConversion(po: clientPurchase){
+
+    
   }
 
   onDataFiltered(filteredResults: any[]) { 
