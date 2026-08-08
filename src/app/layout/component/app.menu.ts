@@ -175,56 +175,17 @@ export class AppMenu {
                         label: 'Global Mgt',
                         icon: 'pi pi-fw pi-globe',
                         items: [
+                            
                             {
-                                label: 'HSN',
-                                icon: 'pi pi-fw pi-code',
-                                routerLink: ['/app/globalmgt']
-                            },
-                           {
-                                label: 'tenant',
-                                icon: 'pi pi-fw pi-user',
-                                routerLink: ['/app/globalmgt/tenant']
-                            },
-                           {
-                                label: 'dbStatus',
-                                icon: 'pi pi-fw pi-id-card',
-                                routerLink: ['/app/globalmgt/dbStatus']
-                            }, {
-                                label: 'SubscriptionTypes',
-                                icon: 'pi pi-fw pi-id-card',
-                                routerLink: ['/app/globalmgt/subscription']
-                            },
-                            {
-                                label: 'TenantTypes',
-                                icon: 'pi pi-fw pi-shield',
-                                routerLink: ['/app/globalmgt/TenantTypes']
-                            }, {
                                 label: 'KanbanBoard',
                                 icon: 'pi pi-fw pi-shield',
                                 routerLink: ['/app/globalmgt/KanbanBoard']
                             },
-                            {
-                                label: 'pendingworks',
+                           {
+                                label: 'Dashboard',
                                 icon: 'pi pi-fw pi-heart-fill',
-                                routerLink: ['/app/globalmgt/pendingworks']
-                            },   {
-                                label: 'infojunction',
-                                icon: 'pi pi-fw pi-heart-fill',
-                                routerLink: ['/app/globalmgt/infojunction']
-                            },   {
-                                label: 'Diagnosis',
-                                icon: 'pi pi-fw pi-heart-fill',
-                                routerLink: ['/app/globalmgt/diagnosis']
-                            },{
-                                label: 'SucuritySettings',
-                                icon: 'pi pi-fw pi-heart-fill',
-                                routerLink: ['/app/globalmgt/SucuritySettings']
-                            },{
-                                label: 'migrateDB',
-                                icon: 'pi pi-fw pi-heart-fill',
-                                routerLink: ['/app/globalmgt/migrateDB']
-                            }
-                                                 
+                                routerLink: ['/app/globalmgt/Dashboard']
+                            }                      
                         ] 
                     },
                     

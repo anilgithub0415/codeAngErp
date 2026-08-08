@@ -5,7 +5,7 @@ import { ToastModule } from 'primeng/toast';
 import { ClientRequiremnetComponent } from '../../../customer-mgt/Components/profile-tabs/ClientRequirement/client-requiremnet/client-requiremnet.component';
 import { InteractionLogComponent } from '../../../customer-mgt/Components/profile-tabs/interaction-log/interaction-log.component';
 import { QuotationMgrComponent } from '../../../quotation-mgt/quotation-mgr/quotation-mgr.component';
-import { TenantStrategiesComponent } from '../../tenant-strategies/tenant-strategies.component';
+import { TenantStrategiesComponent } from '../../components/tenant-strategies/tenant-strategies.component';
 import { PermissionJunctionComponent } from '../../permission-junction/permission-junction.component';
 import { FormJSONsComponent } from '../../form-jsons/form-jsons.component';
 import { TenantService } from '../../../../core/services/tenant.service';

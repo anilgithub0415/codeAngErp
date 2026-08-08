@@ -15,12 +15,12 @@ import { RippleModule } from "primeng/ripple";
 import { TableModule } from "primeng/table";
 import { ToastModule } from "primeng/toast";
 import { MessageService } from "primeng/api";
-import { FormOpMode } from "../../../shared/enums/FormOpMode.enum";
-import { FormService } from "../../../core/services/form.service";
-import { SecuritySettingsService } from "../../../core/services/security-settings.service";
-import { AuthService } from "../../../core/services/auth.service";
-import { FormlyCardWrapperComponent } from "../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component";
-import { hydrateFormlyConfig } from "../../../shared/utils/hydrationOfFormlyJson";
+import { FormOpMode } from "../../../../shared/enums/FormOpMode.enum";
+import { FormService } from "../../../../core/services/form.service";
+import { SecuritySettingsService } from "../../../../core/services/security-settings.service";
+import { AuthService } from "../../../../core/services/auth.service";
+import { FormlyCardWrapperComponent } from "../../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component";
+import { hydrateFormlyConfig } from "../../../../shared/utils/hydrationOfFormlyJson";
 import { firstValueFrom, tap } from "rxjs";
 
 @Component({

@@ -1,49 +1,49 @@
 import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
-import { FormService } from '../../../core/services/form.service';
-import { HSNTaxRuleService} from '../../../core/services/hsntaxrule.service'
+import { FormService } from '../../../../core/services/form.service';
+import { HSNTaxRuleService} from '../../../../core/services/hsntaxrule.service'
 import { CommonModule } from '@angular/common';
 import { DefaultValueAccessor, FormArray, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../../core/services/auth.service';
-import { LookupService } from '../../../core/services/lookup.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { LookupService } from '../../../../core/services/lookup.service';
 import { FormlyConfig, FormlyField, FormlyFieldConfig, FormlyModule, provideFormlyCore,  } from '@ngx-formly/core';
 import { ToastModule } from 'primeng/toast';
 import { firstValueFrom, Observable, take, tap } from 'rxjs';
 
 import { SelectModule } from 'primeng/select';
 
-import { FormlyFieldPrimengDropdownComponent } from '../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
-import { RepeatFormlySectionComponent } from '../../../shared/components/formlyfields/repeat-formly-section/repeat-formly-section.component';
+import { FormlyFieldPrimengDropdownComponent } from '../../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
+import { RepeatFormlySectionComponent } from '../../../../shared/components/formlyfields/repeat-formly-section/repeat-formly-section.component';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { FormlyPrimeNGModule, withFormlyPrimeNG } from '@ngx-formly/primeng';
 import { PanelModule } from 'primeng/panel';
 import { FormlyInputModule } from '@ngx-formly/primeng/input';
-import { FormlyCardWrapperComponent } from '../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
-import { RepeatsectionformlyComponent } from '../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
-import { FormlyCustomRowBridgeComponent } from '../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
-import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfields/formly-field-button/formly-field-button.component';
+import { FormlyCardWrapperComponent } from '../../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
+import { RepeatsectionformlyComponent } from '../../../../shared/components/formlyfields/repeatsectionformly/repeatsectionformly.component';
+import { FormlyCustomRowBridgeComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge/formly-custom-row-bridge.component';
+import { FormlyFieldButtonComponent } from '../../../../shared/components/formlyfields/formly-field-button/formly-field-button.component';
 
 
 
 
-import { FormOpMode } from '../../../shared/enums/FormOpMode.enum';
+import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
-import { RepeatsectionformlyNewComponent } from '../../../shared/components/formlyfields/repeatsectionformly-new/repeatsectionformly-new.component';
+import { RepeatsectionformlyNewComponent } from '../../../../shared/components/formlyfields/repeatsectionformly-new/repeatsectionformly-new.component';
 
-import { FormlyCustomRowBridgeNewComponent } from '../../../shared/components/formlyfields/formly-custom-row-bridge-new/formly-custom-row-bridge-new.component';
-import { organisationRowTemplate } from '../../../shared/components/formlyfields/organisation-row/organisation-row.template';
-import { ClientStatus } from '../../../shared/enums/ClientStatus.enum';
-import { FormlyWrapperTypeaheadComponent } from '../../../shared/components/formlyfields/formly-wrapper-typeahead/formly-wrapper-typeahead.component';
+import { FormlyCustomRowBridgeNewComponent } from '../../../../shared/components/formlyfields/formly-custom-row-bridge-new/formly-custom-row-bridge-new.component';
+import { organisationRowTemplate } from '../../../../shared/components/formlyfields/organisation-row/organisation-row.template';
+import { ClientStatus } from '../../../../shared/enums/ClientStatus.enum';
+import { FormlyWrapperTypeaheadComponent } from '../../../../shared/components/formlyfields/formly-wrapper-typeahead/formly-wrapper-typeahead.component';
 
 
-import { FilterControlComponent } from '../../../shared/components/filter-control/filter-control.component';
-import { applyLocalSearchExtension, hydrateFormlyConfig } from '../../../shared/utils/hydrationOfFormlyJson';
-import { FORMLY_ROW_REGISTRY, PlainFormlyFieldConfig, RegistryFieldConfig } from '../../customer-mgt/formly-registry';
-import { HSNTaxRule } from '../../../core/models/hsntaxrule.model';
+import { FilterControlComponent } from '../../../../shared/components/filter-control/filter-control.component';
+import { applyLocalSearchExtension, hydrateFormlyConfig } from '../../../../shared/utils/hydrationOfFormlyJson';
+import { FORMLY_ROW_REGISTRY, PlainFormlyFieldConfig, RegistryFieldConfig } from '../../../customer-mgt/formly-registry';
+import { HSNTaxRule } from '../../../../core/models/hsntaxrule.model';
 
 @Component({
   selector: 'app-hsntax-rule',

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { DbStatusService } from '../../../core/services/db-status.service';
+import { DbStatusService } from '../../../../core/services/db-status.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 
 @Component({

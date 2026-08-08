@@ -3,7 +3,16 @@
 <!-- src/app/feature/settings/tenant-strategies/tenant-strategies.component.html -->
 <p-toast></p-toast>
 <div class="customer-container p-4" style="display: block; width: 100%;">
+<ng-container>
+  RoundOff_Strategy:
+  NONE, NEAREST_1, NEAREST_0_50, NEAREST_0_05, UP, DOWN, CUSTOM_HOOK
+</ng-container>
 
+<br/>
+<ng-container>
+  Pricing_Strategy:
+  CATEGORY_BASED, PLAIN
+</ng-container>
   <!-- Search Parameter Lookup Filter Component -->
   <app-filter-control 
     [dataSource]="strategies ? strategies : []" 

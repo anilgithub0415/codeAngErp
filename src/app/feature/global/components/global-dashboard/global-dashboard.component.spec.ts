@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TenantStrategyComponent } from './tenant-strategy.component';
+import { GlobalDashboardComponent } from './global-dashboard.component';
 
-describe('TenantStrategyComponent', () => {
-  let component: TenantStrategyComponent;
-  let fixture: ComponentFixture<TenantStrategyComponent>;
+describe('GlobalDashboardComponent', () => {
+  let component: GlobalDashboardComponent;
+  let fixture: ComponentFixture<GlobalDashboardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TenantStrategyComponent]
+      imports: [GlobalDashboardComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TenantStrategyComponent);
+    fixture = TestBed.createComponent(GlobalDashboardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

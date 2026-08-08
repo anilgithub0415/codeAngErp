@@ -12,13 +12,13 @@ import { RippleModule } from "primeng/ripple";
 import { TableModule } from "primeng/table";
 import { ToastModule } from "primeng/toast";
 import { MessageService } from "primeng/api";
-import { FilterControlComponent } from "../../../shared/components/filter-control/filter-control.component";
-import { FormOpMode } from "../../../shared/enums/FormOpMode.enum";
-import { FormService } from "../../../core/services/form.service";
-import { TenantTypeService,TenantType } from "../../../core/services/tenant-type.service";
-import { AuthService } from "../../../core/services/auth.service";
-import { FormlyCardWrapperComponent } from "../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component";
-import { hydrateFormlyConfig } from "../../../shared/utils/hydrationOfFormlyJson";
+import { FilterControlComponent } from "../../../../shared/components/filter-control/filter-control.component";
+import { FormOpMode } from "../../../../shared/enums/FormOpMode.enum";
+import { FormService } from "../../../../core/services/form.service";
+import { TenantTypeService,TenantType } from "../../../../core/services/tenant-type.service";
+import { AuthService } from "../../../../core/services/auth.service";
+import { FormlyCardWrapperComponent } from "../../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component";
+import { hydrateFormlyConfig } from "../../../../shared/utils/hydrationOfFormlyJson";
 import { firstValueFrom, tap } from "rxjs";
 
 @Component({

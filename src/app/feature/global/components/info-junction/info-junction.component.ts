@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ButtonTabsComponent,TabDirective } from '../../../shared/components/button-tabs/button-tabs.component';
+import { ButtonTabsComponent,TabDirective } from '../../../../shared/components/button-tabs/button-tabs.component';
 import { ActivatedRoute } from '@angular/router';
 import { InfoRFQComponent } from './info-rfq/info-rfq.component';
 import { InfoUIComponent } from './info-ui/info-ui.component';
@@ -22,7 +22,7 @@ activeTab: string = 'RFQ'; // 2. Create a property for the active tab (default t
      this.myTabConfig = [
     { label: 'RFQ', id: 'RFQ' },  
         { label: 'UI', id: 'UI' },  
-      { label: 'tab2', id: 'tab2'}
+      { label: 'DeleteRules', id: 'DeleteRules'}
     
     
   ];
