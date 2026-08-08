@@ -9,6 +9,7 @@
     
     <ng-template appTab="received_clientRFQs">
        <app-client-rfq-mgr 
+       [isWholesalerView]="true"
            [isWholesalerView]="true" 
            [allowedStatuses]="['SENT']">
        </app-client-rfq-mgr>

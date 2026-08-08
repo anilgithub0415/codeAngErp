@@ -5,6 +5,7 @@ import { QuotationMgrComponent } from '../../quotation-mgr/quotation-mgr.compone
 import { ClientRFQMgrComponent } from '../../../clientportal/components/client-rfq-mgr/client-rfq-mgr.component';
 import { RfqConversionService } from '../../../../core/services/rfq-conversion.service';
 import { Subscription } from 'rxjs';
+import { DashboardTabService } from '../../../../core/services/dashboard-tab.service';
 
 
 @Component({
@@ -19,19 +20,26 @@ activeTab: string = 'Quotations'; // 2. Create a property for the active tab (de
 private conversionSub!:Subscription;
 
 private conversionService=inject(RfqConversionService)
+private dashboardTabService=inject(DashboardTabService)
 private cd=inject(ChangeDetectorRef)
 
   // 3. Inject ActivatedRoute in the constructor
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(){
+
      this.myTabConfig = [
     { label: 'Quotations', id: 'Quotations' },  
       { label: 'Received Client RFQ', id: 'received_clientRFQs'},
-      { label: 'Approval Pending Client RFQ', id: 'clientRFQs_ApprovalPending'}
-    
-    
-  ];
+      { label: 'Approval Pending Client RFQ', id: 'clientRFQs_ApprovalPending'}   
+     ];
+
+     this.dashboardTabService.activeTab$
+        .subscribe(tab => {
+
+            this.activeTab = tab;
+
+        });
 
    this.conversionSub = this.conversionService.convertRfq$.subscribe(() => {
 console.log('Dashboard caught event! Switching tab now to Quotations.');

@@ -44,3 +44,33 @@ export interface IQuotation {
   updatedAt?: string;
   items: IQuotationItem[];
 }
+
+
+//Convert to Quotation new approach:tag:convertToQuoteNewIdea
+export interface IQuotationWorkflow{
+
+    quotationId:number;
+
+    status:QuotationStatus;
+
+    actions:{
+
+        canEdit:boolean;
+
+        canDelete:boolean;
+
+        canSubmit:boolean;
+
+        canApprove:boolean;
+
+        canCounterOffer:boolean;
+
+        canRevise:boolean;
+
+        canChangeCustomer:boolean;
+
+        nextStates:QuotationStatus[];
+
+    };
+
+}

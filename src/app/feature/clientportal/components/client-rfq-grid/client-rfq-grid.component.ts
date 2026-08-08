@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -13,9 +13,9 @@ import { clientRFQ } from '../../../../core/models/clientRFQ.model';
   templateUrl: './client-rfq-grid.component.html',
   styleUrl: './client-rfq-grid.component.scss'
 })
-export class ClientRFQGridComponent {
+export class ClientRFQGridComponent implements OnInit{
   @Input() clientRFQs: clientRFQ[] | undefined = [];
-  @Input() isWholesalerView!:boolean; //*ngIf="isWholesalerView"
+  @Input() isWholesalerView!:boolean; 
 
   @Output() addRequested = new EventEmitter<void>();
   @Output() editRequested = new EventEmitter<any>();
@@ -24,8 +24,18 @@ export class ClientRFQGridComponent {
 
   expandedRows: { [id: number]: boolean } = {};
 
+  ngOnInit() {
+    console.log("Grid Loaded");
+}
+testClick(rfq:clientRFQ) {
+    alert("Clicked");
+
+    this.convertRequested.emit(rfq);
+}
+
    onConvertClick(rfq: clientRFQ): void {
-    console.log('m in grid emiting convertRequested.........................');
+      alert("onconvert Clicked");
+    console.log('m in grid emiting convertRequested.........................rfq:',rfq);
     
     this.convertRequested.emit(rfq);
   }

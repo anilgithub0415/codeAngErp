@@ -4,14 +4,14 @@ import { CommonModule } from '@angular/common';
 import { FormlyConfig, FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { ButtonModule } from 'primeng/button';
-import { combineLatest, distinctUntilChanged, firstValueFrom, startWith } from 'rxjs';
+import { combineLatest, distinctUntilChanged, firstValueFrom, of, startWith } from 'rxjs';
 
 import { FormOpMode } from '../../../shared/enums/FormOpMode.enum';
 import { QuotationService } from '../../../core/services/quotation.service';
 import { ProductService } from '../../../core/services/product.service'; 
 import { LineDiscountService } from '../../../core/services/line-discount.service'; 
 import { LineDiscount } from '../../../core/models/line-discount.model';
-import { IQuotationItem } from '../../../core/models/quotation.model';
+import { IQuotationItem, IQuotationWorkflow } from '../../../core/models/quotation.model';
 import { FormlyCardWrapperComponent } from '../../../shared/components/formlyfields/formly-card-wrapper/formly-card-wrapper.component';
 import { FormlyFieldPrimengDropdownComponent } from '../../../shared/components/formlyfields/formly-field-primeng-dropdown/formly-field-primeng-dropdown.component';
 import { FormlyFieldPrimengDatepickerComponent } from '../../../shared/components/formlyfields/formly-field-primeng-datepicker/formly-field-primeng-datepicker.component';
@@ -41,6 +41,10 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
   readonly FormOpMode = FormOpMode;
   @Input() tenantId!: number;
   @Input() opMode!: FormOpMode;
+
+  
+    //Convert to Quotation new approach:tag:convertToQuoteNewIdea
+  workflow!:IQuotationWorkflow;
 
   // 🚀 1. REPLACE the plain input with an explicit Property Setter
   private _quotationData: any = null;
@@ -90,35 +94,73 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
   }
 
   // 🚀 3. NEW WORKFLOW ROUTER METHOD: Handles Update vs Create vs RFQ Conversion states safely
-  private processIncomingDataState(): void {
+  private async processIncomingDataState(): Promise<void> {
+console.log('m in processIncomingDataState');
+console.log('qdata:',this.quotationData);
+
+
     if (!this.quotationData) {
-      this.executeFreshCreationSetup();
-      return;
+
+        this.executeFreshCreationSetup();
+
+        return;
     }
 
-    console.log('Formly Form: Intercepted data entry object processing strategy. Mode:', this.opMode);
+    console.log(
+        'Formly Form: Intercepted data entry object processing strategy. Mode:',
+        this.opMode
+    );
 
-    // Context A: Standard Database Record Update Flow
-    if (this.opMode === FormOpMode.Update || this.opMode === FormOpMode.PortalNegotiation) {
-      this.initiateUpdateWorkflow(this.quotationData);
-      return;
+    if (
+        this.opMode === FormOpMode.Update ||
+        this.opMode === FormOpMode.PortalNegotiation
+    ) {
+
+        await this.initiateUpdateWorkflow(this.quotationData);
+
+        await this.loadWorkflow();
+
+        return;
     }
 
-    // Context B: 🚀 THE RFQ CONVERSION FIX (OpMode is 'CREATE' but with embedded input parameters data payload)
     if (this.opMode === FormOpMode.Add) {
-      console.log('Formly Form: Executing RFQ to Quotation Model Mapping Procedure.');
-      
-      this.form.reset();
-      
-      // Assign the mapped structural fields object cleanly directly into formly's observed model tracking reference
-      // Ensure the child array property key matches exactly what your RepeatSection schema expects (e.g., 'items' or 'quotationItems')
-      this.model = { ...this.quotationData }; 
-      
-      // Force change detection engine layout updates
-      this.cd.detectChanges();
-    }
-  }
 
+        console.log(
+            'Formly Form: Executing RFQ to Quotation Model Mapping Procedure.'
+        );
+
+        this.form.reset();
+
+        this.model = {
+            ...this.quotationData
+        };
+
+        this.cd.detectChanges();
+
+        return;
+    }
+
+    return;
+}
+
+  //
+  async loadWorkflow(){
+
+    if(!this.model?.id){
+
+        return;
+
+    }
+
+    this.workflow=
+        await firstValueFrom(
+            this.quotationService.getWorkflow(
+                this.model.id
+            )
+        );
+
+  }
+  
   private executeFreshCreationSetup(): void {
     this.form.reset();
     this.resetModelToDefault();
@@ -458,51 +500,6 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
   bindDatabaseHooks(this.productService,this.tenantId,this.fields)
   }
 
-  // bindDatabaseHooks(fields: FormlyFieldConfig[]) {
-  //   if (!fields) return;
-  //   fields.forEach((field) => {
-  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
-  //       this.bindDatabaseHooks(field.fieldGroup);
-  //     }
-  //     if (field.key === 'items' && field.fieldArray) {
-  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
-  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
-  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
-  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
-  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
-  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
-  //               if (!targetField || !targetField.formControl) return;
-  //               const rootForm = targetField.form?.root;
-  //               const clientIdControl = rootForm?.get('clientId');
-  //               if (!clientIdControl) return;
-
-  //               combineLatest([
-  //                 targetField.formControl.valueChanges.pipe(startWith(targetField.formControl.value)),
-  //                 clientIdControl.valueChanges.pipe(startWith(clientIdControl.value))
-  //               ]).pipe(
-  //                 distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1])
-  //               ).subscribe(async ([prodId, clientId]) => {
-  //                 if (!prodId || !clientId) return;
-  //                 try {
-  //                   const finalPriceData = await this.getProductFinalPrice(prodId, clientId);
-  //                   const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
-  //                   if (finalPriceControl) {
-  //                     finalPriceControl.setValue(
-  //                       finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
-  //                       { emitEvent: true, onlySelf: true }
-  //                     );
-  //                   }
-  //                 } catch (error) {
-  //                   console.error(error);
-  //                 }
-  //               });
-  //             });
-  //           }
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
   private resetModelToDefault(): void {
     this.model = {
       id: 0,
@@ -617,87 +614,6 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
     this.model.totalAmount = Number(grandSum.toFixed(2));
     this.cd.detectChanges();
   }
-  //   private bindDatabasePricingHooks(fields: FormlyFieldConfig[]) {
-  //   if (!fields) return;
-  //   fields.forEach((field) => {
-  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
-  //       this.bindDatabasePricingHooks(field.fieldGroup);
-  //     }
-  //     if (field.key === 'items' && field.fieldArray) {
-  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
-  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
-  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
-  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
-  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
-  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
-  //               if (!targetField || !targetField.formControl) return;
-
-  //               const clientControl = this.form.get('clientId');
-  //               if (!clientControl) return;
-
-  //               // 🌟 FIX: Combine both value change streams so changing EITHER the client OR the product updates the price
-  //               combineLatest([
-  //                 targetField.formControl.valueChanges.pipe(
-  //                   startWith(targetField.formControl.value),
-  //                   distinctUntilChanged()
-  //                 ),
-  //                 clientControl.valueChanges.pipe(
-  //                   startWith(clientControl.value),
-  //                   distinctUntilChanged()
-  //                 )
-  //               ]).subscribe(async ([prodId, activeClientId]) => {
-  //                 console.log('Pricing hook triggered! -> prodId:', prodId, ' and activeClientId:', activeClientId);
-                  
-  //                 if (!prodId || !activeClientId) return;
-                  
-  //                 const parentField = targetField.parent; 
-  //                 const rowGroup = parentField?.formControl as FormGroup;
-
-  //                 // Skip lookup only if we are initializing a completely untouched loaded record
-  //                 if (this.opMode === FormOpMode.Update && rowGroup && rowGroup.get('price')?.value > 0 && parentField!.model && parentField!.model.prodName && !targetField.formControl?.dirty && !clientControl.dirty) {
-  //                   this.calculateSingleLineAmount(parentField!.model);
-  //                   return;
-  //                 }
-                  
-  //                 try {
-  //                   const productMaster = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
-  //                   const finalPriceData = await this.getProductFinalPrice(prodId, Number(activeClientId));
-  //                   console.log('finalPriceData matched from selection:', finalPriceData);
-                    
-  //                   const extractedName = productMaster?.prodName || 'Product #' + prodId;
-  //                   const extractedSku = productMaster?.sku || '';
-  //                   const resolvedRate = finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData;
-
-  //                   if (parentField && parentField.model && rowGroup) {
-  //                     parentField.model.productId = prodId;
-  //                     parentField.model.prodName = extractedName;
-  //                     parentField.model.sku = extractedSku;
-  //                     parentField.model.price = Number(resolvedRate);
-
-  //                     rowGroup.patchValue({
-  //                       productId: prodId,
-  //                       prodName: extractedName,
-  //                       sku: extractedSku,
-  //                       price: Number(resolvedRate)
-  //                     }, { emitEvent: false });
-
-  //                     this.calculateSingleLineAmount(parentField.model);
-                      
-  //                     if (targetField.options && targetField.options.detectChanges) {
-  //                       targetField.options.detectChanges(targetField);
-  //                     }
-  //                   }
-  //                 } catch (error) {
-  //                   console.error('Pricing lookup pipeline error:', error);
-  //                 }
-  //               });
-  //             });
-  //           }
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
 
   async saveQuotation(): Promise<void> {
     if (!this.form.valid) {
@@ -832,3 +748,139 @@ onApproveClicked(): void {
     }
   }
 }
+
+//preservations
+
+
+  //   private bindDatabasePricingHooks(fields: FormlyFieldConfig[]) {
+  //   if (!fields) return;
+  //   fields.forEach((field) => {
+  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+  //       this.bindDatabasePricingHooks(field.fieldGroup);
+  //     }
+  //     if (field.key === 'items' && field.fieldArray) {
+  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
+  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+  //               if (!targetField || !targetField.formControl) return;
+
+  //               const clientControl = this.form.get('clientId');
+  //               if (!clientControl) return;
+
+  //               // 🌟 FIX: Combine both value change streams so changing EITHER the client OR the product updates the price
+  //               combineLatest([
+  //                 targetField.formControl.valueChanges.pipe(
+  //                   startWith(targetField.formControl.value),
+  //                   distinctUntilChanged()
+  //                 ),
+  //                 clientControl.valueChanges.pipe(
+  //                   startWith(clientControl.value),
+  //                   distinctUntilChanged()
+  //                 )
+  //               ]).subscribe(async ([prodId, activeClientId]) => {
+  //                 console.log('Pricing hook triggered! -> prodId:', prodId, ' and activeClientId:', activeClientId);
+                  
+  //                 if (!prodId || !activeClientId) return;
+                  
+  //                 const parentField = targetField.parent; 
+  //                 const rowGroup = parentField?.formControl as FormGroup;
+
+  //                 // Skip lookup only if we are initializing a completely untouched loaded record
+  //                 if (this.opMode === FormOpMode.Update && rowGroup && rowGroup.get('price')?.value > 0 && parentField!.model && parentField!.model.prodName && !targetField.formControl?.dirty && !clientControl.dirty) {
+  //                   this.calculateSingleLineAmount(parentField!.model);
+  //                   return;
+  //                 }
+                  
+  //                 try {
+  //                   const productMaster = await firstValueFrom(this.productService.getProduct(this.tenantId, prodId));
+  //                   const finalPriceData = await this.getProductFinalPrice(prodId, Number(activeClientId));
+  //                   console.log('finalPriceData matched from selection:', finalPriceData);
+                    
+  //                   const extractedName = productMaster?.prodName || 'Product #' + prodId;
+  //                   const extractedSku = productMaster?.sku || '';
+  //                   const resolvedRate = finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData;
+
+  //                   if (parentField && parentField.model && rowGroup) {
+  //                     parentField.model.productId = prodId;
+  //                     parentField.model.prodName = extractedName;
+  //                     parentField.model.sku = extractedSku;
+  //                     parentField.model.price = Number(resolvedRate);
+
+  //                     rowGroup.patchValue({
+  //                       productId: prodId,
+  //                       prodName: extractedName,
+  //                       sku: extractedSku,
+  //                       price: Number(resolvedRate)
+  //                     }, { emitEvent: false });
+
+  //                     this.calculateSingleLineAmount(parentField.model);
+                      
+  //                     if (targetField.options && targetField.options.detectChanges) {
+  //                       targetField.options.detectChanges(targetField);
+  //                     }
+  //                   }
+  //                 } catch (error) {
+  //                   console.error('Pricing lookup pipeline error:', error);
+  //                 }
+  //               });
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
+
+
+
+
+
+
+  // bindDatabaseHooks(fields: FormlyFieldConfig[]) {
+  //   if (!fields) return;
+  //   fields.forEach((field) => {
+  //     if (field.fieldGroup && Array.isArray(field.fieldGroup)) {
+  //       this.bindDatabaseHooks(field.fieldGroup);
+  //     }
+  //     if (field.key === 'items' && field.fieldArray) {
+  //       const arrayConfig = field.fieldArray as FormlyFieldConfig;
+  //       if (arrayConfig && arrayConfig.fieldGroup && Array.isArray(arrayConfig.fieldGroup)) {
+  //         const productDropdown = arrayConfig.fieldGroup.find(f => f.key === 'productId');
+  //         if (productDropdown && productDropdown.hooks && typeof productDropdown.hooks.onInit === 'string') {
+  //           if (productDropdown.hooks.onInit === 'onProductDropdownChange') {
+  //             chainOnInitHook(productDropdown, (targetField: FormlyFieldConfig) => {
+  //               if (!targetField || !targetField.formControl) return;
+  //               const rootForm = targetField.form?.root;
+  //               const clientIdControl = rootForm?.get('clientId');
+  //               if (!clientIdControl) return;
+
+  //               combineLatest([
+  //                 targetField.formControl.valueChanges.pipe(startWith(targetField.formControl.value)),
+  //                 clientIdControl.valueChanges.pipe(startWith(clientIdControl.value))
+  //               ]).pipe(
+  //                 distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1])
+  //               ).subscribe(async ([prodId, clientId]) => {
+  //                 if (!prodId || !clientId) return;
+  //                 try {
+  //                   const finalPriceData = await this.getProductFinalPrice(prodId, clientId);
+  //                   const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
+  //                   if (finalPriceControl) {
+  //                     finalPriceControl.setValue(
+  //                       finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
+  //                       { emitEvent: true, onlySelf: true }
+  //                     );
+  //                   }
+  //                 } catch (error) {
+  //                   console.error(error);
+  //                 }
+  //               });
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }

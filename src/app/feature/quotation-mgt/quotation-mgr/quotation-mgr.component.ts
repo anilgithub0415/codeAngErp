@@ -15,6 +15,7 @@ import { QuotationFormComponent } from '../quotation-form/quotation-form.compone
 import { QuotationGridComponent } from '../quotation-grid/quotation-grid.component';
 
 import { RfqConversionService } from '../../../core/services/rfq-conversion.service';
+import { DashboardTabService } from '../../../core/services/dashboard-tab.service';
 
 @Component({
   selector: 'app-quotation-mgr',
@@ -49,8 +50,9 @@ export class QuotationMgrComponent implements OnInit {
 
   private authServ = inject(AuthService);
   private quotationService = inject(QuotationService);
-  private conversionService=inject(RfqConversionService);
+  private rfqConversionService=inject(RfqConversionService);
   private messageService = inject(MessageService);
+  private dashboardTabService=inject(DashboardTabService)
   private cd = inject(ChangeDetectorRef);
 
   constructor(){
@@ -69,17 +71,39 @@ export class QuotationMgrComponent implements OnInit {
     }
 
  console.log('2. QuotationMgr: Initialized and reading cached stream state.')
-      this.conversionSub = this.conversionService.convertRfq$.subscribe((rfqRecord) => {
-        console.log('QuotationMgr caught payload data processing map:');
-        console.log('rfqRecord:',rfqRecord);
-        
-        if(!rfqRecord){
-          console.log('QuotationMGR stream is empty................');
-          
-          return;
-        }
-      this.mapRfqToQuotationWorkflow(rfqRecord);
-    });
+      this.conversionSub =this.rfqConversionService.convertRfq$
+.subscribe(async rfq => {
+
+    if (!rfq) {
+        return;
+    }
+
+    try {
+
+        const quotation =
+            await firstValueFrom(
+                this.quotationService
+                    .convertRFQToQuotation(rfq.id)
+            );
+
+        this.currOpMode = FormOpMode.Update;
+console.log('seletdquotation:',this.selectedQuotation);
+
+        this.selectedQuotation = quotation;
+
+      // this.activeTabIndex = 1;
+this.dashboardTabService.activate("Quotations"); this.currOpMode=FormOpMode.Update;
+
+        this.loadQuotationsList();
+
+    }
+    catch(ex){
+
+        console.error(ex);
+
+    }
+
+});
 
   }
 

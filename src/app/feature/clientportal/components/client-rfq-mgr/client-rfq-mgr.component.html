@@ -6,9 +6,9 @@
   <p-confirmDialog></p-confirmDialog>
 
   <!-- Grid View Mode Display -->
-  <app-client-rfq-grid 
+  <app-client-rfq-grid
     *ngIf="currOpMode === 'VIEW'"
-    [isWholesalerView]="false"
+    [isWholesalerView]="isWholesalerView"
     [clientRFQs]="clientRFQs"
     (addRequested)="Add()"
     (editRequested)="onEditClick($event)"

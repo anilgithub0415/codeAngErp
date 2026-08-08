@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, tap } from 'rxjs';
-import { IQuotation } from '../models/quotation.model';
+import { IQuotation, IQuotationWorkflow } from '../models/quotation.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +24,18 @@ export class QuotationService {
 
   getQuotation(tenantId: number, id: number): Observable<IQuotation> {
     return this.http.get<IQuotation>(`${this.apiUrl}/${tenantId}/${id}`);
+  }
+
+  
+    //Convert to Quotation new approach:tag:convertToQuoteNewIdea
+  getWorkflow(
+    quotationId:number
+  ):Observable<IQuotationWorkflow>{
+
+      return this.http.get<IQuotationWorkflow>(
+          `${this.apiUrl}/${quotationId}/workflow`
+      );
+
   }
 
   createQuotationClean(payload: Partial<IQuotation>): Observable<IQuotation> {
@@ -82,6 +94,18 @@ export class QuotationService {
     );
   }
 
+ convertRFQToQuotation(
+    rfqId:number
+): Observable<IQuotation> {
+
+    return this.http.post<IQuotation>(
+        `${this.apiUrl}/convert`,
+        {
+            rfqId
+        }
+    );
+
+}
   /**
    * Global Error Handling logic for HTTP pipelines
    */
