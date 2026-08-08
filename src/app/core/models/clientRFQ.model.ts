@@ -1,4 +1,5 @@
 export interface clientRFQ{
+    id?:number;
     clientRFQNumber:number;
     tenantId:number;
     clientId:number;

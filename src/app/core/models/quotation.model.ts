@@ -1,3 +1,14 @@
+export enum QuotationStatus {
+      DRAFT = "DRAFT",                                     // Wholesaler creating the quote
+    SENT = "SENT",                                       // Sent to client, visible in ClientPortal
+    COUNTER_OFFERED = "COUNTER_OFFERED",                 // Client changed prices and sent back
+    REVISED = "REVISED",                                 // Wholesaler adjusted prices based on counter-offer
+    APPROVED = "APPROVED",                               // Client accepted (Ready to convert to Order/PO)
+    REJECTED = "REJECTED",                               // Client or Wholesaler cancelled negotiation
+    EXPIRED = "EXPIRED"                                  // Validity date passed
+
+}
+
 export interface IQuotationItem {
   id?: number;
   quotationId?: number;
@@ -22,6 +33,7 @@ export interface IQuotation {
   tenantId: number;
   clientId: number;
   clientName: string;
+  status:QuotationStatus;version:number;isActive:boolean;
   clientCategory?: string | null;
   contactPerson?: string | null;
   deliveryLocation?: string | null;
@@ -31,4 +43,34 @@ export interface IQuotation {
   createdAt?: string;
   updatedAt?: string;
   items: IQuotationItem[];
+}
+
+
+//Convert to Quotation new approach:tag:convertToQuoteNewIdea
+export interface IQuotationWorkflow{
+
+    quotationId:number;
+
+    status:QuotationStatus;
+
+    actions:{
+
+        canEdit:boolean;
+
+        canDelete:boolean;
+
+        canSubmit:boolean;
+
+        canApprove:boolean;
+
+        canCounterOffer:boolean;
+
+        canRevise:boolean;
+
+        canChangeCustomer:boolean;
+
+        nextStates:QuotationStatus[];
+
+    };
+
 }

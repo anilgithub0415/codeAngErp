@@ -5,7 +5,8 @@ import { SalesLayoutComponent } from './sales-layout/sales-layout.component';
 import { SalesKanbanBoardComponent } from './views/sales-kanban-board/sales-kanban-board.component';
 import { SalesDirectorylistComponent } from './views/sales-directorylist/sales-directorylist.component';
 import { SalesKanbanCardComponent } from './kanban/sales-kanban-card/sales-kanban-card.component';
-import { SalesOrderMgrComponent } from './Components/sales-order-mgr/sales-order-mgr.component';
+
+import { SalesDashboardComponent } from './Dashboard/sales-dashboard/sales-dashboard.component';
 
 const routes: Routes = 
 [
@@ -14,7 +15,7 @@ const routes: Routes =
       component: SalesLayoutComponent,
           children: 
           [
-              {path:'', component:SalesOrderMgrComponent},
+              {path:'', component:SalesDashboardComponent},
               {
                       path:'board',
                       component:SalesKanbanBoardComponent

@@ -17,7 +17,7 @@ import { MeterGroupModule } from 'primeng/metergroup';
 
 import { QuotationService } from '../../../../core/services/quotation.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { QuotationStatus } from '../../Kanban/quotation-kanban-card/quotation-kanban-card.component';
+import { QuotationStatus } from '../../../../core/models/quotation.model';
 import { QuotationKanbanCardComponent } from '../../Kanban/quotation-kanban-card/quotation-kanban-card.component';
 
 interface KanbanColumn {

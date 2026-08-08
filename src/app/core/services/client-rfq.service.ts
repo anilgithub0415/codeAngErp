@@ -42,8 +42,19 @@ export class ClientRFQService {
       catchError(this.handleError)
     );
   }
+    /**
+   * Deletes a draft or cancels an active purchase order via DELETE resource id path binding.
+   */
+  deleteRFQOrder(id: number): Observable<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }> {
+    const url = `${this.apiUrl}/${id}`;
+    console.log(`Sending delete/cancel request for purchase order at ${url}`);
+    
+    return this.http.delete<{ success: boolean; action: 'DELETED' | 'CANCELLED'; message: string }>(url).pipe(
+      tap(response => console.log('Delete/Cancel purchase order response:', response)),
+      catchError(this.handleError)
+    );
+  }
 
-  // 🔄 inside your client-purchase.service.ts
 
 /**
  * Executes the formal approval workflow for a Client RFQ, tracking item variations
@@ -62,20 +73,47 @@ approveClientRFQOrder(
   );
 }
 
+/** 
+
+* Executes the formal dispatch workflow for a Client RFQ, advancing state from APPROVED to SENT
+* @param id The primary database identifier sequence of the target RFQ
+* @param sendData Contains the explicit action string and optional final item tracking payload
+*/
+sendClientRFQOrder(
+id: number,
+sendData: { action: 'SENT'; items?: any[] }
+): Observable<clientRFQ> {
+console.log('Executing dedicated RFQ dispatch for ID ${id} at ${this.apiUrl}/${id}/send, sendData');
+
+return this.http.post<clientRFQ>(`${this.apiUrl}/${id}/send`, sendData).pipe(
+tap(updatedOrder => console.log('Successfully completed dispatch workflow execution:', updatedOrder)),
+catchError(this.handleError)
+);
+}
 
 
-
-getClientRFQs(ptenantId: number, psiteId: number, pclientId?: number): Observable<clientRFQ[]> {
+getClientRFQs(
+  ptenantId: number, 
+  psiteId: number, 
+  pclientId?: number, 
+  pStatuses?: string[] // 🚀 NEW: Optional statuses parameter
+): Observable<clientRFQ[]> {
   let url = `${this.apiUrl}/?activeTenantId=${ptenantId}&siteId=${psiteId}`;
   
-  // Append clientId parameter to the stream request if present
   if (pclientId) {
     url += `&clientId=${pclientId}`;
   }
-  console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa url:',url);
+
+  // 🚀 NEW: Append statuses as a comma-separated string if provided
+  if (pStatuses && pStatuses.length > 0) {
+    url += `&status=${pStatuses.join(',')}`;
+  }
   
-  return this.http.get<clientRFQ[]>(url+'/clientRFQs');
+  console.log('Final URL Request:', url);
+  
+  return this.http.get<clientRFQ[]>(url);
 }
+
 
  
 }

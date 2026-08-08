@@ -1,4 +1,4 @@
-
+opMode:{{opMode}}
 <form [formGroup]="form" class="order-form">
   <!-- INTERACTIVE FORM MATRIX ENGINE CONTAINER -->
   <div class="order-header mb-4">
@@ -47,7 +47,9 @@
       </p-button>
 
        
-<ng-container *ngxPermissionsOnly="['Quotation.Approve']">
+<ng-container *ngxPermissionsOnly="['Quotation.Approve']" 
+>
+<ng-container  *ngIf="workflow.actions.canApprove">
   <p-button
     *ngIf="model?.status === 'PENDING_APPROVAL'"
     type="button"
@@ -57,7 +59,7 @@
     (click)="onApproveClicked()">
   </p-button>
 </ng-container>
-
+</ng-container>
 
     <button
       pButton

@@ -27,6 +27,7 @@ import { applyLocalSearchExtension, hydrateFormlyConfig } from '../../../../shar
 import { CustomerFormComponent } from '../shared/customer-form/customer-form.component';
 import { CustomerGridComponent } from '../customer-grid/customer-grid.component';
 import { ButtonModule } from 'primeng/button';
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 @Component({
   selector: 'app-customer-mgr',
@@ -34,7 +35,7 @@ import { ButtonModule } from 'primeng/button';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     CommonModule, ToastModule, ReactiveFormsModule, FormsModule,ButtonModule,
-    FilterControlComponent, CustomerFormComponent, CustomerGridComponent
+    FilterControlComponent, CustomerFormComponent, CustomerGridComponent, NgxPermissionsModule
   ],
   providers: [MessageService],
   templateUrl: './customer-mgr.component.html',

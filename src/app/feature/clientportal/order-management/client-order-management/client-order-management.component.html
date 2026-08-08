@@ -1,6 +1,7 @@
 
 <!-- BAND 3: COMBINED PROCUREMENT & SALES FULFILLMENT MATRIX -->
-<p-card [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem' }">
+<!-- BAND 3: COMBINED PROCUREMENT & SALES FULFILLMENT MATRIX -->
+<p-card (click)="navigateToTab('InternalPOs')" [style]="{ 'background': 'var(--surface-card)', 'border': '1px solid var(--surface-border)', 'border-radius': '10px', 'margin-top': '1.5rem', 'cursor': 'pointer' }">
     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
         
         <!-- Left Section: Icon & Header Title -->
@@ -24,27 +25,33 @@
             </div>
             
             <!-- Active Sales Orders Panel (Keeps accent blue text, but adaptive background surface) -->
-            <div style="background-color: var(--surface-ground); border: 1px solid var(--surface-border); padding: 0.5rem 1rem; border-radius: 6px; flex: 1;">
-                <div style="font-size: 0.75rem; color: var(--text-color-secondary); font-weight: 600; text-transform: uppercase;">Active Sales Orders</div>
-                <div style="font-size: 0.9rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{activeSalesOrders}} in Picking Queue</div>
+            <div (click)="navigateToTab('ActiveOrders')" style="background-color: var(--surface-ground); border: 1px solid var(--surface-border); padding: 0.5rem 1rem; border-radius: 6px; flex: 1;">
+                <div style="font-size: 0.75rem; color: var(--text-color-secondary); font-weight: 600; text-transform: uppercase;">Active Orders</div>
+                <div style="font-size: 0.9rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{summarydata.sales.APPROVED}} in Picking Queue</div>
             </div>
 
             <div style="background-color: var(--surface-ground); border: 1px solid var(--surface-border); padding: 0.5rem 1rem; border-radius: 6px; flex: 1;">
                 <div style="font-size: 0.75rem; color: var(--text-color-secondary); font-weight: 600; text-transform: uppercase;">Internal POs</div>
-                <div style="font-size: 0.90rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{summarydata.clientPurchaseOrders.APPROVED}} need to send</div>
+                <div style="font-size: 0.90rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{summarydata.clientPurchaseOrders.PENDING_APPROVAL}} Pending Approval</div>
             </div>
             
-                        <div style="background-color: var(--surface-ground); border: 1px solid var(--surface-border); padding: 0.5rem 1rem; border-radius: 6px; flex: 1;">
+            <div (click)="navigateToTab('ClientRFQ')" style="background-color: var(--surface-ground); border: 1px solid var(--surface-border); padding: 0.5rem 1rem; border-radius: 6px; flex: 1; cursor: pointer;">
                 <div style="font-size: 0.75rem; color: var(--text-color-secondary); font-weight: 600; text-transform: uppercase;">Internal RFQs</div>
                 <div style="font-size: 0.9rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{summarydata.clientRFQs.APPROVED}} need to send</div>
             </div>
-        </div>
+
+            <div (click)="navigateToTab('ClientRFQ')" style="background-color: var(--surface-ground); border: 1px solid var(--surface-border); padding: 0.5rem 1rem; border-radius: 6px; flex: 1; cursor: pointer;">
+                <div style="font-size: 0.75rem; color: var(--text-color-secondary); font-weight: 600; text-transform: uppercase;">Internal RFQs</div>
+                <div style="font-size: 0.9rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">{{summarydata.clientRFQs.PENDING_APPROVAL}} to Approve</div>
+            </div>
+        </div> 
 
         <!-- Right Section: Action Link Button -->
         <div style="flex: 0 1 auto; text-align: right;">
-            <!-- p-button-text naturally shifts text hues in dark configurations automatically -->
-            <button pButton type="button" label="Manage All Orders" icon="pi pi-arrow-right" class="p-button-secondary p-button-text p-button-sm" style="font-weight:600;"></button>
+            <!-- Added routerLink here too so clicking the actual button works directly -->
+            <button pButton type="button" [routerLink]="['./procurement']" label="Manage All Orders" icon="pi pi-arrow-right" class="p-button-secondary p-button-text p-button-sm" style="font-weight:600;"></button>
         </div>
 
     </div>
 </p-card>
+

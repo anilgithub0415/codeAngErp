@@ -1,4 +1,5 @@
 export interface clientPurchase{
+    id?:number;
     clientPoNumber:number;
     tenantId:number;
     clientId:number;

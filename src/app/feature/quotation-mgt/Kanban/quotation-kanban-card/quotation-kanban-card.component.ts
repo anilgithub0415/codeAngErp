@@ -5,18 +5,10 @@ import { RouterLink } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { QuotationStatus } from '../../../../core/models/quotation.model';
 
 
 
-export enum QuotationStatus {
-    DRAFT = "DRAFT",                                     // Wholesaler creating the quote
-    SENT = "SENT",                                       // Sent to client, visible in ClientPortal
-    COUNTER_OFFERED = "COUNTER_OFFERED",                 // Client changed prices and sent back
-    REVISED = "REVISED",                                 // Wholesaler adjusted prices based on counter-offer
-    APPROVED = "APPROVED",                               // Client accepted (Ready to convert to Order/PO)
-    REJECTED = "REJECTED",                               // Client or Wholesaler cancelled negotiation
-    EXPIRED = "EXPIRED"  
-}
 
 
 export interface QuotationItemMock {

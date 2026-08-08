@@ -1,0 +1,32 @@
+<p>sales-dashboard works!</p>
+
+  <app-button-tabs [options]="myTabConfig" [activeTabId]="activeTab">
+  
+    <ng-template appTab="Sales">
+        <app-salesorder-mgr></app-salesorder-mgr>
+    </ng-template> 
+    
+    <!--for other places converted clientPOs may required to display-->
+  <!-- Note/Protocol: if from Wholesalers point of view he is not interested in already converted clientPOs into Sales-->
+   <!--in that case set flag includeConverted to false-->
+    <ng-template appTab="received_clientPOs">
+      <app-client-po-mgr
+           [isWholesalerView]="true" 
+           [includeConverted]="false"
+           [allowedStatuses]="['SENT']"
+           ></app-client-po-mgr>
+    </ng-template> 
+
+
+    <ng-template appTab="clientPOs">
+      <app-client-po-mgr
+           [isWholesalerView]="true" 
+           [allowedStatuses]="['PENDING_APPROVAL']"
+          (convertRequested)="onConvertRequested($event)"
+           ></app-client-po-mgr>
+    </ng-template> 
+    
+   
+   
+
+</app-button-tabs>

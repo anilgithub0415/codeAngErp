@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { QuotationMgrComponent } from './quotation-mgr/quotation-mgr.component';
+
 import { QuotationLayoutComponent } from './quotation-layout/quotation-layout.component';
 import { QuotationKanbanBoardComponent } from './views/quotation-kanban-board/quotation-kanban-board.component';
 import { QuotationDirectoryListComponent } from './views/quotation-directory-list/quotation-directory-list.component';
+import { QuotationDashboardComponent } from './Dashboard/quotation-dashboard/quotation-dashboard.component';
 
 const routes: Routes = 
 [
@@ -12,7 +13,7 @@ const routes: Routes =
     component: QuotationLayoutComponent,
     children: 
          [
-             {path:'', component:QuotationMgrComponent} ,
+             {path:'', component:QuotationDashboardComponent} ,
              {path:'board',component:QuotationKanbanBoardComponent},
              {path:'directory',component:QuotationDirectoryListComponent}
          ]

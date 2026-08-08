@@ -1,8 +1,10 @@
 <p>sales-order-form works!</p>
+
+<h4>we neeed to take care regarding RFQs not to display those are converted</h4>
 <form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
   <div class="order-header mb-4">
     <h2 class="text-xl font-bold mb-3">Sales Order</h2>
-    <h1>we need to take care for stock increase decrease while delete also</h1>
+    <h5>we need to take care for stock increase decrease while delete also</h5>
     <!-- Vendor Selection Display -->
     <div class="mb-4" *ngIf="model.vendor">
       <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg">

@@ -1,0 +1,90 @@
+<p>client-rfq-form works!</p>
+<form [formGroup]="form" class="order-form">
+  <div class="order-header mb-4">
+    <h2 class="text-xl font-bold mb-3">Client RFQ Order</h2>
+    
+    <!-- Vendor Selection Display -->
+    <div class="mb-4" *ngIf="model.vendor">
+      <div class="selected-vendor p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-sm text-gray-600">Selected Vendor:</span>
+            <span class="ml-2 font-medium text-green-800">{{ model.vendor.vendorName }}</span>
+          </div>
+          <button 
+            pButton 
+            type="button" 
+            icon="pi pi-times" 
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="model.vendor = null; model.vendorId = null; form.patchValue({ vendorId: null })"
+            [disabled]="model.status !== 'DRAFT'">
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </div>
+</form>
+
+<!-- Command Actions Block Layout Area -->
+<div class="order-actions mt-4 flex items-center gap-2">
+  
+  <!-- State-Driven Operation Path: Editable actions are visible only during Draft phase -->
+  <ng-container *ngIf="model.status === 'DRAFT'">
+    <p-button
+      type="button"
+      label="Save as Draft"
+      icon="pi pi-save"
+      (click)="saveDraft.emit()"
+      [disabled]="!form.valid">
+    </p-button>
+
+    <p-button
+      *ngxPermissionsOnly="['ClientRFQ.SubmitToApprove']"
+      type="button"
+      label="Submit for Approval"
+      icon="pi pi-send"
+      styleClass="p-button-success"
+      (click)="submitForApproval.emit()"
+      [disabled]="!form.valid">
+    </p-button>
+
+    <button
+      pButton
+      type="button"
+      label="Clear Form"
+      icon="pi pi-trash"
+      (click)="clearForm.emit()"
+      class="p-button-secondary">
+    </button>
+  </ng-container>
+
+  <!-- Visual Banner indicating document is frozen in read-only mode -->
+  <div *ngIf="model.status !== 'DRAFT'" class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg flex items-center gap-2 mr-auto font-medium">
+    <i class="pi pi-lock"></i>
+    <span>Document Locked (Status: {{ model.status }}). Fields are read-only.</span>
+  </div>
+
+  <div class="flex justify-content-end gap-2 ml-auto">
+    <ng-container *ngxPermissionsOnly="['ClientRFQ.Approve']">
+      <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 
+        <p-button label="Approve RFQ" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="approve.emit()"></p-button>
+      </span>
+    </ng-container>
+    
+    <ng-container *ngxPermissionsOnly="['ClientRFQ.Send']">
+      <span *ngIf="model?.status === 'APPROVED' && currOpMode === 'UPDATE'"> 
+        <p-button label="Send RFQ" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="send.emit()"></p-button>
+      </span>
+    </ng-container>
+
+    <ng-container *ngxPermissionsOnly="['ClientPO.Reject']">
+      <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 
+        <p-button label="Reject RFQ" icon="pi pi-times" styleClass="p-button-danger mr-2" (onClick)="reject.emit()"></p-button>
+      </span>
+    </ng-container>
+    
+    <p-button label="Cancel" icon="pi pi-ban" styleClass="p-button-secondary" (onClick)="cancel.emit()"></p-button>
+  </div>
+</div>

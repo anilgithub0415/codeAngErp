@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InternalPOsComponent } from './internal-pos.component';
+import { ClientPOFormComponent } from './client-po-form.component';
 
-describe('InternalPOsComponent', () => {
-  let component: InternalPOsComponent;
-  let fixture: ComponentFixture<InternalPOsComponent>;
+describe('ClientPOFormComponent', () => {
+  let component: ClientPOFormComponent;
+  let fixture: ComponentFixture<ClientPOFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InternalPOsComponent]
+      imports: [ClientPOFormComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(InternalPOsComponent);
+    fixture = TestBed.createComponent(ClientPOFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

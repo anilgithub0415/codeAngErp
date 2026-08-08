@@ -459,292 +459,752 @@ clientrfq_form:any;
     ];
 
         this.quotation_form=[
-                  {
-                    "key": "id",
-                    "type": "input",
-                    "hide": true
-                  },
-                  {
-                    "key": "tenantId",
-                    "type": "input",
-                    "hide": true
-                  },
-                  {
-                    "key": "createdByUserId",
-                    "type": "input",
-                    "hide": true
-                  },
-                  {
-                    "key": "quoteNumber",
-                    "type": "input",
-                    "hide": true
-                  },
-                  {
-                    "key": "version",
-                    "type": "input",
-                    "hide": true
-                  },
-                  {
-                    "wrappers": [
-                      "panel"
-                    ],
-                    "className": "col-span-24 w-full block mb-2",
-                    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
-                    "fieldGroup": [
-                      {
-                        "type": "primeng-dropdown",
-                        "key": "clientId",
-                        "className": "col-span-24 md:col-span-6",
-                        "props": {
-                          "label": "db_Wholesale Client / Customer from static json",
-                          "valueProp": "value",
-                          "styleClass": "w-full",
-                          "labelProp": "label",
-                          "optionLabel": "label",
-                          "optionValue": "value",
-                          "placeholder": "Select Customer",
-                          "lookupKey": "customerTypes",
-                          "required": true,
-                          "filter": true
-                        }
-                      },
-                      {
-                        "type": "input",
-                        "key": "clientName",
-                        "className": "col-span-24 md:col-span-6",
-                        "props": {
-                          "label": "Client / Trade Name",
-                          "placeholder": "e.g., Ceramic Enterprises",
-                          "required": true
-                        }
-                      },
-                      {
-                        "type": "input",
-                        "key": "clientCategory",
-                        "className": "col-span-12 md:col-span-6",
-                        "props": {
-                          "label": "Client Category",
-                          "placeholder": "e.g., Distributor, Retailer"
-                        }
-                      },
-                      {
-                        "type": "input",
-                        "key": "status",
-                        "className": "col-span-12 md:col-span-6",
-                        "props": {
-                          "label": "Quotation Status",
-                          "disabled": true
-                        }
-                      },
-                      {
-                        "type": "input",
-                        "key": "contactPerson",
-                        "className": "col-span-12 md:col-span-6",
-                        "props": {
-                          "label": "Contact Person Name",
-                          "placeholder": "e.g., John Doe"
-                        }
-                      },
-                      {
-                        "type": "input",
-                        "key": "deliveryLocation",
-                        "className": "col-span-24 md:col-span-12",
-                        "props": {
-                          "label": "Site Delivery / Logistics Location",
-                          "placeholder": "Enter complete logistics delivery path destination..."
-                        }
-                      },
-                      {
-                        "type": "input",
-                        "key": "remarksNotes",
-                        "className": "col-span-24 md:col-span-12",
-                        "props": {
-                          "label": "Internal Notes",
-                          "placeholder": "Add quote structural tracking notes..."
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "key": "items",
-                    "type": "p-repeatsectionformly",
-                    "wrappers": [
-                      "panel"
-                    ],
-                    "defaultValue": [],
-                    "props": {
-                      "label": "Itemized Material Estimate Lines",
-                      "addText": "Add Material Estimate Line",
-                      "rowDefaults": {
-                        "quantity": 1,
-                        "unit": "PCS",
-                        "price": 0,
-                        "targetPrice": 0,
-                        "discount": 0,
-                        "gstPercentage": 18,
-                        "totalItemAmount": 0
-                      }
-                    },
-                    "fieldArray": {
-                      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-                      "fieldGroup": [
-                        {
-                          "key": "id",
-                          "type": "input",
-                          "hide": true
-                        },
-                        {
-                          "key": "productVariantId",
-                          "type": "input",
-                          "hide": true
-                        },
-                        {
-                          "key": "prodName",
-                          "type": "input",
-                          "hide": true
-                        },
-                        {
-                          "key": "sku",
-                          "type": "input",
-                          "hide": true
-                        },
-                        {
-                          "key": "appliedLineDiscountId",
-                          "type": "input",
-                          "hide": true
-                        },
-                        {
-                          "type": "primeng-dropdown",
-                          "key": "productId",
-                          "className": "col-span-24 md:col-span-5",
-                          "props": {
-                            "optionLabel": "label",
-                            "optionValue": "value",
-                            "placeholder": "Select Product Item",
-                            "lookupKey": "productTypes",
-                            "required": true,
-                            "filter": true
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Product Detail Spec / SKU' : ''"
-                          },
-                          "hooks": {
-                            "onInit": "onProductDropdownChange"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "description",
-                          "className": "col-span-24 md:col-span-4",
-                          "props": {
-                            "placeholder": "Item Description / Notes"
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Description' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "unit",
-                          "className": "col-span-12 md:col-span-2",
-                          "props": {
-                            "placeholder": "UOM",
-                            "required": true
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'UOM' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "quantity",
-                          "className": "col-span-12 md:col-span-2",
-                          "props": {
-                            "type": "number",
-                            "placeholder": "Qty",
-                            "required": true,
-                            "min": 0
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "finalPrice",
-                          "className": "col-span-12 md:col-span-2",
-                          "props": {
-                            "type": "number",
-                            "placeholder": "Rate",
-                            "required": true,
-                            "min": 0
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Base Price' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "targetPrice",
-                          "className": "col-span-12 md:col-span-2",
-                          "props": {
-                            "type": "number",
-                            "placeholder": "Target",
-                            "min": 0
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Target Price (₹)' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "discount",
-                          "className": "col-span-12 md:col-span-2",
-                          "props": {
-                            "type": "number",
-                            "placeholder": "Dsc",
-                            "required": true,
-                            "min": 0,
-                            "readonly": true
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Discount (₹)' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "gstPercentage",
-                          "className": "col-span-12 md:col-span-2",
-                          "props": {
-                            "type": "number",
-                            "placeholder": "GST",
-                            "required": true,
-                            "min": 0
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'GST %' : ''"
-                          }
-                        },
-                        {
-                          "type": "input",
-                          "key": "totalItemAmount",
-                          "className": "col-span-12 md:col-span-3",
-                          "props": {
-                            "type": "number",
-                            "placeholder": "Total",
-                            "readonly": true
-                          },
-                          "expressions": {
-                            "props.label": "field.parent.index === 0 ? 'Line Net' : ''"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ];
+  {
+    "key": "id",
+    "type": "input",
+    "hide": true
+  },
+  {
+    "key": "tenantId",
+    "type": "input",
+    "hide": true
+  },
+  {
+    "key": "createdByUserId",
+    "type": "input",
+    "hide": true
+  },
+  {
+    "key": "quoteNumber",
+    "type": "input",
+    "hide": true
+  },
+  {
+    "key": "version",
+    "type": "input",
+    "hide": true
+  },
+  {
+    "wrappers": [
+      "panel"
+    ],
+    "className": "col-span-24 w-full block mb-2",
+    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+    "fieldGroup": [
+      {
+        "type": "primeng-dropdown",
+        "key": "clientId",
+        "className": "col-span-24 md:col-span-6",
+        "props": {
+          "label": "db_Wholesale Client / Customer from static json",
+          "valueProp": "value",
+          "styleClass": "w-full",
+          "labelProp": "label",
+          "optionLabel": "label",
+          "optionValue": "value",
+          "placeholder": "Select Customer",
+          "lookupKey": "customerTypes",
+          "required": true,
+          "filter": true
+        }
+      },
+      {
+        "type": "input",
+        "key": "clientName",
+        "className": "col-span-24 md:col-span-6",
+        "props": {
+          "label": "Client / Trade Name",
+          "placeholder": "e.g., Ceramic Enterprises",
+          "required": true
+        }
+      },
+      {
+        "type": "input",
+        "key": "clientCategory",
+        "className": "col-span-12 md:col-span-6",
+        "props": {
+          "label": "Client Category",
+          "placeholder": "e.g., Distributor, Retailer"
+        }
+      },
+      {
+        "type": "input",
+        "key": "status",
+        "className": "col-span-12 md:col-span-6",
+        "props": {
+          "label": "Quotation Status",
+          "disabled": true
+        }
+      },
+      {
+        "type": "input",
+        "key": "contactPerson",
+        "className": "col-span-12 md:col-span-6",
+        "props": {
+          "label": "Contact Person Name",
+          "placeholder": "e.g., John Doe"
+        }
+      },
+      {
+        "type": "input",
+        "key": "deliveryLocation",
+        "className": "col-span-24 md:col-span-12",
+        "props": {
+          "label": "Site Delivery / Logistics Location",
+          "placeholder": "Enter complete logistics delivery path destination..."
+        }
+      },
+      {
+        "type": "input",
+        "key": "remarksNotes",
+        "className": "col-span-24 md:col-span-12",
+        "props": {
+          "label": "Internal Notes",
+          "placeholder": "Add quote structural tracking notes..."
+        }
+      }
+    ]
+  },
+  {
+    "key": "items",
+    "type": "p-repeatsectionformly",
+    "wrappers": [
+      "panel"
+    ],
+    "defaultValue": [],
+    "props": {
+      "label": "Itemized Material Estimate Lines",
+      "addText": "Add Material Estimate Line",
+      "rowDefaults": {
+        "quantity": 1,
+        "unit": "PCS",
+        "price": 0,
+        "targetPrice": 0,
+        "discount": 0,
+        "gstPercentage": 18,
+        "totalItemAmount": 0
+      }
+    },
+    "fieldArray": {
+      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+      "fieldGroup": [
+        {
+          "key": "id",
+          "type": "input",
+          "hide": true
+        },
+        {
+          "key": "productVariantId",
+          "type": "input",
+          "hide": true
+        },
+        {
+          "key": "prodName",
+          "type": "input",
+          "hide": true
+        },
+        {
+          "key": "sku",
+          "type": "input",
+          "hide": true
+        },
+        {
+          "key": "appliedLineDiscountId",
+          "type": "input",
+          "hide": true
+        },
+        {
+          "type": "primeng-dropdown",
+          "key": "productId",
+          "className": "col-span-24 md:col-span-5",
+          "props": {
+            "optionLabel": "label",
+            "optionValue": "value",
+            "placeholder": "Select Product Item",
+            "lookupKey": "productTypes",
+            "required": true,
+            "filter": true
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Product Detail Spec / SKU\" : \"\""
+          },
+          "hooks": {
+            "onInit": "onProductDropdownChange"
+          }
+        },
+        {
+          "type": "input",
+          "key": "description",
+          "className": "col-span-24 md:col-span-4",
+          "props": {
+            "placeholder": "Item Description / Notes"
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Description\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "unit",
+          "className": "col-span-12 md:col-span-2",
+          "props": {
+            "placeholder": "UOM",
+            "required": true
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"UOM\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "quantity",
+          "className": "col-span-12 md:col-span-2",
+          "props": {
+            "type": "number",
+            "placeholder": "Qty",
+            "required": true,
+            "min": 0
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Quantity\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "finalPrice",
+          "className": "col-span-12 md:col-span-2",
+          "props": {
+            "type": "number",
+            "placeholder": "Rate",
+            "required": true,
+            "min": 0
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Base Price\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "targetPrice",
+          "className": "col-span-12 md:col-span-2",
+          "props": {
+            "type": "number",
+            "placeholder": "Target",
+            "min": 0
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Target Price (?)\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "discount",
+          "className": "col-span-12 md:col-span-2",
+          "props": {
+            "type": "number",
+            "placeholder": "Dsc",
+            "required": true,
+            "min": 0,
+            "readonly": true
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Discount (?)\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "gstPercentage",
+          "className": "col-span-12 md:col-span-2",
+          "props": {
+            "type": "number",
+            "placeholder": "GST",
+            "required": true,
+            "min": 0
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"GST %\" : \"\""
+          }
+        },
+        {
+          "type": "input",
+          "key": "totalItemAmount",
+          "className": "col-span-12 md:col-span-3",
+          "props": {
+            "type": "number",
+            "placeholder": "Total",
+            "readonly": true
+          },
+          "expressions": {
+            "props.label": "field.parent.index === 0 ? \"Line Net\" : \"\""
+          }
+        }
+      ]
+    }
+  }
+];
+        
+        // [
+        //           {
+        //             "key": "id",
+        //             "type": "input",
+        //             "hide": true
+        //           },
+        //           {
+        //             "key": "tenantId",
+        //             "type": "input",
+        //             "hide": true
+        //           },
+        //           {
+        //             "key": "createdByUserId",
+        //             "type": "input",
+        //             "hide": true
+        //           },
+        //           {
+        //             "key": "quoteNumber",
+        //             "type": "input",
+        //             "hide": true
+        //           },
+        //           {
+        //             "key": "version",
+        //             "type": "input",
+        //             "hide": true
+        //           },
+        //           {
+        //             "wrappers": [
+        //               "panel"
+        //             ],
+        //             "className": "col-span-24 w-full block mb-2",
+        //             "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+        //             "fieldGroup": [
+        //               {
+        //                 "type": "primeng-dropdown",
+        //                 "key": "clientId",
+        //                 "className": "col-span-24 md:col-span-6",
+        //                 "props": {
+        //                   "label": "db_Wholesale Client / Customer from static json",
+        //                   "valueProp": "value",
+        //                   "styleClass": "w-full",
+        //                   "labelProp": "label",
+        //                   "optionLabel": "label",
+        //                   "optionValue": "value",
+        //                   "placeholder": "Select Customer",
+        //                   "lookupKey": "customerTypes",
+        //                   "required": true,
+        //                   "filter": true
+        //                 }
+        //               },
+        //               {
+        //                 "type": "input",
+        //                 "key": "clientName",
+        //                 "className": "col-span-24 md:col-span-6",
+        //                 "props": {
+        //                   "label": "Client / Trade Name",
+        //                   "placeholder": "e.g., Ceramic Enterprises",
+        //                   "required": true
+        //                 }
+        //               },
+        //               {
+        //                 "type": "input",
+        //                 "key": "clientCategory",
+        //                 "className": "col-span-12 md:col-span-6",
+        //                 "props": {
+        //                   "label": "Client Category",
+        //                   "placeholder": "e.g., Distributor, Retailer"
+        //                 }
+        //               },
+        //               {
+        //                 "type": "input",
+        //                 "key": "status",
+        //                 "className": "col-span-12 md:col-span-6",
+        //                 "props": {
+        //                   "label": "Quotation Status",
+        //                   "disabled": true
+        //                 }
+        //               },
+        //               {
+        //                 "type": "input",
+        //                 "key": "contactPerson",
+        //                 "className": "col-span-12 md:col-span-6",
+        //                 "props": {
+        //                   "label": "Contact Person Name",
+        //                   "placeholder": "e.g., John Doe"
+        //                 }
+        //               },
+        //               {
+        //                 "type": "input",
+        //                 "key": "deliveryLocation",
+        //                 "className": "col-span-24 md:col-span-12",
+        //                 "props": {
+        //                   "label": "Site Delivery / Logistics Location",
+        //                   "placeholder": "Enter complete logistics delivery path destination..."
+        //                 }
+        //               },
+        //               {
+        //                 "type": "input",
+        //                 "key": "remarksNotes",
+        //                 "className": "col-span-24 md:col-span-12",
+        //                 "props": {
+        //                   "label": "Internal Notes",
+        //                   "placeholder": "Add quote structural tracking notes..."
+        //                 }
+        //               }
+        //             ]
+        //           },
+        //           {
+        //             "key": "items",
+        //             "type": "p-repeatsectionformly",
+        //             "wrappers": [
+        //               "panel"
+        //             ],
+        //             "defaultValue": [],
+        //             "props": {
+        //               "label": "Itemized Material Estimate Lines",
+        //               "addText": "Add Material Estimate Line",
+        //               "rowDefaults": {
+        //                 "quantity": 1,
+        //                 "unit": "PCS",
+        //                 "price": 0,
+        //                 "targetPrice": 0,
+        //                 "discount": 0,
+        //                 "gstPercentage": 18,
+        //                 "totalItemAmount": 0
+        //               }
+        //             },
+        //             "fieldArray": {
+        //               "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+        //               "fieldGroup": [
+        //                 {
+        //                   "key": "id",
+        //                   "type": "input",
+        //                   "hide": true
+        //                 },
+        //                 {
+        //                   "key": "productVariantId",
+        //                   "type": "input",
+        //                   "hide": true
+        //                 },
+        //                 {
+        //                   "key": "prodName",
+        //                   "type": "input",
+        //                   "hide": true
+        //                 },
+        //                 {
+        //                   "key": "sku",
+        //                   "type": "input",
+        //                   "hide": true
+        //                 },
+        //                 {
+        //                   "key": "appliedLineDiscountId",
+        //                   "type": "input",
+        //                   "hide": true
+        //                 },
+        //                 {
+        //                   "type": "primeng-dropdown",
+        //                   "key": "productId",
+        //                   "className": "col-span-24 md:col-span-5",
+        //                   "props": {
+        //                     "optionLabel": "label",
+        //                     "optionValue": "value",
+        //                     "placeholder": "Select Product Item",
+        //                     "lookupKey": "productTypes",
+        //                     "required": true,
+        //                     "filter": true
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Product Detail Spec / SKU' : ''"
+        //                   },
+        //                   "hooks": {
+        //                     "onInit": "onProductDropdownChange"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "description",
+        //                   "className": "col-span-24 md:col-span-4",
+        //                   "props": {
+        //                     "placeholder": "Item Description / Notes"
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Description' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "unit",
+        //                   "className": "col-span-12 md:col-span-2",
+        //                   "props": {
+        //                     "placeholder": "UOM",
+        //                     "required": true
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'UOM' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "quantity",
+        //                   "className": "col-span-12 md:col-span-2",
+        //                   "props": {
+        //                     "type": "number",
+        //                     "placeholder": "Qty",
+        //                     "required": true,
+        //                     "min": 0
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "finalPrice",
+        //                   "className": "col-span-12 md:col-span-2",
+        //                   "props": {
+        //                     "type": "number",
+        //                     "placeholder": "Rate",
+        //                     "required": true,
+        //                     "min": 0
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Base Price' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "targetPrice",
+        //                   "className": "col-span-12 md:col-span-2",
+        //                   "props": {
+        //                     "type": "number",
+        //                     "placeholder": "Target",
+        //                     "min": 0
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Target Price (₹)' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "discount",
+        //                   "className": "col-span-12 md:col-span-2",
+        //                   "props": {
+        //                     "type": "number",
+        //                     "placeholder": "Dsc",
+        //                     "required": true,
+        //                     "min": 0,
+        //                     "readonly": true
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Discount (₹)' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "gstPercentage",
+        //                   "className": "col-span-12 md:col-span-2",
+        //                   "props": {
+        //                     "type": "number",
+        //                     "placeholder": "GST",
+        //                     "required": true,
+        //                     "min": 0
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'GST %' : ''"
+        //                   }
+        //                 },
+        //                 {
+        //                   "type": "input",
+        //                   "key": "totalItemAmount",
+        //                   "className": "col-span-12 md:col-span-3",
+        //                   "props": {
+        //                     "type": "number",
+        //                     "placeholder": "Total",
+        //                     "readonly": true
+        //                   },
+        //                   "expressions": {
+        //                     "props.label": "field.parent.index === 0 ? 'Line Net' : ''"
+        //                   }
+        //                 }
+        //               ]
+        //             }
+        //           }
+        //         ];
 
-this.clientpo_form='po here';
-this.clientrfq_form='rfq here'
+this.clientpo_form=[
+  { "key": "id", "type": "input", "hide": true },
+  { "key": "createdByUserId", "type": "input", "hide": true },
+  { "key": "tenantId", "type": "input", "hide": true },
+  { "key": "siteId", "type": "input", "hide": true },
+  {
+    "className": "col-span-24 w-full block mb-0",
+    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+    "fieldGroup": [
+      {
+        "type": "input",
+        "key": "clientPoNumber",
+        "className": "col-span-6 md:col-span-4",
+        "props": {
+          "label": "Purchase Order#",
+          "readonly": true,
+          "placeholder": "PO#"
+        }
+      },
+      {
+        "key": "poDate",
+        "type": "datepicker",
+        "className": "col-span-12 md:col-span-6",
+        "templateOptions": {
+          "label": "PO Date",
+          "required": true,
+          "placeholder": "YYYY-MM-DD"
+        }
+      }
+    ]
+  },
+  {
+    "key": "items",
+    "type": "p-repeatsectionformly",
+    "wrappers": ["panel"],
+    "defaultValue": [],
+    "props": {
+      "label": "",
+      "addText": "Add Item",
+      "rowDefaults": { "quantity": "1" }
+    },
+    "fieldArray": {
+      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+      "fieldGroup": [
+        { "key": "id", "type": "input", "hide": true },
+        {
+          "type": "primeng-dropdown",
+          "key": "productId",
+          "className": "col-span-6 md:col-span-10",
+          "props": {
+            "label": "Item",
+            "optionLabel": "label",
+            "optionValue": "value",
+            "placeholder": "Select Item",
+            "lookupKey": "productTypes",
+            "required": true,
+            "filter": true
+          }
+        },
+        {
+          "type": "input",
+          "key": "quantity",
+          "className": "col-span-3 md:col-span-4",
+          "props": {
+            "label": "Quantity",
+            "placeholder": "Enter quantity",
+            "required": true,
+            "type": "number"
+          }
+        },
+        {
+          "type": "primeng-dropdown",
+          "key": "purchaseUom",
+          "className": "col-span-12 md:col-span-6",
+          "props": {
+            "label": "Purchase UOM:",
+            "optionLabel": "label",
+            "optionValue": "value",
+            "placeholder": "Select UOM",
+            "filter": true,
+            "required": true,
+            "options": []
+          }
+        }
+      ]
+    }
+  }
+];
+this.clientrfq_form=[
+
+  { "key": "id", "type": "input", "hide": true },
+  { "key": "createdByUserId", "type": "input", "hide": true },
+  { "key": "tenantId", "type": "input", "hide": true },
+  { "key": "siteId", "type": "input", "hide": true },
+  {
+    "className": "col-span-24 w-full block mb-0",
+    "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
+    "fieldGroup": [
+      {
+        "type": "input",
+        "key": "clientRFQNumber",
+        "className": "col-span-6 md:col-span-4",
+        "props": {
+          "label": "RFQ Order#",
+          "readonly": true,
+          "placeholder": "RFQ#"
+        }
+      },
+      {
+        "key": "rfqDate",
+        "type": "datepicker",
+        "className": "col-span-12 md:col-span-6",
+        "templateOptions": {
+          "label": "RFQ Date",
+          "required": true,
+          "placeholder": "YYYY-MM-DD"
+        }
+      }
+    ]
+  },
+  {
+    "key": "items",
+    "type": "p-repeatsectionformly",
+    "wrappers": ["panel"],
+    "defaultValue": [],
+    "props": {
+      "label": "",
+      "addText": "Add Item",
+      "rowDefaults": { "quantity": "1" }
+    },
+    "fieldArray": {
+      "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
+      "fieldGroup": [
+        { "key": "id", "type": "input", "hide": true },
+        {
+          "type": "primeng-dropdown",
+          "key": "productId",
+          "className": "col-span-6 md:col-span-10",
+          "props": {
+            "label": "Item",
+            "optionLabel": "label",
+            "optionValue": "value",
+            "placeholder": "Select Item",
+            "lookupKey": "productTypes",
+            "required": true,
+            "filter": true
+          }
+        },
+        {
+          "type": "input",
+          "key": "quantity",
+          "className": "col-span-3 md:col-span-4",
+          "props": {
+          "label": "Quantity",
+            "placeholder": "Enter quantity",
+            "required": true,
+            "type": "number"
+          }
+        },
+        {
+          "type": "primeng-dropdown",
+          "key": "purchaseUom",
+          "className": "col-span-12 md:col-span-6",
+          "props": {
+            "label": "Purchase UOM:",
+            "optionLabel": "label",
+            "optionValue": "value",
+            "placeholder": "Select UOM",
+            "filter": true,
+            "required": true,
+            "options": []
+          }
+        }
+      ]
+    }
+  }
+]
 
 }//end of ngOnInit
 

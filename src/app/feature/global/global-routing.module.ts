@@ -17,6 +17,8 @@ import { TenantKanbanCardComponent } from './Kanban/tenant-kanban-card/tenant-ka
 import { TenantKanbanBoardComponent } from './views/tenant-kanban-board/tenant-kanban-board.component';
 import { TenantProfileTabsComponent } from './views/tenant-profile-tabs/tenant-profile-tabs.component';
 import { DbStatusComponent } from './db-status/db-status.component';
+import { PendingworkComponent } from './pendingwork/pendingwork.component';
+import { InfoJunctionComponent } from './info-junction/info-junction.component';
 
 // src/app/feature/global/global-routing.module.ts
 const routes: Routes = [
@@ -41,6 +43,8 @@ const routes: Routes = [
       
       {path:'TenantStrategies',component:TenantStrategiesComponent},
       {path:'diagnosis',component:DiagnosisComponent},
+      {path:'pendingworks',component:PendingworkComponent},
+      {path:'infojunction',component:InfoJunctionComponent},
       { path: 'migrateDB', component: MigrateDBComponent },
       
       { path: 'SucuritySettings', component: SecuritySettingsComponent },

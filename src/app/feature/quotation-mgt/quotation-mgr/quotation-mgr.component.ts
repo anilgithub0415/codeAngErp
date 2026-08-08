@@ -4,15 +4,18 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { NgxPermissionsModule } from 'ngx-permissions';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 import { FormOpMode } from '../../../shared/enums/FormOpMode.enum';
 import { AuthService } from '../../../core/services/auth.service';
 import { QuotationService } from '../../../core/services/quotation.service';
-import { IQuotation } from '../../../core/models/quotation.model';
+import { IQuotation, IQuotationItem, QuotationStatus } from '../../../core/models/quotation.model';
 
 import { QuotationFormComponent } from '../quotation-form/quotation-form.component';
 import { QuotationGridComponent } from '../quotation-grid/quotation-grid.component';
+
+import { RfqConversionService } from '../../../core/services/rfq-conversion.service';
+import { DashboardTabService } from '../../../core/services/dashboard-tab.service';
 
 @Component({
   selector: 'app-quotation-mgr',
@@ -39,15 +42,23 @@ export class QuotationMgrComponent implements OnInit {
   //                                    //clientId is for loggend users clientid bcos  this.clientId = this.authServ.getClientId()!; 
                                         // and currentCustomerId is for Admin may be viewing profiletabs, and its passed from clientProfileTabs of customer module
                                         //if clientId exists we need to ignore currentCustomerId
-  quotations: IQuotation[] = [];
+   private conversionSub!: Subscription;
+  
+   quotations: IQuotation[] = [];
   currOpMode: FormOpMode = FormOpMode.View;
   selectedQuotation: any = null;
 
   private authServ = inject(AuthService);
   private quotationService = inject(QuotationService);
+  private rfqConversionService=inject(RfqConversionService);
   private messageService = inject(MessageService);
+  private dashboardTabService=inject(DashboardTabService)
   private cd = inject(ChangeDetectorRef);
 
+  constructor(){
+    console.log('cQuotationMgrComponent instance created in memory');
+    
+  }
   ngOnInit(): void {
     this.tenantId = this.authServ.getTenantId()!;
     this.clientId = this.authServ.getClientId()!;
@@ -58,7 +69,102 @@ export class QuotationMgrComponent implements OnInit {
     if (savedMode && savedMode === FormOpMode.View) {
       this.currOpMode = FormOpMode.View;
     }
+
+ console.log('2. QuotationMgr: Initialized and reading cached stream state.')
+      this.conversionSub =this.rfqConversionService.convertRfq$
+.subscribe(async rfq => {
+
+    if (!rfq) {
+        return;
+    }
+
+    try {
+
+        const quotation =
+            await firstValueFrom(
+                this.quotationService
+                    .convertRFQToQuotation(rfq.id)
+            );
+
+        this.currOpMode = FormOpMode.Update;
+console.log('seletdquotation:',this.selectedQuotation);
+
+        this.selectedQuotation = quotation;
+
+      // this.activeTabIndex = 1;
+this.dashboardTabService.activate("Quotations"); this.currOpMode=FormOpMode.Update;
+
+        this.loadQuotationsList();
+
+    }
+    catch(ex){
+
+        console.error(ex);
+
+    }
+
+});
+
   }
+
+
+  private mapRfqToQuotationWorkflow(rfqRecord: any): void {
+    // 2. Map structure safely (preventing undefined/null breaks)
+    const mappedQuotation: Partial<IQuotation> = {
+      tenantId: rfqRecord.tenantId,
+      clientId: rfqRecord.clientId,
+      clientName: rfqRecord.clientName || 'RFQ Client Workspace', // Fallback or lookup fallback
+      status: QuotationStatus.DRAFT, // Always initialize conversions as raw editable drafts
+      version: 1,
+      isActive: true,
+      remarksNotes: `Converted from RFQ Number: ${rfqRecord.clientRFQNumber}.\nClient Notes: ${rfqRecord.clientNotes || 'None'}`,
+      totalAmount: Number(rfqRecord.totalAmount) || 0,
+      
+      // 3. Map line-item children arrays cleanly
+      items: (rfqRecord.items || []).map((rfqItem: any) => {
+        return {
+          productId: rfqItem.productId,
+          productVariantId: rfqItem.productVariantId,
+          prodName: rfqItem.prodName,
+          sku: rfqItem.sku,
+          quantity: Number(rfqItem.quantity) || 0,
+          
+          // Inject mandatory quotation specific default fallbacks 
+          unit: 'Pcs', 
+          price: 0.00, // Left zeroed out for wholesaler estimation entry
+          gstPercentage: 0.00,
+          discount: 0.00,
+          totalItemAmount: 0.00,
+          description: null,
+          targetPrice: null,
+          appliedLineDiscountId: null,
+          customAttributes: null
+        } as IQuotationItem;
+      })
+    };
+
+    // 4. Force state variables into standard creation flow context
+    this.selectedQuotation = mappedQuotation;
+
+    console.log('.....now selectedQuotation: ',this.selectedQuotation);
+    
+    
+    // Explicitly set to creation mode instead of FormOpMode.Update!
+    // This targets your application POST endpoint rather than PUT endpoint
+    this.currOpMode = FormOpMode.Add; 
+    localStorage.setItem('currOpMode', this.currOpMode);
+    
+    // 5. If your internal entry sub-component wraps an Angular FormGroup, 
+    // patch the control values directly here right after rendering:
+    // this.quotationForm.patchValue(this.selectedQuotation);
+
+    this.cd.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+    if (this.conversionSub) this.conversionSub.unsubscribe();
+  }
+
 
   async loadQuotationsList(): Promise<void> {
     try {
