@@ -2,7 +2,7 @@
 .custom-formly-grid {
   display: grid !important;
   grid-template-columns: repeat(24, minmax(0, 1fr)) !important;
-  gap: 0.1rem 0.5rem;//1.25rem !important;
+  gap: 0.1rem 0.15rem;//1.25rem !important;
   width: 100% !important;
 }
 
@@ -30,7 +30,7 @@
   formly-field p-select .p-select-label,
   formly-field input,                 /* ✨ Fixed: Targeted raw HTML tag instead of class */
   formly-field .p-inputtext {         /* ✨ Safe fallback for PrimeNG input templates */
-    padding: 4px 6px !important;       /* Tightened cell layout padding gap */
+    padding: 4px 4px !important;       /* Tightened cell layout padding gap */
     font-size: 13px !important;
     min-height: unset !important;
     height: 30px !important;           /* Fixed row line level across items */

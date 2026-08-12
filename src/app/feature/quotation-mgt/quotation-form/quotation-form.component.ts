@@ -65,8 +65,9 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
 
   @Output() onCancel = new EventEmitter<void>();
   @Output() onSaveSuccess = new EventEmitter<string>();
-  @Output() onFinalize = new EventEmitter<any>();
-  @Output() onApprove = new EventEmitter<number>();
+  @Output() onFinalize = new EventEmitter<any>(); //SubmitToApprove
+  @Output() onApprove = new EventEmitter<number>(); //Approve
+  @Output() onSend = new EventEmitter(); //Send to client
   @Output() onErrorToast = new EventEmitter<{ severity: string, summary: string, detail: string }>();
 
   raw!: any;
@@ -161,6 +162,43 @@ console.log('qdata:',this.quotationData);
 
   }
   
+
+//   //temperory replaced above by this
+//   async loadWorkflow(): Promise<void> {
+
+//   console.log('LOAD WORKFLOW CALLED');
+//   console.log('Current model:', this.model);
+//   console.log('Current model.id:', this.model?.id);
+
+//   if (!this.model?.id) {
+//     console.log('LOAD WORKFLOW STOPPED: model.id missing');
+//     return; 
+//   }
+
+//   try {
+// console.log('.....................model.id in quotation workflow............',this.model.id);
+
+//     const result = await firstValueFrom(
+//       this.quotationService.getWorkflow(this.model.id)
+//     );
+
+//     console.log('WORKFLOW API RESULT:', result);
+
+//     this.workflow = result;
+
+//     console.log('WORKFLOW ASSIGNED:', this.workflow);
+//     console.log(
+//       'CAN APPROVE RESULT:',
+//       this.workflow?.actions?.canApprove
+//     );
+
+//   } catch (error) {
+
+//     console.error('LOAD WORKFLOW FAILED:', error);
+
+//   }
+// }
+
   private executeFreshCreationSetup(): void {
     this.form.reset();
     this.resetModelToDefault();
@@ -646,6 +684,9 @@ console.log('qdata:',this.quotationData);
       totalItemAmount: Number(item.totalItemAmount || 0)
     }));
 
+    //pending:remove console log
+    console.log('cleanPayload......',cleanPayload);
+    
     try {
       if (this.opMode === FormOpMode.Add) {
         await firstValueFrom(this.quotationService.createQuotationClean(cleanPayload));
@@ -664,17 +705,6 @@ console.log('qdata:',this.quotationData);
   }
 
 
-// Add this getter inside your PurchaseFormComponent class
-get isFinalized(): boolean {
-  // If there's no model data yet, or if it is explicitly a fresh creation, it's not finalized
-  if (!this.model || !this.model.status) {
-    return false;
-  }
-  
-  // The backend defaults new items to "DRAFT". 
-  // If the status is anything else (e.g., "APPROVED", "FINALIZED"), it should be disabled.
-  return this.model.status !== 'DRAFT';
-}
 
 
   
@@ -682,7 +712,11 @@ get isFinalized(): boolean {
 // 2. Implement the requested method
 submitQuotationForApproval(): void {
   // Prevent execution if form is invalid or already finalized
-  if (this.form.invalid || this.isFinalized) {
+  console.log('....................submitQuotationForApproval......................');
+  console.log('this.model.status:',this.model.status);
+  
+  if (this.form.invalid || !this.workflow?.actions?.canSubmitToApprove) {
+       
     return;
   }
 
@@ -703,6 +737,15 @@ onApproveClicked(): void {
    // this.showToast('error', 'Error', 'Cannot approve an unsaved or missing record identifier.');
   }
 }
+
+onSendClicked(): void {
+  if (this.model && this.model.id) {
+    this.onSend.emit(this.model.id);
+  } else {
+   // this.showToast('error', 'Error', 'Cannot approve an unsaved or missing record identifier.');
+  }
+}
+
 
   async submitPortalCounterOffer(): Promise<void> {
     if (!this.form.valid) {

@@ -151,7 +151,7 @@ export class ProductMasterMgrComponent implements OnInit {
         // 3. Bind the fresh backend model state to the editing container 
         this.selectedProduct = freshProductData;
         
-        // 4. Update view visibility states and run change detection
+       // 4. Update view visibility states and run change detection
         this.isFormHidden = false;
         this.currOpMode = FormOpMode.Update;
         

@@ -54,7 +54,7 @@
         
        
     <td>
-          <button
+          <button  *ngxPermissionsOnly="['Quotation.Create']"
         type="button"
         (click)="onConvertClick(rfq)">
         Convert To Quotation

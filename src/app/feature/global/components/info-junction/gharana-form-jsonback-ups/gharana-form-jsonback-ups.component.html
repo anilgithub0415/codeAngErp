@@ -1,0 +1,23 @@
+<app-button-tabs [options]="myTabConfig" [activeTabId]="activeTab">
+  
+  <ng-template appTab="product_form">
+    <textarea cols="200" rows="50" >{{ product_form | json }}</textarea>
+  </ng-template> 
+  
+  <ng-template appTab="quotation_form">
+    <textarea cols="200" rows="50" >{{ quotation_form | json }}</textarea>
+  </ng-template> 
+  
+  <ng-template appTab="customer_form">
+    <textarea cols="200" rows="50" >{{ customer_form | json }}</textarea>
+  </ng-template> 
+
+  <ng-template appTab="sales_form">
+    <textarea cols="200" rows="50" >{{ sales_form | json }}</textarea>
+  </ng-template> 
+  
+  <ng-template appTab="purchase_form">
+    <textarea cols="200" rows="50" >{{ purchase_form | json }}</textarea>
+  </ng-template> 
+
+</app-button-tabs>

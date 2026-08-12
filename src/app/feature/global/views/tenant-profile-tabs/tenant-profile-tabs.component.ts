@@ -11,8 +11,9 @@ import { FormJSONsComponent } from '../../form-jsons/form-jsons.component';
 import { TenantService } from '../../../../core/services/tenant.service';
 import { tap } from 'rxjs';
 import { TenantKanbanCardComponent } from '../../Kanban/tenant-kanban-card/tenant-kanban-card.component';
-import { FormJSONBackUpsGharanaComponent } from '../../../../src/app/feature/global/form-jsonback-ups-gharana/form-jsonback-ups-gharana.component';
+
 import { CommonModule } from '@angular/common';
+import { GharanaFormJSONBackUpsComponent } from '../../components/info-junction/gharana-form-jsonback-ups/gharana-form-jsonback-ups.component';
 
 @Component({
   selector: 'app-tenant-profile-tabs',
@@ -20,7 +21,7 @@ import { CommonModule } from '@angular/common';
           ToastModule,
           ClientRequiremnetComponent,InteractionLogComponent,QuotationMgrComponent,
           TenantStrategiesComponent, PermissionJunctionComponent, FormJSONsComponent,
-          TenantKanbanCardComponent,FormJSONBackUpsGharanaComponent
+          TenantKanbanCardComponent,GharanaFormJSONBackUpsComponent
         ],
   templateUrl: './tenant-profile-tabs.component.html',
   styleUrl: './tenant-profile-tabs.component.scss'

@@ -1,9 +1,10 @@
-
+opMode:{{opMode}}
+this.options.formState.opMode:{{this.options.formState.opMode}}
 <h3>Need to hide 3 fields PUOM SUOM BUOM. Also in edit mode hsn ddl not holding selected value</h3>>
 <form [formGroup]="form" class="order-form" [class.hidden-form]="isFormHidden">
   <div class="order-header mb-4">
     <h2 class="text-xl font-bold mb-3">Product Configuration</h2>
-    <formly-form class="grid" [form]="form" [fields]="fields" [model]="model"></formly-form>
+    <formly-form class="grid" [form]="form" [fields]="fields" [model]="model"   [options]="options"></formly-form>
   </div>
 </form>
 

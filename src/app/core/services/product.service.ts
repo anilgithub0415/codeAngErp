@@ -94,7 +94,7 @@ export class ProductService {
     }
 
     getProductFinalPrice(pProductId: number, ptenantId: number, p: any, customerId?: number): Observable<number> {
-        console.log('getProductFinalPrice for custId:', customerId);
+        console.log('getProductFinalPrice for custId:', customerId, ' for product:',p);
         
         let url = this.apiUrl + '/finalPrice/' + pProductId + '/' + ptenantId;
         if (customerId) { url = this.apiUrl + '/finalPrice/' + pProductId + '/' + ptenantId + '/' + customerId; }

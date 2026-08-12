@@ -32,6 +32,8 @@ export class QuotationService {
     quotationId:number
   ):Observable<IQuotationWorkflow>{
 
+    console.log('........................getworkflow url:' ,`${this.apiUrl}/${quotationId}/workflow`);
+    
       return this.http.get<IQuotationWorkflow>(
           `${this.apiUrl}/${quotationId}/workflow`
       );
@@ -43,6 +45,8 @@ export class QuotationService {
   }
 
   updateQuotation(id: number, payload: Partial<IQuotation>): Observable<IQuotation> {
+    console.log('................updQuotation payload........:',payload);
+    
     return this.http.put<IQuotation>(`${this.apiUrl}/${id}`, payload);
   }
 
@@ -75,13 +79,29 @@ export class QuotationService {
    * PATCH: Submits/sends a quotation to the client workflow (Transitions status to SENT).
    * @param id The database tracking ID of the quotation.
    */
-  submitToQuotationWorkflow(id: number): Observable<any> {
+  submitToQuotationWorkflow_notinuse(id: number): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}/send`, {}).pipe(
       tap(response => console.log('Quotation submitted and sent to client:', response)),
       catchError(this.handleError)
     );
   }
 
+  //added
+  submitQuotationForApproval(
+    quotationId: number
+) {
+
+  console.log('////////////////  .....hitting submit-approval........................quotationId:');
+  console.log(quotationId);
+  
+
+  
+    return this.http.patch(
+        `${this.apiUrl}/${quotationId}/submit-to-approval`,
+        {}
+    );
+
+}
   /**
    * PATCH: Finalizes and approves a quotation (Transitions status to APPROVED).
    * @param id The database tracking ID of the quotation.
@@ -89,6 +109,13 @@ export class QuotationService {
    */
   approveQuotation(id: number): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}/approve`, {}).pipe(
+      tap(response => console.log('Quotation finalized and approved:', response)),
+      catchError(this.handleError)
+    );
+  }
+
+  sendQuotation(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/send`, {}).pipe(
       tap(response => console.log('Quotation finalized and approved:', response)),
       catchError(this.handleError)
     );

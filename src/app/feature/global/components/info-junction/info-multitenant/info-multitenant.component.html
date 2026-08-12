@@ -1,0 +1,41 @@
+<p>info-multitenant works!</p>
+
+
+  <app-button-tabs [options]="myTabConfig" [activeTabId]="activeTab">
+  
+      <ng-template appTab="Quotation">
+        Quotation Workflow is maitained such a way that by considering tenant strategy:Quotation_Workflow settings like <br/>
+        1.  STANDARD_APPROVAL, 2. NOSENDSTEP
+        <br/>
+        <br/>
+        Possible transitions are declare like:
+<br/>
+  [QuotationWorkflowType.STANDARD_APPROVAL]: <br/>
+    [QuotationStatus.DRAFT]: <br/>
+        editable: true,<br/>
+        deletable: true,<br/>
+        customerChange: true,<br/>
+        next: [<br/>
+            QuotationStatus.PENDING_APPROVAL<br/>
+        ]<br/>
+    ,<br/>
+<br/>
+    [QuotationStatus.PENDING_APPROVAL]: <br/>
+    editable: false,<br/>
+    deletable: false,<br/>
+    customerChange: false,<br/>
+    next: [<br/>
+        QuotationStatus.APPROVED,<br/>
+        QuotationStatus.REJECTED<br/>
+    ]<br/>
+    ,<br/>
+    ...<br/>
+    <br/>
+   </ng-template>
+    
+
+  <ng-template appTab="Other">
+   
+</ng-template> 
+
+</app-button-tabs>
