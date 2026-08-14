@@ -108,58 +108,7 @@ this.dashboardTabService.activate("Quotations"); this.currOpMode=FormOpMode.Upda
   }
 
 
-  private mapRfqToQuotationWorkflow(rfqRecord: any): void {
-    // 2. Map structure safely (preventing undefined/null breaks)
-    const mappedQuotation: Partial<IQuotation> = {
-      tenantId: rfqRecord.tenantId,
-      clientId: rfqRecord.clientId,
-      clientName: rfqRecord.clientName || 'RFQ Client Workspace', // Fallback or lookup fallback
-      status: QuotationStatus.DRAFT, // Always initialize conversions as raw editable drafts
-      version: 1,
-      isActive: true,
-      remarksNotes: `Converted from RFQ Number: ${rfqRecord.clientRFQNumber}.\nClient Notes: ${rfqRecord.clientNotes || 'None'}`,
-      totalAmount: Number(rfqRecord.totalAmount) || 0,
-      
-      // 3. Map line-item children arrays cleanly
-      items: (rfqRecord.items || []).map((rfqItem: any) => {
-        return {
-          productId: rfqItem.productId,
-          productVariantId: rfqItem.productVariantId,
-          prodName: rfqItem.prodName,
-          sku: rfqItem.sku,
-          quantity: Number(rfqItem.quantity) || 0,
-          
-          // Inject mandatory quotation specific default fallbacks 
-          unit: 'Pcs', 
-          price: 0.00, // Left zeroed out for wholesaler estimation entry
-          gstPercentage: 0.00,
-          discount: 0.00,
-          totalItemAmount: 0.00,
-          description: null,
-          targetPrice: null,
-          appliedLineDiscountId: null,
-          customAttributes: null
-        } as IQuotationItem;
-      })
-    };
-
-    // 4. Force state variables into standard creation flow context
-    this.selectedQuotation = mappedQuotation;
-
-    console.log('.....now selectedQuotation: ',this.selectedQuotation);
-    
-    
-    // Explicitly set to creation mode instead of FormOpMode.Update!
-    // This targets your application POST endpoint rather than PUT endpoint
-    this.currOpMode = FormOpMode.Add; 
-    localStorage.setItem('currOpMode', this.currOpMode);
-    
-    // 5. If your internal entry sub-component wraps an Angular FormGroup, 
-    // patch the control values directly here right after rendering:
-    // this.quotationForm.patchValue(this.selectedQuotation);
-
-    this.cd.detectChanges();
-  }
+  
 
   ngOnDestroy(): void {
     if (this.conversionSub) this.conversionSub.unsubscribe();
@@ -222,41 +171,64 @@ this.dashboardTabService.activate("Quotations"); this.currOpMode=FormOpMode.Upda
     await this.loadQuotationsList();
   }
 
-  // ==========================================
-// 1. HANDLE FINALIZE / SEND PIPELINE
-// Note/approach/logic: When we click on Approve the status of thet quotation become 'Approved' and immeditely beomes 'Sent'. As in below 
-// code (line 10) service.updateQuotation makes it Approved and (line 21) service.submitToQuotationWorkflowmakes it 'Sent'
-//So in clientPortal instead of Approved we filtered for Sent
-// ==========================================
 async handleFinalize(submissionPayload: any): Promise<void> {
-  try {
-    console.log('submissionPayload is:',submissionPayload);
-    
-    let targetId = submissionPayload.id;
 
-    // 1. Save outstanding draft modifications first
-    if (this.currOpMode === FormOpMode.Update && targetId) {
-      await firstValueFrom(
-        this.quotationService.updateQuotation(targetId, submissionPayload)
-      );
-    } else if (!targetId) {
-      const freshQuote = await firstValueFrom(
-        this.quotationService.createQuotationClean(submissionPayload)
-      );
-      targetId = freshQuote.id; 
+    try {
+
+        let targetId = submissionPayload.id;
+
+        // Save current changes first
+        if (
+            this.currOpMode === FormOpMode.Update &&
+            targetId
+        ) {
+
+            await firstValueFrom(
+                this.quotationService.updateQuotation(
+                    targetId,
+                    submissionPayload
+                )
+            );
+
+        } else if (!targetId) {
+
+            const freshQuote =
+                await firstValueFrom(
+                    this.quotationService.createQuotationClean(
+                        submissionPayload
+                    )
+                );
+
+            targetId = freshQuote.id;
+        }
+
+        // Finalize = Submit for Approval
+        // DRAFT -> PENDING_APPROVAL
+        await firstValueFrom(
+            this.quotationService.submitQuotationForApproval(
+                targetId
+            )
+        );
+
+        this.showToast(
+            'success',
+            'Submitted for Approval',
+            'Quotation has been successfully submitted for approval.'
+        );
+
+        this.currOpMode = FormOpMode.View;
+
+        this.loadQuotationsList();
+
+    } catch (error: any) {
+
+        this.showToast(
+            'error',
+            'Submission Failed',
+            error.message ||
+            'Could not submit quotation for approval.'
+        );
     }
-
-    // 2. Change status from DRAFT/REVISED to SENT
-    await firstValueFrom(
-      this.quotationService.submitToQuotationWorkflow(targetId)
-    );
-
-    this.showToast('success', 'Sent Successfully', 'Quotation has been successfully sent to the client.');
-    this.currOpMode = FormOpMode.View;
-    this.loadQuotationsList(); // Refresh data grid
-  } catch (error: any) {
-    this.showToast('error', 'Submission Failed', error.message || 'Could not process quotation dispatch.');
-  }
 }
 
 // ==========================================
@@ -276,6 +248,47 @@ async handleApprove(quoteId: number): Promise<void> {
     this.showToast('error', 'Approval Failed', error.message || 'Could not complete the quotation approval pipeline.');
   }
 }
+
+// ==========================================
+// 3. HANDLE REVISE PIPELINE
+// ==========================================
+async handleRevise(quoteId: number): Promise<void> {
+  try {
+
+  
+    // Progress quote status to ReviseD (No stock calculations)
+    await firstValueFrom(
+      this.quotationService.reviseQuotation(quoteId)
+    );
+
+    this.showToast('success', 'Revised', 'Quotation verified and marked as ready for conversion.');
+    this.currOpMode = FormOpMode.View;
+    this.loadQuotationsList(); // Refresh data grid
+  } catch (error: any) {
+    this.showToast('error', 'Revise Failed', error.message || 'Could not complete the quotation revise pipeline.');
+  }
+}
+
+
+
+// ==========================================
+// 2. HANDLE SEND PIPELINE
+// ==========================================
+async handleSend(quoteId: number): Promise<void> {
+  try {
+    // Progress quote status to APPROVED (No stock calculations)
+    await firstValueFrom(
+      this.quotationService.sendQuotation(quoteId)
+    );
+
+    this.showToast('success', 'Sent', 'Quotation sent');
+    this.currOpMode = FormOpMode.View;
+    this.loadQuotationsList(); // Refresh data grid
+  } catch (error: any) {
+    this.showToast('error', 'Approval Failed', error.message || 'Could not complete the quotation approval pipeline.');
+  }
+}
+
 
   showToast(severity: string, summary: string, detail: string): void {
     this.messageService.add({ severity, summary, detail });

@@ -1,0 +1,48 @@
+<p>global-dashboard works!</p>
+  <app-button-tabs [options]="myTabConfig" [activeTabId]="activeTab">
+  
+   
+    <ng-template appTab="Tenant">
+            <app-tenant></app-tenant>
+    </ng-template>
+
+    <ng-template appTab="dbStatus">
+            <app-db-status></app-db-status>
+    </ng-template>
+
+
+    <ng-template appTab="HSNs">
+            <app-hsntax-rule></app-hsntax-rule>
+    </ng-template>
+
+    <ng-template appTab="Diagnosis">
+            <app-diagnosis></app-diagnosis>
+    </ng-template>
+
+    <ng-template appTab="MigrateDB">
+            <app-migrate-db></app-migrate-db>
+    </ng-template>
+
+    <ng-template appTab="PendingWorks">
+            <app-pendingwork></app-pendingwork>
+    </ng-template>
+
+    <ng-template appTab="SubScriptionPlan">
+            <app-subscription-plan></app-subscription-plan>
+    </ng-template>
+   
+
+    <ng-template appTab="TenantTypes">
+            <app-tenant-types></app-tenant-types>
+    </ng-template>
+
+    <ng-template appTab="InfoJunction">
+            <app-info-junction></app-info-junction>
+    </ng-template>
+
+        <ng-template appTab="SecuritySettings">
+            <app-security-settings></app-security-settings>
+    </ng-template>
+
+
+</app-button-tabs>

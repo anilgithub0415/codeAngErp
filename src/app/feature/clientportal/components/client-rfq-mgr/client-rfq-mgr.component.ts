@@ -7,7 +7,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 import { clientPurchase } from '../../../../core/models/clientPurchase.model';
-import { clientRFQ } from '../../../../core/models/clientRFQ.model';
+import { clientRFQ, IClientRFQWorkflow } from '../../../../core/models/clientRFQ.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PurchaseService, TenantRulesMatrixResponse } from '../../../../core/services/purchase.service';
 import { ClientRFQService } from '../../../../core/services/client-rfq.service';
@@ -25,6 +25,7 @@ import { bindDatabaseHooks, hydrateFormlyConfig } from '../../../../shared/utils
 import { ClientRFQGridComponent } from '../client-rfq-grid/client-rfq-grid.component';
 import { ClientRFQFormComponent } from '../client-rfq-form/client-rfq-form.component';
 import { RfqConversionService } from '../../../../core/services/rfq-conversion.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-client-rfq-mgr',
@@ -40,6 +41,8 @@ import { RfqConversionService } from '../../../../core/services/rfq-conversion.s
 export class ClientRFQMgrComponent implements OnInit {
   @Input() isWholesalerView: boolean = false;
   @Input() allowedStatuses: string[] = []; 
+
+  workflow?:IClientRFQWorkflow;
 
   siteId!: number;
   clientId!: number;
@@ -91,6 +94,8 @@ export class ClientRFQMgrComponent implements OnInit {
 
     this.getForm_ClientRFQ();
     this.getRFQList();
+
+    
   }
 
    onConvertToQuotationClick(rfq: clientRFQ): void {
@@ -100,6 +105,38 @@ export class ClientRFQMgrComponent implements OnInit {
   this.conversionService.triggerConversion(rfq);
   }
 
+async loadWorkflow(): Promise<void> {
+
+    console.log(
+        '....loadworkflow.........................'
+    );
+
+    console.log(
+        'this.model?.id:',
+        this.model?.id
+    );
+
+    if (!this.model?.id) {
+
+        this.workflow =
+            undefined;
+
+        return;
+    }
+
+    this.workflow =
+        await firstValueFrom(
+            this.clientRFQService.getWorkflow(
+                this.model.id
+            )
+        );
+
+    console.log(
+        'Loaded Client RFQ workflow:',
+        this.workflow
+    );
+}
+    
   getForm_ClientRFQ() {
     this.formService.getForm(this.tenantId!, 'clientrfq_form').subscribe(aform => {
       this.aForm = aform;
@@ -257,6 +294,7 @@ export class ClientRFQMgrComponent implements OnInit {
     }
 
     this.model = copy;
+    this.loadWorkflow();
   }
   saveRFQDraft() {
     this.executePersistWorkflow(false);
@@ -319,7 +357,7 @@ purchaseUom: item.purchaseUom || null
 })) : []; 
 
 const payload = {
-action: 'SENT' as const,
+action: 'SUBMITTED' as const,
 items: itemsPayload
 }; 
 
@@ -328,7 +366,7 @@ next: () => {
 this.messageService.add({
 severity: 'success',
 summary: 'Order Sent',
-detail: 'Purchase Order #${this.model.clientRFQNumber || poId} has been successfully dispatched to vendors.'
+detail: 'RFQ Order #${this.model.clientRFQNumber || poId} has been successfully dispatched to vendors.'
 });
 this.finalizeSaveSuccess();
 },
@@ -368,62 +406,178 @@ detail: err.error?.message || err.message || 'An error occurred while sending th
       }
     });
   }
-  
-  private executePersistWorkflow(shouldSubmitToClient: boolean) {
-    if (!this.model.items?.length) {
-      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'At least one product item is required' });
+  private executePersistWorkflow(shouldSubmitToClient: boolean): void {
+
+  if (!this.model.items?.length) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Validation Error',
+      detail: 'At least one product item is required'
+    });
+    return;
+  }
+
+  // --------------------------------------------------
+  // Common data
+  // --------------------------------------------------
+
+  this.model.tenantId = this.tenantId;
+  this.model.siteId = this.siteId;
+  this.model.clientId = this.clientId;
+  this.model.clientRFQNumber =
+    this.model.clientRFQNumber || '';
+
+  const payload = {
+    ...this.model
+  };
+
+  // --------------------------------------------------
+  // SUBMIT
+  // --------------------------------------------------
+
+  if (shouldSubmitToClient) {
+    payload.action = 'SUBMIT';
+    payload.status = 'SUBMITTED';
+  }
+
+  // --------------------------------------------------
+  // CREATE
+  // --------------------------------------------------
+
+  if (this.currOpMode === FormOpMode.Add) {
+
+    this.clientRFQService
+      .createclientRFQOrder(payload)
+      .subscribe({
+
+        next: (res: any) => {
+
+          const targetId =
+            res?.id ||
+            res?.purchaseOrderId;
+
+          // ------------------------------------------
+          // Draft
+          // ------------------------------------------
+
+          if (!shouldSubmitToClient) {
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Saved',
+              detail: 'RFQ draft saved successfully.'
+            });
+
+            this.finalizeSaveSuccess();
+            return;
+          }
+
+          // ------------------------------------------
+          // Submitted
+          // ------------------------------------------
+
+          if (!targetId) {
+
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Submission Interrupted',
+              detail: 'Could not resolve internal RFQ reference ID.'
+            });
+
+            this.finalizeSaveSuccess();
+            return;
+          }
+
+          // The create call has already received:
+          //
+          // action = SUBMIT
+          // status = SUBMITTED
+          //
+          // Therefore NO second update call is required.
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Submitted',
+            detail: 'RFQ has been submitted successfully.'
+          });
+
+          this.finalizeSaveSuccess();
+        },
+
+        error: (err: any) => {
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Save Failed',
+            detail: err.message || 'Could not save RFQ.'
+          });
+
+        }
+
+      });
+
+    return;
+  }
+
+  // --------------------------------------------------
+  // UPDATE
+  // --------------------------------------------------
+
+  if (this.currOpMode === FormOpMode.Update) {
+
+    const existingId =
+      this.model.id ||
+      this.model.purchaseOrderId;
+
+    if (!existingId) {
+
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Update Failed',
+        detail: 'RFQ ID is missing.'
+      });
+
       return;
     }
 
-    this.model.tenantId = this.tenantId;
-    this.model.siteId = this.siteId;
-    this.model.clientId = this.clientId;
-    this.model.clientRFQNumber = this.model.clientRFQNumber || '';
+    this.clientRFQService
+      .updateClientRFQOrder(existingId, payload)
+      .subscribe({
 
-    const payload = { ...this.model };
-    if (shouldSubmitToClient) {
-      payload.action = 'SUBMIT';
-      payload.status = 'PENDING_APPROVAL';
-    }
-
-    if (this.currOpMode === FormOpMode.Add) {
-      this.clientRFQService.createclientRFQOrder(payload).subscribe({
-        next: (res: any) => { 
-          this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Draft Order initialized.' });
-          const targetId = res?.id || res?.purchaseOrderId;
-
-          if (shouldSubmitToClient) {
-            if (!targetId) {
-              this.messageService.add({ severity: 'error', summary: 'Submission Interrupted', detail: 'Could not resolve internal reference ID.' });
-              this.finalizeSaveSuccess();
-              return;
-            }
-
-            this.clientRFQService.updateClientRFQOrder(targetId, { action: 'SUBMIT', status: 'PENDING_APPROVAL' }).subscribe({
-              next: () => this.finalizeSaveSuccess(),
-              error: (err) => this.messageService.add({ severity: 'error', summary: 'Submission Failed', detail: err.message })
-            });
-          } else {
-            this.finalizeSaveSuccess();
-          }
-        },
-        error: (err: any) => this.messageService.add({ severity: 'error', summary: 'Save Failed', detail: err.message })
-      });
-
-    } else if (this.currOpMode === FormOpMode.Update) {
-      const existingId = this.model.id || this.model.purchaseOrderId;
-      
-      this.clientRFQService.updateClientRFQOrder(existingId, payload).subscribe({
         next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Purchase order changes saved and submitted.' });
+
+          this.messageService.add({
+            severity: 'success',
+            summary: shouldSubmitToClient
+              ? 'Submitted'
+              : 'Updated',
+
+            detail: shouldSubmitToClient
+              ? 'RFQ has been submitted successfully.'
+              : 'RFQ draft updated successfully.'
+          });
+
           this.finalizeSaveSuccess();
         },
-        error: (err) => {
-          this.messageService.add({ severity: 'error', summary: 'Update Failed', detail: err.message });
+
+        error: (err: any) => {
+
+          this.messageService.add({
+            severity: 'error',
+            summary: shouldSubmitToClient
+              ? 'Submission Failed'
+              : 'Update Failed',
+
+            detail:
+              err.message ||
+              'Could not process RFQ.'
+          });
+
         }
+
       });
-    }
   }
+}
 
   private finalizeSaveSuccess() {
     this.getRFQList();

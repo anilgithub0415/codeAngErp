@@ -7,6 +7,11 @@
           <app-tenant-strategies [tenantId]='tenantId'></app-tenant-strategies>
     </ng-template> 
     
+    
+    <ng-template appTab="DiscountType">
+          <app-discount-type [tenantId]='tenantId'></app-discount-type>
+    </ng-template> 
+    
     <ng-template appTab="Junction">
       <app-permission-junction [tenantId]='tenantId'></app-permission-junction>
     </ng-template>
@@ -19,7 +24,7 @@
      <ng-template appTab="FormJSONBackUps">
 
         <ng-container *ngIf="tenantId == 1; else nobackup">
-          <app-form-jsonback-ups-gharana></app-form-jsonback-ups-gharana>
+       <app-gharana-form-jsonback-ups></app-gharana-form-jsonback-ups>
         </ng-container>
 
         <ng-template #nobackup>

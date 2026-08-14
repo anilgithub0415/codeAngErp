@@ -6,6 +6,7 @@ import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { ButtonModule } from 'primeng/button';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
+import { IClientRFQWorkflow } from '../../../../core/models/clientRFQ.model';
 
 @Component({
   selector: 'app-client-rfq-form',
@@ -22,12 +23,16 @@ export class ClientRFQFormComponent {
   @Input() fields: FormlyFieldConfig[] = [];
   @Input() model: any;
   @Input() currOpMode!: FormOpMode;
-
+@Input() workflow!: IClientRFQWorkflow;
   @Output() saveDraft = new EventEmitter<void>();
   @Output() submitForApproval = new EventEmitter<void>();
   @Output() clearForm = new EventEmitter<void>();
   @Output() approve = new EventEmitter<void>();
   @Output() send = new EventEmitter<void>();
+  @Output() convertToQuote=new EventEmitter<any>();
   @Output() reject = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+
+
+    
 }

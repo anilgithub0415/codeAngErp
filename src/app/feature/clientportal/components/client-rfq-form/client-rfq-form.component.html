@@ -40,7 +40,7 @@
       [disabled]="!form.valid">
     </p-button>
 
-    <p-button
+    <!-- <p-button
       *ngxPermissionsOnly="['ClientRFQ.SubmitToApprove']"
       type="button"
       label="Submit for Approval"
@@ -48,7 +48,7 @@
       styleClass="p-button-success"
       (click)="submitForApproval.emit()"
       [disabled]="!form.valid">
-    </p-button>
+    </p-button> -->
 
     <button
       pButton
@@ -74,10 +74,24 @@
     </ng-container>
     
     <ng-container *ngxPermissionsOnly="['ClientRFQ.Send']">
-      <span *ngIf="model?.status === 'APPROVED' && currOpMode === 'UPDATE'"> 
+      <span *ngIf="model?.status === 'DRAFT' && currOpMode === 'UPDATE'"> 
         <p-button label="Send RFQ" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="send.emit()"></p-button>
       </span>
     </ng-container>
+
+<div>
+workflow?.actions?.canConvertToQuotation:{{workflow?.actions?.canConvertToQuotation}}
+</div>
+      <ng-container *ngxPermissionsOnly="['Quotation.Create']">
+      <ng-container  *ngIf="workflow?.actions?.canConvertToQuotation">
+          <p-button
+              label="Convert to Quotation"
+              icon="pi pi-shopping-cart"
+              styleClass="p-button-warning mr-2"
+              (onClick)="convertToQuote.emit(model)">
+          </p-button>
+      </ng-container>
+      </ng-container>
 
     <ng-container *ngxPermissionsOnly="['ClientPO.Reject']">
       <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 

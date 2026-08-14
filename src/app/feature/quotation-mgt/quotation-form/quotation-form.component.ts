@@ -65,8 +65,11 @@ import { FormlyFieldButtonComponent } from '../../../shared/components/formlyfie
 
   @Output() onCancel = new EventEmitter<void>();
   @Output() onSaveSuccess = new EventEmitter<string>();
-  @Output() onFinalize = new EventEmitter<any>();
-  @Output() onApprove = new EventEmitter<number>();
+  @Output() onFinalize = new EventEmitter<any>(); //SubmitToApprove
+  @Output() onApprove = new EventEmitter<number>(); //Approve
+  
+  @Output() onRevise = new EventEmitter<number>(); //onRevise
+  @Output() onSend = new EventEmitter(); //Send to client
   @Output() onErrorToast = new EventEmitter<{ severity: string, summary: string, detail: string }>();
 
   raw!: any;
@@ -161,6 +164,43 @@ console.log('qdata:',this.quotationData);
 
   }
   
+
+//   //temperory replaced above by this
+//   async loadWorkflow(): Promise<void> {
+
+//   console.log('LOAD WORKFLOW CALLED');
+//   console.log('Current model:', this.model);
+//   console.log('Current model.id:', this.model?.id);
+
+//   if (!this.model?.id) {
+//     console.log('LOAD WORKFLOW STOPPED: model.id missing');
+//     return; 
+//   }
+
+//   try {
+// console.log('.....................model.id in quotation workflow............',this.model.id);
+
+//     const result = await firstValueFrom(
+//       this.quotationService.getWorkflow(this.model.id)
+//     );
+
+//     console.log('WORKFLOW API RESULT:', result);
+
+//     this.workflow = result;
+
+//     console.log('WORKFLOW ASSIGNED:', this.workflow);
+//     console.log(
+//       'CAN APPROVE RESULT:',
+//       this.workflow?.actions?.canApprove
+//     );
+
+//   } catch (error) {
+
+//     console.error('LOAD WORKFLOW FAILED:', error);
+
+//   }
+// }
+
   private executeFreshCreationSetup(): void {
     this.form.reset();
     this.resetModelToDefault();
@@ -205,290 +245,7 @@ console.log('qdata:',this.quotationData);
     bindDatabaseHooks(this.productService,this.tenantId,this.fields)
     });
     
-                //       this.raw = [
-                //   {
-                //     "key": "id",
-                //     "type": "input",
-                //     "hide": true
-                //   },
-                //   {
-                //     "key": "tenantId",
-                //     "type": "input",
-                //     "hide": true
-                //   },
-                //   {
-                //     "key": "createdByUserId",
-                //     "type": "input",
-                //     "hide": true
-                //   },
-                //   {
-                //     "key": "quoteNumber",
-                //     "type": "input",
-                //     "hide": true
-                //   },
-                //   {
-                //     "key": "version",
-                //     "type": "input",
-                //     "hide": true
-                //   },
-                //   {
-                //     "wrappers": [
-                //       "panel"
-                //     ],
-                //     "className": "col-span-24 w-full block mb-2",
-                //     "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end mb-4",
-                //     "fieldGroup": [
-                //       {
-                //         "type": "primeng-dropdown",
-                //         "key": "clientId",
-                //         "className": "col-span-24 md:col-span-6",
-                //         "props": {
-                //           "label": "Wholesale Client / Customer from static json",
-                //           "valueProp": "value",
-                //           "styleClass": "w-full",
-                //           "labelProp": "label",
-                //           "optionLabel": "label",
-                //           "optionValue": "value",
-                //           "placeholder": "Select Customer",
-                //           "lookupKey": "customerTypes",
-                //           "required": true,
-                //           "filter": true
-                //         }
-                //       },
-                //       {
-                //         "type": "input",
-                //         "key": "clientName",
-                //         "className": "col-span-24 md:col-span-6",
-                //         "props": {
-                //           "label": "Client / Trade Name",
-                //           "placeholder": "e.g., Ceramic Enterprises",
-                //           "required": true
-                //         }
-                //       },
-                //       {
-                //         "type": "input",
-                //         "key": "clientCategory",
-                //         "className": "col-span-12 md:col-span-6",
-                //         "props": {
-                //           "label": "Client Category",
-                //           "placeholder": "e.g., Distributor, Retailer"
-                //         }
-                //       },
-                //       {
-                //         "type": "input",
-                //         "key": "status",
-                //         "className": "col-span-12 md:col-span-6",
-                //         "props": {
-                //           "label": "Quotation Status",
-                //           "disabled": true
-                //         }
-                //       },
-                //       {
-                //         "type": "input",
-                //         "key": "contactPerson",
-                //         "className": "col-span-12 md:col-span-6",
-                //         "props": {
-                //           "label": "Contact Person Name",
-                //           "placeholder": "e.g., John Doe"
-                //         }
-                //       },
-                //       {
-                //         "type": "input",
-                //         "key": "deliveryLocation",
-                //         "className": "col-span-24 md:col-span-12",
-                //         "props": {
-                //           "label": "Site Delivery / Logistics Location",
-                //           "placeholder": "Enter complete logistics delivery path destination..."
-                //         }
-                //       },
-                //       {
-                //         "type": "input",
-                //         "key": "remarksNotes",
-                //         "className": "col-span-24 md:col-span-12",
-                //         "props": {
-                //           "label": "Internal Notes",
-                //           "placeholder": "Add quote structural tracking notes..."
-                //         }
-                //       }
-                //     ]
-                //   },
-                //   {
-                //     "key": "items",
-                //     "type": "p-repeatsectionformly",
-                //     "wrappers": [
-                //       "panel"
-                //     ],
-                //     "defaultValue": [],
-                //     "props": {
-                //       "label": "Itemized Material Estimate Lines",
-                //       "addText": "Add Material Estimate Line",
-                //       "rowDefaults": {
-                //         "quantity": 1,
-                //         "unit": "PCS",
-                //         "price": 0,
-                //         "targetPrice": 0,
-                //         "discount": 0,
-                //         "gstPercentage": 18,
-                //         "totalItemAmount": 0
-                //       }
-                //     },
-                //     "fieldArray": {
-                //       "fieldGroupClassName": "grid grid-cols-24 gap-4 w-full p-fluid items-end",
-                //       "fieldGroup": [
-                //         {
-                //           "key": "id",
-                //           "type": "input",
-                //           "hide": true
-                //         },
-                //         {
-                //           "key": "productVariantId",
-                //           "type": "input",
-                //           "hide": true
-                //         },
-                //         {
-                //           "key": "prodName",
-                //           "type": "input",
-                //           "hide": true
-                //         },
-                //         {
-                //           "key": "sku",
-                //           "type": "input",
-                //           "hide": true
-                //         },
-                //         {
-                //           "key": "appliedLineDiscountId",
-                //           "type": "input",
-                //           "hide": true
-                //         },
-                //         {
-                //           "type": "primeng-dropdown",
-                //           "key": "productId",
-                //           "className": "col-span-24 md:col-span-5",
-                //           "props": {
-                //             "optionLabel": "label",
-                //             "optionValue": "value",
-                //             "placeholder": "Select Product Item",
-                //             "lookupKey": "productTypes",
-                //             "required": true,
-                //             "filter": true
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Product Detail Spec / SKU' : ''"
-                //           },
-                //           "hooks": {
-                //             "onInit": "onProductDropdownChange"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "description",
-                //           "className": "col-span-24 md:col-span-4",
-                //           "props": {
-                //             "placeholder": "Item Description / Notes"
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Description' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "unit",
-                //           "className": "col-span-12 md:col-span-2",
-                //           "props": {
-                //             "placeholder": "UOM",
-                //             "required": true
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'UOM' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "quantity",
-                //           "className": "col-span-12 md:col-span-2",
-                //           "props": {
-                //             "type": "number",
-                //             "placeholder": "Qty",
-                //             "required": true,
-                //             "min": 0
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Quantity' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "finalPrice",
-                //           "className": "col-span-12 md:col-span-2",
-                //           "props": {
-                //             "type": "number",
-                //             "placeholder": "Rate",
-                //             "required": true,
-                //             "min": 0
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Base Price' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "targetPrice",
-                //           "className": "col-span-12 md:col-span-2",
-                //           "props": {
-                //             "type": "number",
-                //             "placeholder": "Target",
-                //             "min": 0
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Target Price (₹)' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "discount",
-                //           "className": "col-span-12 md:col-span-2",
-                //           "props": {
-                //             "type": "number",
-                //             "placeholder": "Dsc",
-                //             "required": true,
-                //             "min": 0,
-                //             "readonly": true
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Discount (₹)' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "gstPercentage",
-                //           "className": "col-span-12 md:col-span-2",
-                //           "props": {
-                //             "type": "number",
-                //             "placeholder": "GST",
-                //             "required": true,
-                //             "min": 0
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'GST %' : ''"
-                //           }
-                //         },
-                //         {
-                //           "type": "input",
-                //           "key": "totalItemAmount",
-                //           "className": "col-span-12 md:col-span-3",
-                //           "props": {
-                //             "type": "number",
-                //             "placeholder": "Total",
-                //             "readonly": true
-                //           },
-                //           "expressions": {
-                //             "props.label": "field.parent.index === 0 ? 'Line Net' : ''"
-                //           }
-                //         }
-                //       ]
-                //     }
-                //   }
-                // ];
+              
 
     
   } //end of generateFormlyJSONBlueprint
@@ -646,6 +403,9 @@ console.log('qdata:',this.quotationData);
       totalItemAmount: Number(item.totalItemAmount || 0)
     }));
 
+    //pending:remove console log
+    console.log('cleanPayload......',cleanPayload);
+    
     try {
       if (this.opMode === FormOpMode.Add) {
         await firstValueFrom(this.quotationService.createQuotationClean(cleanPayload));
@@ -664,17 +424,6 @@ console.log('qdata:',this.quotationData);
   }
 
 
-// Add this getter inside your PurchaseFormComponent class
-get isFinalized(): boolean {
-  // If there's no model data yet, or if it is explicitly a fresh creation, it's not finalized
-  if (!this.model || !this.model.status) {
-    return false;
-  }
-  
-  // The backend defaults new items to "DRAFT". 
-  // If the status is anything else (e.g., "APPROVED", "FINALIZED"), it should be disabled.
-  return this.model.status !== 'DRAFT';
-}
 
 
   
@@ -682,7 +431,11 @@ get isFinalized(): boolean {
 // 2. Implement the requested method
 submitQuotationForApproval(): void {
   // Prevent execution if form is invalid or already finalized
-  if (this.form.invalid || this.isFinalized) {
+  console.log('....................submitQuotationForApproval......................');
+  console.log('this.model.status:',this.model.status);
+  
+  if (this.form.invalid || !this.workflow?.actions?.canSubmitToApprove) {
+       
     return;
   }
 
@@ -703,6 +456,24 @@ onApproveClicked(): void {
    // this.showToast('error', 'Error', 'Cannot approve an unsaved or missing record identifier.');
   }
 }
+
+
+onReviseClicked(): void {
+  if (this.model && this.model.id) {
+    this.onRevise.emit(this.model.id);
+  } else {
+   // this.showToast('error', 'Error', 'Cannot Revise an unsaved or missing record identifier.');
+  }
+}
+
+onSendClicked(): void {
+  if (this.model && this.model.id) {
+    this.onSend.emit(this.model.id);
+  } else {
+   // this.showToast('error', 'Error', 'Cannot approve an unsaved or missing record identifier.');
+  }
+}
+
 
   async submitPortalCounterOffer(): Promise<void> {
     if (!this.form.valid) {

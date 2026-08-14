@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { FormlyModule, FormlyFieldConfig, FormlyConfig } from '@ngx-formly/core';
+import { FormlyModule, FormlyFieldConfig, FormlyConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { FormlyPrimeNGModule } from '@ngx-formly/primeng';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
@@ -41,6 +41,13 @@ export class ProductMasterFormComponent implements OnInit, OnChanges {
   @Output() onSaveFailure = new EventEmitter<FormOpMode>();
   @Output() onPromptReactivation = new EventEmitter<{ productId: number, productName: string }>();
 
+  //------------------------
+   options: FormlyFormOptions = {
+    formState: {
+      opMode: this.opMode // Can change to 'EDIT', 'VIEW', etc.
+    }
+  };
+  //---------------------------
   raw!:any;
   form = new FormGroup({});
   model: any = {};
@@ -59,6 +66,11 @@ export class ProductMasterFormComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.registerCustomFormlyEngineExtensions();
     this.getFormlyJSON_processed();
+    this.checkOperationMode()
+  }
+
+  checkOperationMode(){
+    this.options.formState.opMode = this.opMode;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

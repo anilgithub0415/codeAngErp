@@ -5,22 +5,24 @@ import { ToastModule } from 'primeng/toast';
 import { ClientRequiremnetComponent } from '../../../customer-mgt/Components/profile-tabs/ClientRequirement/client-requiremnet/client-requiremnet.component';
 import { InteractionLogComponent } from '../../../customer-mgt/Components/profile-tabs/interaction-log/interaction-log.component';
 import { QuotationMgrComponent } from '../../../quotation-mgt/quotation-mgr/quotation-mgr.component';
-import { TenantStrategiesComponent } from '../../tenant-strategies/tenant-strategies.component';
+import { TenantStrategiesComponent } from '../../components/tenant-strategies/tenant-strategies.component';
 import { PermissionJunctionComponent } from '../../permission-junction/permission-junction.component';
 import { FormJSONsComponent } from '../../form-jsons/form-jsons.component';
 import { TenantService } from '../../../../core/services/tenant.service';
 import { tap } from 'rxjs';
 import { TenantKanbanCardComponent } from '../../Kanban/tenant-kanban-card/tenant-kanban-card.component';
-import { FormJSONBackUpsGharanaComponent } from '../../../../src/app/feature/global/form-jsonback-ups-gharana/form-jsonback-ups-gharana.component';
+
 import { CommonModule } from '@angular/common';
+import { GharanaFormJSONBackUpsComponent } from '../../components/info-junction/gharana-form-jsonback-ups/gharana-form-jsonback-ups.component';
+import { DiscountTypeComponent } from '../../../promotion-mgt/discount-type/discount-type.component';
 
 @Component({
   selector: 'app-tenant-profile-tabs',
     imports: [CommonModule,ButtonTabsComponent,TabDirective, 
           ToastModule,
           ClientRequiremnetComponent,InteractionLogComponent,QuotationMgrComponent,
-          TenantStrategiesComponent, PermissionJunctionComponent, FormJSONsComponent,
-          TenantKanbanCardComponent,FormJSONBackUpsGharanaComponent
+          TenantStrategiesComponent,DiscountTypeComponent, PermissionJunctionComponent, FormJSONsComponent,
+          TenantKanbanCardComponent,GharanaFormJSONBackUpsComponent
         ],
   templateUrl: './tenant-profile-tabs.component.html',
   styleUrl: './tenant-profile-tabs.component.scss'
@@ -45,6 +47,7 @@ tenant!:any;
      
      this.myTabConfig = [
       { label: 'TenantStrategy', id: 'TenantStrategy' }, 
+      { label: 'DiscountType', id: 'DiscountType' }, 
     { label: 'Junction', id: 'Junction' },    
     { label: 'FormJSONs', id: 'FormJSONs' },   
     

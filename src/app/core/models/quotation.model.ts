@@ -59,9 +59,11 @@ export interface IQuotationWorkflow{
 
         canDelete:boolean;
 
-        canSubmit:boolean;
+        canSubmitToApprove:boolean;
 
         canApprove:boolean;
+
+        canSend:boolean;
 
         canCounterOffer:boolean;
 

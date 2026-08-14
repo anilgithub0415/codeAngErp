@@ -4,10 +4,12 @@ import { ClientOrderDashboardService } from '../../../../core/services/client-or
 import { AuthService } from '../../../../core/services/auth.service';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 @Component({
   selector: 'app-client-order-management',
-  imports: [CardModule, RouterLink], providers:[MessageService],
+  imports: [CardModule, RouterLink, NgxPermissionsModule], 
+  providers:[MessageService],
   templateUrl: './client-order-management.component.html',
   styleUrl: './client-order-management.component.scss'
 })
@@ -15,6 +17,8 @@ export class ClientOrderManagementComponent implements OnInit{
 summarydata!:any;
 
 tenantId!:number;
+
+
 purchaseCount = 4; // Backordered replenishment batches
     activeSalesOrders = 12; // Picking/Packing queue count
   private clientDashboardService=inject(ClientOrderDashboardService);
@@ -22,13 +26,14 @@ purchaseCount = 4; // Backordered replenishment batches
       private messageService = inject(MessageService);
   private cd=inject(ChangeDetectorRef)
 
-    private authService=inject(AuthService);
+    public authServ=inject(AuthService);
  constructor(private router: Router, private route: ActivatedRoute) {}
 
   
   ngOnInit(){
-         this.tenantId=this.authService.getTenantId()!;
-         console.log('ngOnInit of clientorder');
+         this.tenantId=this.authServ.getTenantId()!;
+         
+         console.log('ngOnInit of clientorder authServ.clientid:',this.authServ.getClientId); 
          
     this.clientDashboardService.getClientSummaryCountOfOrders(this.tenantId).subscribe({
       next: (data:any) => {

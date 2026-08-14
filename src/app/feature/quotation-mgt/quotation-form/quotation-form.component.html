@@ -1,6 +1,7 @@
-opMode:{{opMode}}
-<form [formGroup]="form" class="order-form">
-  <!-- INTERACTIVE FORM MATRIX ENGINE CONTAINER -->
+<form [formGroup]="form" class="order-form"> 
+  
+  
+    <!-- INTERACTIVE FORM MATRIX ENGINE CONTAINER -->
   <div class="order-header mb-4">
     <div class="flex justify-between items-center mb-3">
       <h2 class="text-xl font-bold">Customer Quotation Specification</h2>
@@ -17,7 +18,7 @@ opMode:{{opMode}}
     <p-button
       *ngIf="opMode !== FormOpMode.PortalNegotiation"
       type="button"
-      label="Save Quotation Structure"
+      label="wholesaler only: Save Quotation Structure"
       icon="pi pi-save"
     
       (click)="saveQuotation()"
@@ -28,37 +29,73 @@ opMode:{{opMode}}
     <p-button
       *ngIf="opMode === FormOpMode.PortalNegotiation"
       type="button"
-      label="Submit Counter-Offer / Target Price"
+      label="clientOnly: Submit Counter-Offer / Target Price"
       icon="pi pi-comments"
       styleClass="p-button-warning"
       (click)="submitPortalCounterOffer()"
       [disabled]="!form.valid">
     </p-button>
 
-
-      <p-button
-        type="button"
-        *ngxPermissionsOnly="['Quotation.SubmitToApprove']"
-        label="Submit for Approval"
-        icon="pi pi-send"
-        styleClass="p-button-success"
-        (click)="submitQuotationForApproval()"
-         [disabled]="!form.valid || model?.status !== 'DRAFT'">
-      </p-button>
-
-       
-<ng-container *ngxPermissionsOnly="['Quotation.Approve']" 
->
-<ng-container  *ngIf="workflow.actions.canApprove">
-  <p-button
-    *ngIf="model?.status === 'PENDING_APPROVAL'"
-    type="button"
-    label="Approve Quotation"
-    icon="pi pi-check"
-    styleClass="p-button-success"
-    (click)="onApproveClicked()">
-  </p-button>
+<ng-container *ngxPermissionsOnly="['Quotation.SubmitToApprove']">
+    <ng-container *ngIf="workflow?.actions?.canSubmitToApprove">
+        <p-button
+            type="button"
+            label="Submit for Approval"
+            icon="pi pi-send"
+            styleClass="p-button-success"
+            (click)="submitQuotationForApproval()">
+        </p-button>
+    </ng-container>
 </ng-container>
+
+    <div>
+  STATUS: {{ model?.status }}
+  <br>
+
+  CAN canRevise:
+  {{ workflow?.actions?.canRevise }}
+
+  <br> 
+
+  PERMISSION:
+  Quotation.Send
+</div>
+
+
+
+<ng-container *ngxPermissionsOnly="['Quotation.Revise']">
+    <ng-container *ngIf="workflow?.actions?.canRevise">
+        <p-button
+            type="button"
+            label="Revise"
+            icon="pi pi-send"
+            styleClass="p-button-success"
+            (click)="onReviseClicked()">
+        </p-button>
+    </ng-container>
+</ng-container>
+
+<ng-container *ngxPermissionsOnly="['Quotation.Approve']">
+    <ng-container *ngIf="workflow?.actions?.canApprove">
+        <p-button
+            type="button"
+            label="Approve Quotation"
+            icon="pi pi-check"
+            styleClass="p-button-success"
+            (click)="onApproveClicked()">
+        </p-button>
+    </ng-container>
+</ng-container>
+<ng-container *ngxPermissionsOnly="['Quotation.Send']">
+    <ng-container *ngIf="workflow?.actions?.canSend">
+        <p-button
+            type="button"
+            label="Send Quotation"
+            icon="pi pi-check"
+            styleClass="p-button-success"
+            (click)="onSendClicked()">
+        </p-button>
+    </ng-container>
 </ng-container>
 
     <button

@@ -33,6 +33,8 @@ clientId:{{clientId}}  isPortalContext:{{isPortalContext}} currOpMode:{{currOpMo
     (onErrorToast)="showToast($event.severity, $event.summary, $event.detail)"
     (onFinalize)="handleFinalize($event)"
         (onApprove)="handleApprove($event)"
+        (onRevise)="handleRevise($event)"
+        (onSend)="handleSend($event)"
         >
   </app-quotation-form>
 </div>

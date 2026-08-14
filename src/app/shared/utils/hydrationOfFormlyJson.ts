@@ -124,7 +124,7 @@ import { PurchaseService } from "../../core/services/purchase.service";
                   if (!prodId || !clientId) return;
                   try {
                     const finalPriceData = await getProductFinalPrice(productService,tenantId,prodId, clientId);
-                    const finalPriceControl = targetField.parent?.formControl?.get('finalPrice');
+                    const finalPriceControl = targetField.parent?.formControl?.get('customPrice');
                     if (finalPriceControl) {
                       finalPriceControl.setValue(
                         finalPriceData?.calculatedPrice !== undefined ? finalPriceData.calculatedPrice : finalPriceData, 
@@ -143,6 +143,8 @@ import { PurchaseService } from "../../core/services/purchase.service";
     });
   }
   export  async function  getProductFinalPrice(productService:any,tenantId:number,prodId: number, clientId: number): Promise<any> {
+    console.log('...........................prodid...:',prodId);
+    
     const p = await firstValueFrom(productService.getProduct(tenantId, prodId));
     return new Promise((resolve) => {
       productService.getProductFinalPrice(prodId, tenantId, p, clientId).subscribe((afinalPrice :any)=> {
