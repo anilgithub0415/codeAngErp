@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { clientPurchase, createclientPurchase } from '../models/clientPurchase.model';
-import { clientRFQ, createclientRFQ } from '../models/clientRFQ.model';
+import { clientRFQ, createclientRFQ, IClientRFQWorkflow } from '../models/clientRFQ.model';
 
 @Injectable({
   providedIn: 'root'
@@ -81,7 +81,7 @@ approveClientRFQOrder(
 */
 sendClientRFQOrder(
 id: number,
-sendData: { action: 'SENT'; items?: any[] }
+sendData: { action: 'SUBMITTED'; items?: any[] }
 ): Observable<clientRFQ> {
 console.log('Executing dedicated RFQ dispatch for ID ${id} at ${this.apiUrl}/${id}/send, sendData');
 
@@ -90,6 +90,20 @@ tap(updatedOrder => console.log('Successfully completed dispatch workflow execut
 catchError(this.handleError)
 );
 }
+
+
+  getWorkflow(
+    quotationId:number
+  ):Observable<IClientRFQWorkflow>{
+
+    console.log('....trying url get of `${this.apiUrl}/${quotationId}/workflow`');
+    
+        
+      return this.http.get<IClientRFQWorkflow>(
+          `${this.apiUrl}/${quotationId}/workflow`
+      );
+
+  }
 
 
 getClientRFQs(

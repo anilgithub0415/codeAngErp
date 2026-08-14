@@ -113,6 +113,17 @@ export class QuotationService {
       catchError(this.handleError)
     );
   }
+  
+reviseQuotation(id: number): Observable<any> {
+  
+    console.log(`${this.apiUrl}/${id}/revise`);
+    
+    return this.http.patch<any>(`${this.apiUrl}/${id}/revise`, {}).pipe(
+      tap(response => console.log('Quotation finalized and revised:', response)),
+      catchError(this.handleError)
+    );
+  }
+    
 
   sendQuotation(id: number): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}/send`, {}).pipe(

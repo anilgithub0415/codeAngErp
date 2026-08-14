@@ -20,6 +20,7 @@
   <app-client-rfq-form
     *ngIf="currOpMode !== 'VIEW' && currOpMode !== 'NONE'"
     [form]="form"
+    [workflow]="workflow!"
     [fields]="fields"
     [model]="model"
     [currOpMode]="currOpMode"
@@ -28,6 +29,7 @@
     (clearForm)="clearRFQ()"
     (approve)="approveRFQ()"
     (send)="sendRFQ()"
+    (convertToQuote)="onConvertToQuotationClick($event)"
     (reject)="rejectPO()"
     (cancel)="CancelFormOp()">
   </app-client-rfq-form>

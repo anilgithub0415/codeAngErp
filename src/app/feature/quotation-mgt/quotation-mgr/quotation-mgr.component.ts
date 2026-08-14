@@ -108,59 +108,7 @@ this.dashboardTabService.activate("Quotations"); this.currOpMode=FormOpMode.Upda
   }
 
 
-  //pending:i think its notinuse
-  private mapRfqToQuotationWorkflow(rfqRecord: any): void {
-    // 2. Map structure safely (preventing undefined/null breaks)
-    const mappedQuotation: Partial<IQuotation> = {
-      tenantId: rfqRecord.tenantId,
-      clientId: rfqRecord.clientId,
-      clientName: rfqRecord.clientName || 'RFQ Client Workspace', // Fallback or lookup fallback
-      status: QuotationStatus.DRAFT, // Always initialize conversions as raw editable drafts
-      version: 1,
-      isActive: true,
-      remarksNotes: `Converted from RFQ Number: ${rfqRecord.clientRFQNumber}.\nClient Notes: ${rfqRecord.clientNotes || 'None'}`,
-      totalAmount: Number(rfqRecord.totalAmount) || 0,
-      
-      // 3. Map line-item children arrays cleanly
-      items: (rfqRecord.items || []).map((rfqItem: any) => {
-        return {
-          productId: rfqItem.productId,
-          productVariantId: rfqItem.productVariantId,
-          prodName: rfqItem.prodName,
-          sku: rfqItem.sku,
-          quantity: Number(rfqItem.quantity) || 0,
-          
-          // Inject mandatory quotation specific default fallbacks 
-          unit: 'Pcs', 
-          price: 0.00, // Left zeroed out for wholesaler estimation entry
-          gstPercentage: 0.00,
-          discount: 0.00,
-          totalItemAmount: 0.00,
-          description: null,
-          targetPrice: null,
-          appliedLineDiscountId: null,
-          customAttributes: null
-        } as IQuotationItem;
-      })
-    };
-
-    // 4. Force state variables into standard creation flow context
-    this.selectedQuotation = mappedQuotation;
-
-    console.log('.....now selectedQuotation: ',this.selectedQuotation);
-    
-    
-    // Explicitly set to creation mode instead of FormOpMode.Update!
-    // This targets your application POST endpoint rather than PUT endpoint
-    this.currOpMode = FormOpMode.Add; 
-    localStorage.setItem('currOpMode', this.currOpMode);
-    
-    // 5. If your internal entry sub-component wraps an Angular FormGroup, 
-    // patch the control values directly here right after rendering:
-    // this.quotationForm.patchValue(this.selectedQuotation);
-
-    this.cd.detectChanges();
-  }
+  
 
   ngOnDestroy(): void {
     if (this.conversionSub) this.conversionSub.unsubscribe();
@@ -300,6 +248,27 @@ async handleApprove(quoteId: number): Promise<void> {
     this.showToast('error', 'Approval Failed', error.message || 'Could not complete the quotation approval pipeline.');
   }
 }
+
+// ==========================================
+// 3. HANDLE REVISE PIPELINE
+// ==========================================
+async handleRevise(quoteId: number): Promise<void> {
+  try {
+
+  
+    // Progress quote status to ReviseD (No stock calculations)
+    await firstValueFrom(
+      this.quotationService.reviseQuotation(quoteId)
+    );
+
+    this.showToast('success', 'Revised', 'Quotation verified and marked as ready for conversion.');
+    this.currOpMode = FormOpMode.View;
+    this.loadQuotationsList(); // Refresh data grid
+  } catch (error: any) {
+    this.showToast('error', 'Revise Failed', error.message || 'Could not complete the quotation revise pipeline.');
+  }
+}
+
 
 
 // ==========================================

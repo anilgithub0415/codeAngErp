@@ -14,13 +14,14 @@ import { TenantKanbanCardComponent } from '../../Kanban/tenant-kanban-card/tenan
 
 import { CommonModule } from '@angular/common';
 import { GharanaFormJSONBackUpsComponent } from '../../components/info-junction/gharana-form-jsonback-ups/gharana-form-jsonback-ups.component';
+import { DiscountTypeComponent } from '../../../promotion-mgt/discount-type/discount-type.component';
 
 @Component({
   selector: 'app-tenant-profile-tabs',
     imports: [CommonModule,ButtonTabsComponent,TabDirective, 
           ToastModule,
           ClientRequiremnetComponent,InteractionLogComponent,QuotationMgrComponent,
-          TenantStrategiesComponent, PermissionJunctionComponent, FormJSONsComponent,
+          TenantStrategiesComponent,DiscountTypeComponent, PermissionJunctionComponent, FormJSONsComponent,
           TenantKanbanCardComponent,GharanaFormJSONBackUpsComponent
         ],
   templateUrl: './tenant-profile-tabs.component.html',
@@ -46,6 +47,7 @@ tenant!:any;
      
      this.myTabConfig = [
       { label: 'TenantStrategy', id: 'TenantStrategy' }, 
+      { label: 'DiscountType', id: 'DiscountType' }, 
     { label: 'Junction', id: 'Junction' },    
     { label: 'FormJSONs', id: 'FormJSONs' },   
     
