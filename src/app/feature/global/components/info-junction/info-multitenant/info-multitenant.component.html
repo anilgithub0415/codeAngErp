@@ -35,6 +35,22 @@
    </ng-template>
     
 
+
+  <ng-template appTab="Workflows">
+   In ClientPO and ClientRFQ we have not PENDING_APPROVAL, APPROVAL steps those are existss in Quotation And Sales <br/>
+   so , in backend canSubmit corresponds to whether ClientPO or ClientRFQ can be sent to wholesaler as there is only one step before<br/>
+   Submitting (sending to wholesaler) that is creating it as DRAFT <br/>
+   <br/>
+   And in Sales and Quotation canSubmitToApprove corresponds to whether a saler/Quotation/(may be purchase also)  order can be submitto 
+   <br/>   send for approval  which is DRAFTed
+
+   <br/>Summary 
+   <br/>canSubmit stands for whether a drated clientPO/ClientRFQ can be sent to wholesaler (bcos of shorted workflow)
+   <br/>canSubmitToApporve  stands for whether Sales/Quotation/Purchase order can be set status to SubmitForApproval (bcos of full workflow like SubmitToApprove and Approve)
+   <br/> there is no relatio in canSubmit and canSubmitToApprove
+</ng-template> 
+
+
   <ng-template appTab="Other">
    
 </ng-template> 

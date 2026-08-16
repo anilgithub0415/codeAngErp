@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { clientPurchase, createclientPurchase } from '../models/clientPurchase.model';
+import { clientPurchase, createclientPurchase, IClientPOWorkflow } from '../models/clientPurchase.model';
 import { clientRFQ } from '../models/clientRFQ.model';
 
 export interface PurchaseUnit {
@@ -109,6 +109,20 @@ convertClientPOToSalesOrder(poId: number) {
     {}
   );
 }
+
+
+  getWorkflow(
+    quotationId:number
+  ):Observable<IClientPOWorkflow>{
+
+    console.log('....trying url get of `${this.apiUrl}/${quotationId}/workflow`');
+    
+        
+      return this.http.get<IClientPOWorkflow>(
+          `${this.apiUrl}/${quotationId}/workflow`
+      );
+
+  }
 
 getClientPOs(
   ptenantId: number, 

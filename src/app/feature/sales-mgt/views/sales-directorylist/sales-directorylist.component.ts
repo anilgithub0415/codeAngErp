@@ -15,16 +15,7 @@ import { MessageService } from 'primeng/api';
 
 import { SalesService } from '../../../../core/services/sales.service'; // Adjust paths to match your directory structures
 import { AuthService } from '../../../../core/services/auth.service';
-
-export enum SOStatus {
-  DRAFT = 'draft',
-  PENDING_APPROVAL = 'pending_approval',
-  APPROVED = 'approved',
-  SENT = 'sent',
-  PARTIALLY_DELIVERED = 'partially_delivered',
-  CLOSED = 'closed',
-  CANCELLED = 'cancelled'
-}
+import { SOStatus } from '../../../../core/models/sales.model';
 
 @Component({
   selector: 'app-sales-directory-list',
