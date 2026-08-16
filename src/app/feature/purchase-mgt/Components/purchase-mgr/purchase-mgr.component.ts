@@ -15,6 +15,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { ChipsModule } from 'primeng/chips'; // Import the module
 import { FormsModule } from '@angular/forms'; // Needed for ngModel
 import { ListboxModule } from 'primeng/listbox'; // Import ListboxModule
+import { IPurchaseOrderWorkflow } from '../../../../core/models/purchase.model';
 
 @Component({
   selector: 'app-purchase-mgr',
@@ -37,6 +38,7 @@ export class PurchaseMgrComponent implements OnInit {
   FormOpMode = FormOpMode;
 
   currOpMode: FormOpMode = FormOpMode.View;
+  workflow?: IPurchaseOrderWorkflow;
   private purchaseService = inject(PurchaseService);
   private authServ = inject(AuthService);
   private messageService = inject(MessageService);
@@ -91,17 +93,62 @@ localStorage.setItem('currOpMode', String(FormOpMode.Add));
     this.cd.detectChanges();
   }
 
-  handleEdit(selectedRecord: any): void {
-    this.currOpMode = FormOpMode.Update;
-    localStorage.setItem('currOpMode', this.currOpMode);
+  async handleEdit(selectedRecord: any): Promise<void> {
 
-    const clonedRecord = JSON.parse(JSON.stringify(selectedRecord));
-    this.activeModel = {
-      ...clonedRecord,
-      items: clonedRecord.items || []
-    };
-    this.cd.detectChanges();
+  this.currOpMode =
+    FormOpMode.Update;
+
+  localStorage.setItem(
+    'currOpMode',
+    this.currOpMode
+  );
+
+  const clonedRecord =
+    JSON.parse(
+      JSON.stringify(selectedRecord)
+    );
+
+  this.activeModel = {
+    ...clonedRecord,
+    items: clonedRecord.items || []
+  };
+
+  await this.loadWorkflow();
+
+  this.cd.detectChanges();
+}
+  
+  async loadWorkflow(): Promise<void> {
+
+  console.log(
+    '....load Purchase Order workflow.........................'
+  );
+
+  console.log(
+    'this.activeModel?.id:',
+    this.activeModel?.id
+  );
+
+  if (!this.activeModel?.id) {
+
+    this.workflow =
+      undefined;
+
+    return;
   }
+
+  this.workflow =
+    await firstValueFrom(
+      this.purchaseService.getWorkflow(
+        this.activeModel.id
+      )
+    );
+
+  console.log(
+    'Loaded Purchase Order workflow:',
+    this.workflow
+  );
+}
 
   async handleSave(submissionPayload: any): Promise<void> {
     try {
@@ -167,6 +214,22 @@ async handleApprove(poId: number): Promise<void> {
     this.showToast('error', 'Approval Failed', error.message || 'Could not complete the approval pipeline.');
   }
 }
+
+
+async handleSend(poId: number): Promise<void> {
+  try {
+    await firstValueFrom(
+      this.purchaseService.sendPurchaseOrder(poId)
+    );
+
+    this.showToast('success', 'Sent', 'Purchase order sent to Supplier');
+    this.currOpMode = FormOpMode.View;
+    this.getPOList(); // Refresh data list
+  } catch (error: any) {
+    this.showToast('error', 'Sending Failed', error.message || 'Could not complete the send pipeline.');
+  }
+}
+
 
 
   handleCancel(): void {
