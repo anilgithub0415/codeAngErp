@@ -27,9 +27,11 @@
         [fields]="fields"
         [model]="model"
         [totals]="totals"
+         [workflow]="workflow"
         (save)="saveSales()"
         (onFinalize)="handleFinalize($event)"
   (onApprove)="handleApprove($event)"
+     (onSend)="handleSend($event)"
         (clear)="clearSales()"
         (cancel)="CancelFormOp()">
       </app-sales-order-form>

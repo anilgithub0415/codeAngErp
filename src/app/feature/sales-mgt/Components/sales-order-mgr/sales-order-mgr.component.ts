@@ -8,7 +8,7 @@ import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { combineLatest, distinctUntilChanged, firstValueFrom, startWith, tap } from 'rxjs';
 
-import { Sales } from '../../../../core/models/sales.model';
+import { ISalesOrderWorkflow, Sales } from '../../../../core/models/sales.model';
 import { FormOpMode } from '../../../../shared/enums/FormOpMode.enum';
 import { SalesService } from '../../../../core/services/sales.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -39,7 +39,7 @@ import { clientPurchase } from '../../../../core/models/clientPurchase.model';
   imports: [
     CommonModule, ReactiveFormsModule, FormsModule, ToastModule, ConfirmDialogModule,ButtonModule,
     FilterControlComponent, ButtonTabsComponent, TabDirective, NgxPermissionsModule,
-     SalesOrderGridComponent, SalesOrderFormComponent
+     SalesOrderGridComponent, SalesOrderFormComponent, ToastModule
      //ClientpurchaselistComponent
   ],
   templateUrl: './sales-order-mgr.component.html',
@@ -52,6 +52,7 @@ export class SalesOrderMgrComponent implements OnInit {
   visibleDataArray!: any[];
   expandedRows: { [id: number]: boolean } = {};
   currOpMode: FormOpMode = FormOpMode.View; 
+  workflow?: ISalesOrderWorkflow;
   isFormHidden: boolean = true;
   form = new FormGroup({});
   
@@ -127,6 +128,36 @@ onResize() {
     this.visibleDataArray = filteredResults;
   }
 
+  async loadWorkflow(): Promise<void> {
+
+  console.log(
+    '....load Sales Order workflow.........................'
+  );
+
+  console.log(
+    'this.model?.id:',
+    this.model?.id
+  );
+
+  if (!this.model?.id) {
+
+    this.workflow = undefined;
+
+    return;
+  }
+
+  this.workflow =
+    await firstValueFrom(
+      this.salesService.getWorkflow(
+        this.model.id
+      )
+    );
+
+  console.log(
+    'Loaded Sales Order workflow:',
+    this.workflow
+  );
+}
   gerForm_SO() {
 
     this.formService.getForm(this.tenantId!, 'sales_form').subscribe(aform => {
@@ -152,31 +183,91 @@ onResize() {
       })
     ).subscribe({ error: (err) => console.error('Error:', err) });
   }
+Add() {
 
-  Add() {
-    this.isFormHidden = false;
-    this.currOpMode = FormOpMode.Add; 
-    localStorage.setItem('currOpMode', this.currOpMode);
-  
-    this.model = { 
-      tenantId: this.tenantId, soNumber: '', clientId: null, siteId: null,   
-      orderDate: new Date().toISOString().substring(0, 10), deliveryDate: null, status: 'DRAFT',
-      subTotal: 0, taxAmount: 0, shippingAmount: 0, totalAmount: 0, notes: '',
-      items: [{ productId: null, productVariantId: null, quantity: 1, finalPrice: 0, salesUom: '', sku: '', prodName: '', customAttributes: null }] 
-    };
-    this.form.reset();
-  }
+  this.isFormHidden = false;
+
+  this.currOpMode =
+    FormOpMode.Add;
+
+  localStorage.setItem(
+    'currOpMode',
+    this.currOpMode
+  );
+
+  this.workflow = undefined;
+
+  this.model = {
+    tenantId: this.tenantId,
+    soNumber: '',
+    clientId: null,
+    siteId: null,
+    orderDate:
+      new Date()
+        .toISOString()
+        .substring(0, 10),
+    deliveryDate: null,
+    status: 'DRAFT',
+    subTotal: 0,
+    taxAmount: 0,
+    shippingAmount: 0,
+    totalAmount: 0,
+    notes: '',
+    items: [
+      {
+        productId: null,
+        productVariantId: null,
+        quantity: 1,
+        finalPrice: 0,
+        salesUom: '',
+        sku: '',
+        prodName: '',
+        customAttributes: null
+      }
+    ]
+  };
+
+  this.form.reset();
+}
 
   CancelFormOp() {
     this.currOpMode = FormOpMode.View; 
     this.isFormHidden = true;
   }
 
-  onEditClick(selectedRecord: any) {
-    this.isFormHidden = false;
-    this.currOpMode = FormOpMode.Update;
-    this.model = JSON.parse(JSON.stringify(selectedRecord));
+  async onEditClick(selectedRecord: any): Promise<void> {
+
+  this.isFormHidden = false;
+
+  this.currOpMode = FormOpMode.Update;
+
+  const copy =
+    JSON.parse(
+      JSON.stringify(selectedRecord)
+    );
+
+  if (copy.status) {
+    copy.status =
+      copy.status.toUpperCase();
+  } else {
+    copy.status = 'DRAFT';
   }
+
+  if (copy.orderDate) {
+    copy.orderDate =
+      new Date(copy.orderDate);
+  }
+
+  if (copy.deliveryDate) {
+    copy.deliveryDate =
+      new Date(copy.deliveryDate);
+  }
+
+  this.model = copy;
+
+  await this.loadWorkflow();
+}
+
   async saveSales() {
     if (!this.model.clientId || !this.model.items?.length) {
       this.messageService.add({ 
@@ -229,6 +320,8 @@ onResize() {
     await firstValueFrom(this.salesService.submitSalesForApproval(targetId));
    // this.showToast('success', 'Submitted', 'Sales order sent to approval loop.');
     this.currOpMode = FormOpMode.View;
+    this.isFormHidden = true;
+    this.workflow = undefined;
     this.refreshSOList();
   } catch (error: any) {
     //this.showToast('error', 'Error', error.message || 'Submission failed.');
@@ -245,6 +338,31 @@ async handleApprove(soId: number): Promise<void> {
   //  this.showToast('error', 'Stock Allocation Failed', error.message || 'Could not approve order.');
   }
 }
+
+
+// ==========================================
+// 2. HANDLE SEND PIPELINE
+// ==========================================
+async handleSend(quoteId: number): Promise<void> {
+  try {
+    // Progress quote status to APPROVED (No stock calculations)
+    await firstValueFrom(
+      this.salesService.sendSales(quoteId)
+    );
+
+    this.showToast('success', 'Sent', 'Sales sent');
+    this.currOpMode = FormOpMode.View;
+    //getlist//Pending
+  } catch (error: any) {
+    this.showToast('error', 'Approval Failed', error.message || 'Could not complete the quotation approval pipeline.');
+  }
+}
+
+
+
+  showToast(severity: string, summary: string, detail: string): void {
+    this.messageService.add({ severity, summary, detail });
+  }
 
   clearSales() {
     this.model = { 

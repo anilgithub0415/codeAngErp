@@ -1,3 +1,14 @@
+export enum SOStatus {
+    DRAFT = "DRAFT",
+    PENDING_APPROVAL = "PENDING_APPROVAL",
+    APPROVED = "APPROVED",
+    SENT = "SENT",
+    PARTIALLY_DELIVERED = "PARTIALLY_DELIVERED",
+    DELIVERED="DELIVERED",
+    CLOSED = "CLOSED",
+    CANCELLED = "CANCELLED"
+}
+
 export interface Sales{
     id?:number;
     soNumber:number;
@@ -41,4 +52,27 @@ export interface createSales{
     createdAt:Date;
     updatedAt:Date;
     items:SalesOrderItem[]
+}
+
+export interface ISalesOrderWorkflow {
+
+    salesOrderId: number;
+
+    status: SOStatus;
+
+    actions: {
+
+            canEdit: boolean;
+            canDelete: boolean;
+
+            canSubmitToApprove: boolean;
+            canApprove: boolean;
+            canSend: boolean;
+
+            canChangeCustomer: boolean;
+
+            nextStates: SOStatus[];
+
+    };
+
 }

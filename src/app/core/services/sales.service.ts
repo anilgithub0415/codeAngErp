@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { Sales, createSales } from '../models/sales.model';
+import { ISalesOrderWorkflow, Sales, createSales } from '../models/sales.model';
 
 export interface SalesUnit {
   label: string;
@@ -36,6 +36,18 @@ export class SalesService {
     return throwError(() => new Error(errorMessage));
   }
 
+
+    getWorkflow(
+      salesId:number
+    ):Observable<ISalesOrderWorkflow>{
+  
+      console.log('........................getworkflow url:' ,`${this.apiUrl}/${salesId}/workflow`);
+      
+        return this.http.get<ISalesOrderWorkflow>(
+            `${this.apiUrl}/${salesId}/workflow`
+        );
+  
+    }
   /**
    * Creates a new sales order via POST.
    */
@@ -59,12 +71,21 @@ export class SalesService {
     );
   }
 
+  sendSales(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/send`, {}).pipe(
+      tap(response => console.log('Sales finalized and approved:', response)),
+      catchError(this.handleError)
+    );
+  }
+
 
 submitSalesForApproval(id: number): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}/finalize`, {});
 }
 
 approveSalesOrder(id: number): Observable<any> {
+  console.log('........approving SO.............................');
+  
     return this.http.patch<any>(`${this.apiUrl}/${id}/approve`, {});
 }
 

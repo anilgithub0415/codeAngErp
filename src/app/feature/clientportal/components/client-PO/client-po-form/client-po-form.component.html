@@ -41,10 +41,6 @@
       [disabled]="!form.valid">
     </p-button>
 
-<div>
-workflow?.actions?.canSubmit:{{workflow?.actions?.canSubmit}}
-</div>
-
  <ng-container *ngxPermissionsOnly="['ClientPO.SubmitToApprove']">
       <ng-container  *ngIf="workflow?.actions?.canSubmit">
           <p-button
@@ -76,20 +72,27 @@ workflow?.actions?.canSubmit:{{workflow?.actions?.canSubmit}}
     <span>Document Locked (Status: {{ model?.status }}). Fields are read-only.</span>
   </div>
 
+<div>
+workflow?.actions?.canApprove:{{workflow?.actions?.canApprove}}
+</div>
+
   <div class="flex justify-content-end gap-2 ml-auto">
     <!-- Authorization Guarded Workflow Actions Matrix -->
-    <ng-container *ngxPermissionsOnly="['ClientPO.Approve']">
-      <span *ngIf="model?.status === 'PENDING_APPROVAL' && currOpMode === 'UPDATE'"> 
-        <p-button label="Approve PO" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="approvePO()"></p-button>
-      </span>
-    </ng-container>
+<ng-container *ngxPermissionsOnly="['ClientPO.Approve']">
+      <ng-container  *ngIf="workflow?.actions?.canApprove">
+          <p-button label="Approve PO" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="approvePO()"
+          [disabled]="!form.valid">
+    </p-button>
+      </ng-container>
+      </ng-container>
 
-        <ng-container *ngxPermissionsOnly="['ClientPO.Approve']">
-      <span *ngIf="model?.status === 'APPROVED' && currOpMode === 'UPDATE'"> 
-        <p-button label="Send PO" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="sendPO()"></p-button>
-      </span>
-    </ng-container>
-
+      <ng-container *ngxPermissionsOnly="['ClientPO.Send']">
+      	<ng-container  *ngIf="workflow?.actions?.canSend">
+            <p-button label="Send PO" icon="pi pi-check" styleClass="p-button-success mr-2" (onClick)="sendPO()"
+	          [disabled]="!form.valid">
+    		</p-button>
+      	</ng-container>
+      	</ng-container>
     <!---->
     <ng-container *ngxPermissionsOnly="['SO.Create']">
 

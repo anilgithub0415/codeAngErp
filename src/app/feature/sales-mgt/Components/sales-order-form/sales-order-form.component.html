@@ -55,30 +55,66 @@
     class="p-button-success"
     [disabled]="!form.valid || (model?.status && model?.status !== 'DRAFT')">
   </button>
+ <div>
+  STATUS: {{ model?.status }}
+  <br>
+
+  CAN canSend:
+  {{ workflow?.actions?.canSend }}
+
+  <br> 
+
+  PERMISSION:
+  Quotation.Send
+</div>
+
 
 <ng-container *ngxPermissionsOnly="['SO.SubmitToApprove']">
-  <p-button
-    *ngIf="!model?.id || model?.status?.toUpperCase() === 'DRAFT'"
-    type="button"
-    label="Submit for Approval"
-    icon="pi pi-send"
-    styleClass="p-button-warning"
-    (click)="submitToApprovalPipeline()"
-    [disabled]="!form.valid">
-  </p-button>
+
+  <ng-container *ngIf="workflow?.actions?.canSubmitToApprove">
+
+    <p-button
+      type="button"
+      label="Submit for Approval"
+      icon="pi pi-send"
+      styleClass="p-button-warning"
+      (click)="submitToApprovalPipeline()"
+      [disabled]="!form.valid">
+    </p-button>
+
+  </ng-container>
+
+</ng-container>
+<!-- Approve Button for Managers -->
+
+
+<ng-container *ngxPermissionsOnly="['SO.Approve']">
+
+  <ng-container *ngIf="workflow?.actions?.canApprove">
+
+    <p-button
+      type="button"
+      label="Approve Sales Order"
+      icon="pi pi-check"
+      styleClass="p-button-success"
+      (click)="executeManagerApproval()">
+    </p-button>
+
+  </ng-container>
+
 </ng-container>
 
 
-<!-- Approve Button for Managers -->
-<ng-container *ngxPermissionsOnly="['SO.Approve']">
-  <p-button
-    *ngIf="model?.status === 'PENDING_APPROVAL'"
-    type="button"
-    label="Approve Sales Order"
-    icon="pi pi-check"
-    styleClass="p-button-success"
-    (click)="executeManagerApproval()">
-  </p-button>
+<ng-container *ngxPermissionsOnly="['SO.Send']">
+    <ng-container *ngIf="workflow?.actions?.canSend">
+        <p-button
+            type="button"
+            label="Send Quotation"
+            icon="pi pi-check"
+            styleClass="p-button-success"
+            (click)="onSendClicked()">
+        </p-button>
+    </ng-container>
 </ng-container>
 
 <!-- Lock down standard Save Button if processed -->
