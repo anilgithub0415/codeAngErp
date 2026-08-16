@@ -28,6 +28,7 @@ import { bindDatabaseHooks, hydrateFormlyConfig } from '../../../../../shared/ut
 })
 export class ClientPOFormComponent implements OnInit {
   @Input() model: any;
+  @Input() workflow:any;
   @Input() currOpMode!: FormOpMode;
   @Input() tenantId!: number;
 

@@ -15,6 +15,7 @@
   <!-- 2. Dynamic Input Capture Entry Form Workspace (Isolated Structure Matrix) -->
   <app-client-po-form
     *ngIf="currOpMode !== 'VIEW' && !isFormHidden"
+      [workflow]="workflow!"
     [model]="selectedModel"
     [currOpMode]="currOpMode"
     [tenantId]="tenantId"

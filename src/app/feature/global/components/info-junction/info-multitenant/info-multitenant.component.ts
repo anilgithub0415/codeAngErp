@@ -21,6 +21,9 @@ activeTab: string = 'RFQ'; // 2. Create a property for the active tab (default t
   ngOnInit(){
      this.myTabConfig = [
     { label: 'Quotation', id: 'Quotation' },  
+    
+    { label: 'Workflows', id: 'Workflows' },  
+    
         { label: 'Other', id: 'Other' },  
     
     

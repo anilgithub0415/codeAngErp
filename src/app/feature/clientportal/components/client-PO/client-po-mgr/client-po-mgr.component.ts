@@ -10,6 +10,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
 import { clientPurchaseService } from '../../../../../core/services/clientPurchaseService';
 import { ClientPOGridComponent } from '../client-po-grid/client-po-grid.component';
 import { ClientPOFormComponent } from '../client-po-form/client-po-form.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-client-po-mgr',
@@ -34,6 +35,8 @@ export class ClientPOMgrComponent implements OnInit {
   isFormHidden: boolean = true;
   
   selectedModel: any = null;
+
+  workflow!:any;
 
   private authServ = inject(AuthService);
   private clientPurchaseService = inject(clientPurchaseService);
@@ -73,7 +76,7 @@ export class ClientPOMgrComponent implements OnInit {
     };
   }
 
-  onEditRequested(selectedRecord: any) {
+  async onEditRequested(selectedRecord: any) {
     this.isFormHidden = false;
     this.currOpMode = FormOpMode.Update;
     
@@ -84,8 +87,42 @@ export class ClientPOMgrComponent implements OnInit {
     if (copy.deliveryDate) copy.deliveryDate = new Date(copy.deliveryDate);
 
     this.selectedModel = copy;
+
+    await this.loadWorkflow();
+
   }
 
+  async loadWorkflow(): Promise<void> {
+
+  console.log(
+    '....loadworkflow.........................'
+  );
+
+  console.log(
+    'this.selectedModel?.id:',
+    this.selectedModel?.id
+  );
+
+  if (!this.selectedModel?.id) {
+
+    this.workflow =
+      undefined;
+
+    return;
+  }
+
+  this.workflow =
+    await firstValueFrom(
+      this.clientPurchaseService.getWorkflow(
+        this.selectedModel.id
+      )
+    );
+
+  console.log(
+    'Loaded Client PO workflow:',
+    this.workflow
+  );
+}
   onDeleteRequested(clpo: any) {
     this.confirmationService.confirm({
       message: `Are you sure you want to permanently delete "${clpo.clientPoNumber || clpo.id}"?`,

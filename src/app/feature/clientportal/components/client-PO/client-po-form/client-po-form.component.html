@@ -41,15 +41,24 @@
       [disabled]="!form.valid">
     </p-button>
 
-    <p-button
-      *ngxPermissionsOnly="['ClientPO.SubmitToApprove']"
-      type="button"
-      label="Submit for Approval"
-      icon="pi pi-send"
-      styleClass="p-button-success"
-      (click)="submitPurchaseForApproval()"
-      [disabled]="!form.valid">
+<div>
+workflow?.actions?.canSubmit:{{workflow?.actions?.canSubmit}}
+</div>
+
+ <ng-container *ngxPermissionsOnly="['ClientPO.SubmitToApprove']">
+      <ng-container  *ngIf="workflow?.actions?.canSubmit">
+          <p-button
+          type="button"
+          label="Submit for Approval"
+          icon="pi pi-send"
+          styleClass="p-button-success"
+          (click)="submitPurchaseForApproval()"
+          [disabled]="!form.valid">
     </p-button>
+      </ng-container>
+      </ng-container>
+
+   
 
     <button
       pButton
@@ -81,8 +90,8 @@
       </span>
     </ng-container>
 
-    <!--*ngxPermissionsOnly="['SalesOrder.Create']"-->
-    <ng-container >
+    <!---->
+    <ng-container *ngxPermissionsOnly="['SO.Create']">
 
       <span *ngIf="model?.status === 'SENT' && currOpMode === 'UPDATE'">
 
