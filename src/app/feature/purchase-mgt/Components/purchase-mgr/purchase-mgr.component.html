@@ -27,9 +27,11 @@
         [model]="activeModel"
         [currOpMode]="currOpMode"
         [tenantId]="tenantId"
+           [workflow]="workflow"
         (onSave)="handleSave($event)"
         (onFinalize)="handleFinalize($event)"
         (onApprove)="handleApprove($event)"
+        (onSend)="handleSend($event)"
         (onCancel)="handleCancel()">
       </app-purchase-form>
 

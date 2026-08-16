@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators'; 
 
-import { Purchase, createPurchase } from '../models/purchase.model';
+import { IPurchaseOrderWorkflow, Purchase, createPurchase } from '../models/purchase.model';
 
 export interface PurchaseUnit {
   label: string;
@@ -45,6 +45,19 @@ export class PurchaseService {
         return throwError(() => new Error(errorMessage));
     }
 
+
+      getWorkflow(
+      purchaseId:number
+    ):Observable<IPurchaseOrderWorkflow>{
+  
+      console.log('........................getworkflow url:' ,`${this.apiUrl}/${purchaseId}/workflow`);
+      
+        return this.http.get<IPurchaseOrderWorkflow>(
+            `${this.apiUrl}/${purchaseId}/workflow`
+        );
+  
+    }
+
     /**
      * POST: Creates a brand new purchase order transaction record in the DB.
      * @param purchaseData The data for the new purchase (createPurchase).
@@ -72,6 +85,16 @@ export class PurchaseService {
             catchError(this.handleError)
         );
     }
+
+    sendPurchaseOrder(id: number): Observable<any> {
+        console.log('.......id:...........:',id);
+        
+    return this.http.patch<any>(`${this.apiUrl}/${id}/send`, {}).pipe(
+      tap(response => console.log('Purchase finalized and approved:', response)),
+      catchError(this.handleError)
+    );
+  }
+
 
     /**
  * PATCH: Submits a draft purchase order to the approval workflow.

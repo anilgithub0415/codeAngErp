@@ -1,3 +1,5 @@
+import { POStatus } from "../../feature/purchase-mgt/kanban/purchase-kanban-card/purchase-kanban-card.component";
+
 export interface Purchase{
     id?:number;
     poNumber:number;
@@ -36,4 +38,29 @@ export interface createPurchase{
     createdAt:Date;
     updatedAt:Date;
     items:PurchaseOrderItem[]
+}
+
+
+
+export interface IPurchaseOrderWorkflow {
+
+    purchaseOrderId: number;
+
+    status: POStatus;
+
+    actions: {
+
+            canEdit: boolean;
+            canDelete: boolean;
+
+            canSubmitToApprove: boolean;
+            canApprove: boolean;
+            canSend: boolean;
+
+            canChangeCustomer: boolean;
+
+            nextStates: POStatus[];
+
+    };
+
 }

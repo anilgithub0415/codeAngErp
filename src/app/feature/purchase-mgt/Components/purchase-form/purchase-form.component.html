@@ -51,28 +51,72 @@
           <p-badge value={{model?.status}} severity="warn" class="ml-2" ></p-badge>
       </p-button>
 
-      <p-button
+
+
+
+   <ng-container *ngxPermissionsOnly="['PO.SubmitToApprove']">
+   <ng-container *ngIf="workflow?.actions?.canSubmitToApprove">
+
+    <p-button
         type="button"
         *ngxPermissionsOnly="['PO.SubmitToApprove']"
         label="Submit for Approval"
         icon="pi pi-send"
         styleClass="p-button-success"
         (click)="submitPurchaseForApproval()"
-         [disabled]="!form.valid || model?.status !== 'DRAFT'">
-      </p-button>
+      [disabled]="!form.valid">
+    </p-button>
 
+  </ng-container>
+  </ng-container>
+
+ <div>
+  STATUS: {{ model?.status }}
+  <br>
+
+  CAN Send:
+  {{ workflow?.actions?.canSend }}
+
+  <br> 
+
+  PERMISSION:
+  Purchase.Send
+</div>
        
-<ng-container *ngxPermissionsOnly="['PO.Approve']">
+
+
+
+   <ng-container *ngxPermissionsOnly="['PO.Approve']">
+   <ng-container *ngIf="workflow?.actions?.canApprove">
+
   <p-button
-    *ngIf="model?.status === 'PENDING_APPROVAL'"
     type="button"
     label="Approve Purchase Order"
     icon="pi pi-check"
     styleClass="p-button-success"
-    (click)="onApproveClicked()">
-  </p-button>
-</ng-container>
+    (click)="onApproveClicked()"
+      [disabled]="!form.valid">
+    </p-button>
 
+  </ng-container>
+  </ng-container>
+
+
+
+   <ng-container *ngxPermissionsOnly="['PO.Send']">
+   <ng-container *ngIf="workflow?.actions?.canSend">
+
+  <p-button
+    type="button"
+    label="Send Purchase Order"
+    icon="pi pi-check"
+    styleClass="p-button-success"
+    (click)="onSendClicked()"
+      [disabled]="!form.valid">
+    </p-button>
+
+  </ng-container>
+  </ng-container>
 
       <button
         pButton

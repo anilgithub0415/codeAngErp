@@ -25,6 +25,7 @@ import { ProductService } from '../../../../core/services/product.service';
 import { combineLatest, distinctUntilChanged, firstValueFrom, startWith } from 'rxjs';
 import { LineDiscount } from '../../../../core/models/line-discount.model';
 import { LineDiscountService } from '../../../../core/services/line-discount.service';
+import { IPurchaseOrderWorkflow } from '../../../../core/models/purchase.model';
 
 
 @Component({
@@ -42,9 +43,12 @@ export class PurchaseFormComponent implements OnInit {
   @Input() currOpMode!: FormOpMode;
   @Input() tenantId!: number;
 
+
+    @Input() workflow?: IPurchaseOrderWorkflow;
   @Output() onSave = new EventEmitter<any>();
   @Output() onFinalize = new EventEmitter<any>();
   @Output() onApprove = new EventEmitter<number>();
+  @Output() onSend = new EventEmitter<number>();
   @Output() onCancel = new EventEmitter<void>();
 
   raw!:any;
@@ -509,6 +513,14 @@ onApproveClicked(): void {
   }
 }
 
+
+onSendClicked(): void {
+  if (this.model && this.model.id) {
+    this.onSend.emit(this.model.id);
+  } else {
+   // this.showToast('error', 'Error', 'Cannot send an unsaved or missing record identifier.');
+  }
+}
 
 }
 
