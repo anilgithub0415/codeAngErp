@@ -67,7 +67,7 @@ interface AvailableContext {
 
         <div class="topbar-right">
         <ng-container *ngIf="auth.isLoggedIn$ | async">
-            <span class="mr-3">Welcome, {{ (auth.activeContext$ | async)?.displayName }} a {{(auth.activeContext$ | async)?.roleName }} in {{ (auth.activeContext$ | async)?.tenantName }}!</span>
+            <span class="mr-3">Welcome {{ (auth.activeContext$ | async)?.displayName }}, a {{(auth.activeContext$ | async)?.roleName }} in {{ (auth.activeContext$ | async)?.tenantName }}!</span>
             
             <p-button
                 *ngIf="availableContexts && availableContexts.length > 1"
