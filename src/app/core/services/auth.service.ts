@@ -199,9 +199,11 @@ public setLoginStatus(isLoggedIn: boolean): void {
                                 });
 
 
+console.log('.........logiin in with ...initialContext:',initialContext);
+
                 if (response && response.access_token) {
 
-                    console.log('seeting userId ',response.userId,'with key and response is......................: ',response.availableContexts);                    
+                   // console.log('seeting userId ',response.userId,'with key and response is......................: ',response.availableContexts);                    
                     //added
                     this.setUserId(response.userId!);
 
@@ -209,8 +211,8 @@ this.setSiteId(response.siteId);
 this.setClientId(response.clientId);
 
 
-                    console.log('.......................................first login  refresh_token:',response.refresh_token);
-console.log('............response.tenantid:',response.tenantId);
+                  //  console.log('.......................................first login  refresh_token:',response.refresh_token);
+//console.log('............response.tenantid:',response.tenantId);
 
                     //added
                     this._currentUserRole.next(response.availableContexts[0].roleName);
@@ -225,11 +227,11 @@ console.log('............response.tenantid:',response.tenantId);
                     this.setRefreshToken(response.refresh_token);
                       //combinined permissions are in response.permissions , 
                       //context now have permission of one role but we need combined permissions
-                      console.log('..................one role permissions are:',response.availableContexts[0].permissions);
+                    //  console.log('..................one role permissions are:',response.availableContexts[0].permissions);
                       
                       response.availableContexts[0].permissions=response.permissions;
 
-                      console.log('..................combined permissions are:',response.availableContexts[0].permissions);
+                    //  console.log('..................combined permissions are:',response.availableContexts[0].permissions);
                       //end 
                 //     //added
                     this.saveActiveContext(response.availableContexts[0]);
@@ -602,46 +604,82 @@ getClientId(): number | null {
 
     
     // --- Active Context Management ---
-    private saveActiveContext(context: AvailableContext | null): void {
-     
-        console.log('saving context:',context);
-      
-        if (context) {
-            localStorage.setItem(this.ACTIVE_CONTEXT_KEY, JSON.stringify(context));
-        } else {
-            localStorage.removeItem(this.ACTIVE_CONTEXT_KEY); 
-        }
-        this._activeContext.next(context); // Emit the new active context
+   private saveActiveContext(
+    context: AvailableContext | null
+): void {
+
+    console.log(
+        'saving context:',
+        context
+    );
+
+    if (context) {
+
+        localStorage.setItem(
+            this.ACTIVE_CONTEXT_KEY,
+            JSON.stringify(context)
+        );
+
+    } else {
+
+        localStorage.removeItem(
+            this.ACTIVE_CONTEXT_KEY
+        );
     }
 
-   // Inside your auth.service.ts constructor or session initialization helper:
-  public loadActiveContext(): boolean {
-  const savedRole = localStorage.getItem('active_context_role');
-  const savedTenantId = localStorage.getItem('tenant_id');
-  
-  if (savedRole && savedTenantId) {
-     const savedPermissions = localStorage.getItem('user_permissions');
-     
-     const restoredContext: AvailableContext = {
-        tenantId: Number(savedTenantId),
-        displayName: localStorage.getItem('user_display_name') || 'SuperAdmin',
-        tenantName: localStorage.getItem('active_tenant_name') || 'Spoofed Workspace',
-        tenantType: localStorage.getItem('tenant_type') || 'SYSTEM',
-        roleName: savedRole, 
-        permissions: savedPermissions ? JSON.parse(savedPermissions) : []
-     };
-
-     // 1. Broadcast the object to your topbar async pipes
-     this._activeContext.next(restoredContext);
-
-     // 2. 🚨 CRITICAL FRONTEND FIX: Force your global permissions checker to parse the new storage claims instantly on boot!
-     this.updateCurrentUserRoleAndPermissions(); 
-
-     return true; 
-  }
-  return false; 
+    this._activeContext.next(context);
 }
 
+   // Inside your auth.service.ts constructor or session initialization helper:
+   public loadActiveContext(): boolean {
+
+    const savedContext =
+        localStorage.getItem(this.ACTIVE_CONTEXT_KEY);
+
+    if (!savedContext) {
+        return false;
+    }
+
+    try {
+
+        const restoredContext: AvailableContext =
+            JSON.parse(savedContext);
+
+        if (
+            !restoredContext ||
+            restoredContext.tenantId === undefined ||
+            !restoredContext.roleName
+        ) {
+            return false;
+        }
+
+        console.log(
+            'Restored active context:',
+            restoredContext
+        );
+
+        this._activeContext.next(
+            restoredContext
+        );
+
+        this.updateCurrentUserRoleAndPermissions();
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            'Failed to restore active context:',
+            error
+        );
+
+        localStorage.removeItem(
+            this.ACTIVE_CONTEXT_KEY
+        );
+
+        return false;
+    }
+}
 
 
 
@@ -649,30 +687,68 @@ getClientId(): number | null {
 
     // --- NEW: Method to get all available contexts after initial login ---
     getAvailableContexts(): AvailableContext[] | null {
-        
-        
-        const token = this.getAuthToken(); 
-        
-        if (!token) {
-            return null;
-        }
+
+    const savedContexts =
+        localStorage.getItem('available_contexts');
+
+    if (savedContexts) {
+
         try {
-            const decodedToken = jwtDecode<InitialJwtPayload>(token);
-            // Check if the token is an initial login token with availableContexts
-            console.log('checking for isarray (tokeken.avaialablecontexts):',Array.isArray(decodedToken.availableContexts));
-            
-            if (Array.isArray(decodedToken.availableContexts)) {
-                //alert('yes i got availablecontext in payload...'+decodedToken.availableContexts)
-                console.log('decodedToken.availableContexts:',decodedToken.availableContexts);
-                
-                return decodedToken.availableContexts;
-            }
-            return null; // Or throw an error if it's not the expected initial token
-        } catch (error) {
-            console.error('Error decoding JWT to get available contexts:', error);
-            return null;
+
+            return JSON.parse(
+                savedContexts
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                'Invalid stored available contexts:',
+                error
+            );
+
+            localStorage.removeItem(
+                'available_contexts'
+            );
         }
     }
+
+    const token =
+        this.getAuthToken();
+
+    if (!token) {
+        return null;
+    }
+
+    try {
+
+        const decodedToken =
+            jwtDecode<InitialJwtPayload>(
+                token
+            );
+
+        if (
+            Array.isArray(
+                decodedToken.availableContexts
+            )
+        ) {
+
+            return decodedToken.availableContexts;
+        }
+
+        return null;
+
+    }
+    catch (error) {
+
+        console.error(
+            'Error decoding JWT to get available contexts:',
+            error
+        );
+
+        return null;
+    }
+}
 
     setActiveContext(context: any): Observable<any> {
     console.log('setting Active context now....................');
@@ -1000,7 +1076,7 @@ public switchContext1(targetTenantId: number): Observable<any> {
   return this.http.post<any>('/login/select-context', payload).pipe(
    // Inside your frontend auth.service.ts -> switchContext1() method
 tap((response) => {
-      console.log('...................while switch response.permissions...............',response.permissions);
+      //console.log('...................while switch response.permissions...............',response.displayName);
     
       
   if (response && response.access_token) {

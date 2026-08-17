@@ -49,9 +49,9 @@ export class PurchaseMgrComponent implements OnInit {
   private permissionsService=inject(NgxPermissionsService)
 currentUserPermissions: string[] = [];
 
+xyz!:any;
 
-
-  ngOnInit(): void {
+  ngOnInit(): void { this.xyz=this.authServ.getUserRole();
     this.tenantId = this.authServ.getTenantId()!;
     this.getPOList();
 
