@@ -58,6 +58,11 @@ export class QuotationService {
     return this.http.post<IQuotation>(`${this.apiUrl}/${id}/counter-offer`, payload);
   }
 
+  submitClientApprove(id: number, payload: Partial<IQuotation>): Observable<IQuotation> {
+    console.log('..................4 in   ...........................................');
+    return this.http.post<IQuotation>(`${this.apiUrl}/${id}/client-approve`, payload);
+  }
+
   /**
    * 🌟 WHOLESALER ERP: Revise the pricing rules from internal dashboard 
    * Updates state to REVISED, preparing it back for Client Portal evaluation

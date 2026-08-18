@@ -67,6 +67,8 @@ export interface IQuotationWorkflow{
 
         canCounterOffer:boolean;
 
+        canClientApprove:boolean;
+
         canRevise:boolean;
 
         canChangeCustomer:boolean;

@@ -518,7 +518,65 @@ onSendClicked(): void {
       });
     }
   }
+
+  
+
+  
+  
+
+  async submitPortalClientApprove(): Promise<void> {
+
+    console.log('..................1   ...........................................');
+    
+    if (!this.form.valid) {
+      this.onErrorToast.emit({ severity: 'error', summary: 'Execution Truncated', detail: 'Please fill out all required fields before countering.' });
+      return;
+    }
+
+    const processedFormValue = { ...this.form.value };
+    const cleanPayload = {
+      ...this.model,
+      ...processedFormValue,
+      tenantId: this.tenantId,
+      status: 'CLIENT_APPROVED' 
+    };
+
+    if (!Array.isArray(cleanPayload.items) || cleanPayload.items.length === 0) {
+      this.onErrorToast.emit({ severity: 'error', summary: 'Schema Violation', detail: 'Must include at least one item line to negotiate.' });
+      return;
+    }
+console.log('..................2   ...........................................');
+    cleanPayload.items = cleanPayload.items.map((item: any) => ({
+      ...item,
+      productId: item.productId ? Number(item.productId) : null,
+      productVariantId: item.productVariantId ? Number(item.productVariantId) : null,
+      appliedLineDiscountId: item.appliedLineDiscountId ? Number(item.appliedLineDiscountId) : null,
+      quantity: Number(item.quantity || 0),
+      price: Number(item.price || 0),
+      targetPrice: item.targetPrice ? Number(item.targetPrice) : null,
+      discount: Number(item.discount || 0),
+      gstPercentage: Number(item.gstPercentage || 0),
+      totalItemAmount: Number(item.totalItemAmount || 0)
+    }));
+console.log('..................3   ...........................................');
+    try {
+      await firstValueFrom(this.quotationService.submitClientApprove(cleanPayload.id, cleanPayload));
+      this.onSaveSuccess.emit('Quotation has been Client_Approved successfully.');
+    } catch (err: any) {
+      this.onErrorToast.emit({ 
+        severity: 'error', 
+        summary: 'Portal Approval of Quotation Failure', 
+        detail: err.error?.message || err.message || 'Error executing price counter.' 
+      });
+    }
+  }
+
+
 }
+
+
+
+
 
 //preservations
 

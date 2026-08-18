@@ -1,3 +1,4 @@
+form.opMode:{{opMode}}
 <form [formGroup]="form" class="order-form"> 
   
   
@@ -36,6 +37,7 @@
       [disabled]="!form.valid">
     </p-button>
 
+
 <ng-container *ngxPermissionsOnly="['Quotation.SubmitToApprove']">
     <ng-container *ngIf="workflow?.actions?.canSubmitToApprove">
         <p-button
@@ -48,12 +50,32 @@
     </ng-container>
 </ng-container>
 
+
+
+ 
+
+    
+    
+<ng-container  *ngxPermissionsOnly="['Quotation.ClientApprove']">
+    <ng-container *ngIf="workflow?.actions?.canClientApprove">
+         <p-button
+      *ngIf="opMode === FormOpMode.PortalNegotiation"
+      type="button"
+      label="clientOnly: submitPortalClientApprove"
+      icon="pi pi-comments"
+      styleClass="p-button-warning"
+      (click)="submitPortalClientApprove()"
+      [disabled]="!form.valid">
+    </p-button>
+    </ng-container>
+</ng-container>
+
     <div>
   STATUS: {{ model?.status }}
   <br>
 
-  CAN canRevise:
-  {{ workflow?.actions?.canRevise }}
+  CAN canClientApprove:
+  {{ workflow?.actions?.canClientApprove }}
 
   <br> 
 
@@ -86,6 +108,7 @@
         </p-button>
     </ng-container>
 </ng-container>
+
 <ng-container *ngxPermissionsOnly="['Quotation.Send']">
     <ng-container *ngIf="workflow?.actions?.canSend">
         <p-button
