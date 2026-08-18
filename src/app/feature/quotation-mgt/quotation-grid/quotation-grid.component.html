@@ -1,3 +1,4 @@
+opmode:{{opMode}}
 <div class="quotation-section mb-0" *ngIf="quotations?.length">
   
   <p-dataView #dv 
@@ -46,7 +47,7 @@
                 <th style="width: 50px; padding: 8px 12px;" class="text-center">#</th>
                 <th style="padding: 8px 12px;">Quotation Ref</th>
                 <th style="padding: 8px 12px;">Customer Name</th>
-                <th style="padding: 8px 12px;">Contact Person</th>
+                <th style="padding: 8px 12px;">Client RFQ#</th>
                 <th style="padding: 8px 12px;">Gross Aggregate Total</th>
                 <th style="padding: 8px 12px;">Profile Created</th>
                 <th style="padding: 8px 12px;">Status</th>
@@ -73,7 +74,7 @@
                 </td>
                 
                 <!-- Contact Person -->
-                <td style="padding: 8px 12px;">{{ quote.contactPerson || 'N/A' }}</td>
+                <td style="padding: 8px 12px;">{{ quote.originatingClientRfqNumber || 'N/A' }}</td>
                 
                 <!-- Gross Aggregate Total -->
                 <td style="padding: 8px 12px;" class="font-bold">₹{{ (quote.totalAmount ?? 0) | number:'1.2-2' }}</td>
